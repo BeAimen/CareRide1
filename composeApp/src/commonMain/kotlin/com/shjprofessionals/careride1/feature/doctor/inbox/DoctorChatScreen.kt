@@ -1,4 +1,4 @@
-package com.careride.feature.doctor.inbox
+﻿package com.shjprofessionals.careride1.feature.doctor.inbox
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.slideInVertically
@@ -30,12 +30,12 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
-import com.careride.core.designsystem.components.ChatBubble
-import com.careride.core.designsystem.components.EmergencyDisclaimer
-import com.careride.core.designsystem.components.QuickReplyChip
-import com.careride.core.designsystem.theme.CareRideTheme
-import com.careride.domain.model.QuickReply
-import com.careride.domain.model.QuickReplyCategory
+import com.shjprofessionals.careride1.core.designsystem.components.ChatBubble
+import com.shjprofessionals.careride1.core.designsystem.components.EmergencyDisclaimer
+import com.shjprofessionals.careride1.core.designsystem.components.QuickReplyChip
+import com.shjprofessionals.careride1.core.designsystem.theme.CareRideTheme
+import com.shjprofessionals.careride1.domain.model.QuickReply
+import com.shjprofessionals.careride1.domain.model.QuickReplyCategory
 import org.koin.core.parameter.parametersOf
 
 data class DoctorChatScreen(

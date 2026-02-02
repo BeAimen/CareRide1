@@ -1,9 +1,9 @@
-package com.careride.data.repository
+﻿package com.shjprofessionals.careride1.data.repository
 
-import com.careride.data.fakebackend.FakeBackend
-import com.careride.domain.model.Doctor
-import com.careride.domain.model.Specialty
-import com.careride.domain.repository.DoctorRepository
+import com.shjprofessionals.careride1.data.fakebackend.FakeBackend
+import com.shjprofessionals.careride1.domain.model.Doctor
+import com.shjprofessionals.careride1.domain.model.Specialty
+import com.shjprofessionals.careride1.domain.repository.DoctorRepository
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow

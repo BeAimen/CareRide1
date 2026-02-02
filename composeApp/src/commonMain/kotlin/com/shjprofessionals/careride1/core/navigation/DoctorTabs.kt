@@ -1,4 +1,4 @@
-package com.careride.core.navigation
+﻿package com.shjprofessionals.careride1.core.navigation
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
@@ -11,9 +11,9 @@ import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.navigator.tab.Tab
 import cafe.adriel.voyager.navigator.tab.TabOptions
 import cafe.adriel.voyager.transitions.SlideTransition
-import com.careride.feature.doctor.boost.DoctorBoostTab
-import com.careride.feature.doctor.inbox.DoctorInboxTab
-import com.careride.feature.doctor.profile.DoctorProfileTab
+import com.shjprofessionals.careride1.feature.doctor.boost.DoctorBoostTab
+import com.shjprofessionals.careride1.feature.doctor.inbox.DoctorInboxTab
+import com.shjprofessionals.careride1.feature.doctor.profile.DoctorProfileTab
 
 object DoctorInboxNavTab : Tab {
     override val options: TabOptions

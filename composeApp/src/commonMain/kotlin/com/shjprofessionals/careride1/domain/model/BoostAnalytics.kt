@@ -1,4 +1,4 @@
-package com.careride.domain.model
+﻿package com.shjprofessionals.careride1.domain.model
 
 /**
  * Analytics data for doctor boost performance.

@@ -1,4 +1,4 @@
-package com.careride.domain.model
+﻿package com.shjprofessionals.careride1.domain.model
 
 /**
  * Represents available boost plans for doctors.
@@ -77,7 +77,7 @@ object BoostPlans {
     val ANNUAL = BoostPlan(
         id = "boost_annual",
         name = "Annual Pro",
-        description = "Best value — 2 months free",
+        description = "Best value â€” 2 months free",
         priceInCents = 99999, // $999.99/year (~$83.33/mo)
         billingPeriod = BillingPeriod.YEARLY,
         features = listOf(

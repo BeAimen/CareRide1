@@ -1,10 +1,10 @@
-package com.careride
+﻿package com.shjprofessionals.careride1
 
 import androidx.compose.runtime.Composable
 import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.transitions.SlideTransition
-import com.careride.core.designsystem.theme.CareRideTheme
-import com.careride.feature.onboarding.RoleSelectionScreen
+import com.shjprofessionals.careride1.core.designsystem.theme.CareRideTheme
+import com.shjprofessionals.careride1.feature.onboarding.RoleSelectionScreen
 import org.koin.compose.KoinContext
 
 @Composable

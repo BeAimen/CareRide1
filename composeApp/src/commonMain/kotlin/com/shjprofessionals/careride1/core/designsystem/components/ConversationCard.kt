@@ -1,4 +1,4 @@
-package com.careride.core.designsystem.components
+﻿package com.shjprofessionals.careride1.core.designsystem.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -14,8 +14,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.careride.core.designsystem.theme.CareRideTheme
-import com.careride.domain.model.Conversation
+import com.shjprofessionals.careride1.core.designsystem.theme.CareRideTheme
+import com.shjprofessionals.careride1.domain.model.Conversation
 
 @Composable
 fun ConversationCard(

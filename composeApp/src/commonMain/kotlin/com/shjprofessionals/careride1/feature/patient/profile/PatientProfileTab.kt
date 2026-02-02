@@ -1,4 +1,4 @@
-package com.careride.feature.patient.profile
+﻿package com.shjprofessionals.careride1.feature.patient.profile
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -16,10 +16,10 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
-import com.careride.core.designsystem.theme.CareRideTheme
-import com.careride.domain.model.SubscriptionStatus
-import com.careride.feature.patient.subscription.ManageSubscriptionScreen
-import com.careride.feature.patient.subscription.PaywallScreen
+import com.shjprofessionals.careride1.core.designsystem.theme.CareRideTheme
+import com.shjprofessionals.careride1.domain.model.SubscriptionStatus
+import com.shjprofessionals.careride1.feature.patient.subscription.ManageSubscriptionScreen
+import com.shjprofessionals.careride1.feature.patient.subscription.PaywallScreen
 
 class PatientProfileTab : Screen {
 

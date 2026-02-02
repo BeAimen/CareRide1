@@ -1,4 +1,4 @@
-package com.careride.core.designsystem.components
+﻿package com.shjprofessionals.careride1.core.designsystem.components
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
@@ -12,10 +12,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.careride.core.designsystem.theme.CareRideLightColors
-import com.careride.core.designsystem.theme.CareRideTheme
-import com.careride.domain.model.BillingPeriod
-import com.careride.domain.model.BoostPlan
+import com.shjprofessionals.careride1.core.designsystem.theme.CareRideLightColors
+import com.shjprofessionals.careride1.core.designsystem.theme.CareRideTheme
+import com.shjprofessionals.careride1.domain.model.BillingPeriod
+import com.shjprofessionals.careride1.domain.model.BoostPlan
 
 @Composable
 fun BoostPlanCard(

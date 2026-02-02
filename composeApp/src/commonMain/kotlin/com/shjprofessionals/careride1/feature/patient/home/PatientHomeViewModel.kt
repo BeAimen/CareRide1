@@ -1,9 +1,9 @@
-package com.careride.feature.patient.home
+﻿package com.shjprofessionals.careride1.feature.patient.home
 
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
-import com.careride.domain.model.Doctor
-import com.careride.domain.repository.DoctorRepository
+import com.shjprofessionals.careride1.domain.model.Doctor
+import com.shjprofessionals.careride1.domain.repository.DoctorRepository
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch

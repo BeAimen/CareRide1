@@ -1,8 +1,8 @@
-package com.careride.domain.repository
+﻿package com.shjprofessionals.careride1.domain.repository
 
-import com.careride.domain.model.PatientSubscription
-import com.careride.domain.model.SubscriptionPlan
-import com.careride.domain.model.SubscriptionStatus
+import com.shjprofessionals.careride1.domain.model.PatientSubscription
+import com.shjprofessionals.careride1.domain.model.SubscriptionPlan
+import com.shjprofessionals.careride1.domain.model.SubscriptionStatus
 import kotlinx.coroutines.flow.Flow
 
 /**

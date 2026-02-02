@@ -1,4 +1,4 @@
-package com.careride.core.designsystem.components
+﻿package com.shjprofessionals.careride1.core.designsystem.components
 
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.height
@@ -13,7 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
-import com.careride.core.designsystem.theme.CareRideTheme
+import com.shjprofessionals.careride1.core.designsystem.theme.CareRideTheme
 
 @Composable
 fun CareRidePrimaryButton(

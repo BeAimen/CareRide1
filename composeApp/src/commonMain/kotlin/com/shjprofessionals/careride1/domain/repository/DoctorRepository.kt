@@ -1,7 +1,7 @@
-package com.careride.domain.repository
+﻿package com.shjprofessionals.careride1.domain.repository
 
-import com.careride.domain.model.Doctor
-import com.careride.domain.model.Specialty
+import com.shjprofessionals.careride1.domain.model.Doctor
+import com.shjprofessionals.careride1.domain.model.Specialty
 import kotlinx.coroutines.flow.Flow
 
 interface DoctorRepository {

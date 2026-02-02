@@ -1,4 +1,4 @@
-package com.careride.feature.doctor.boost
+﻿package com.shjprofessionals.careride1.feature.doctor.boost
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -13,9 +13,11 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
-import com.careride.core.designsystem.components.*
-import com.careride.core.designsystem.theme.CareRideTheme
-import com.careride.domain.model.DoctorBoostStatus
+import com.shjprofessionals.careride1.core.designsystem.components.*
+import com.shjprofessionals.careride1.core.designsystem.theme.CareRideTheme
+import com.shjprofessionals.careride1.domain.model.DoctorBoostStatus
+import com.shjprofessionals.careride1.core.designsystem.components.AnalyticsCard
+import com.shjprofessionals.careride1.core.designsystem.components.BoostPlanCard
 
 class DoctorBoostTab : Screen {
 
@@ -48,7 +50,7 @@ class DoctorBoostTab : Screen {
 @Composable
 private fun DoctorBoostContent(
     state: DoctorBoostState,
-    onPlanSelect: (com.careride.domain.model.BoostPlan) -> Unit,
+    onPlanSelect: (com.shjprofessionals.careride1.domain.model.BoostPlan) -> Unit,
     onContinue: () -> Unit,
     onCancelClick: () -> Unit,
     onConfirmCancel: () -> Unit,
@@ -252,7 +254,7 @@ private fun DoctorBoostContent(
 }
 
 @Composable
-private fun AnalyticsSection(analytics: com.careride.domain.model.BoostAnalytics) {
+private fun AnalyticsSection(analytics: com.shjprofessionals.careride1.domain.model.BoostAnalytics) {
     SectionHeader(title = "Performance (${analytics.period.displayName})")
 
     Spacer(modifier = Modifier.height(CareRideTheme.spacing.sm))
@@ -312,9 +314,9 @@ private fun AnalyticsSection(analytics: com.careride.domain.model.BoostAnalytics
 
 @Composable
 private fun PlansSection(
-    plans: List<com.careride.domain.model.BoostPlan>,
-    selectedPlan: com.careride.domain.model.BoostPlan?,
-    onPlanSelect: (com.careride.domain.model.BoostPlan) -> Unit,
+    plans: List<com.shjprofessionals.careride1.domain.model.BoostPlan>,
+    selectedPlan: com.shjprofessionals.careride1.domain.model.BoostPlan?,
+    onPlanSelect: (com.shjprofessionals.careride1.domain.model.BoostPlan) -> Unit,
     showUpgrade: Boolean
 ) {
     SectionHeader(

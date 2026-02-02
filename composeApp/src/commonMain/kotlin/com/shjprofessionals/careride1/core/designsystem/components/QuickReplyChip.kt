@@ -1,4 +1,4 @@
-package com.careride.core.designsystem.components
+﻿package com.shjprofessionals.careride1.core.designsystem.components
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.padding
@@ -6,8 +6,8 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.careride.core.designsystem.theme.CareRideTheme
-import com.careride.domain.model.QuickReply
+import com.shjprofessionals.careride1.core.designsystem.theme.CareRideTheme
+import com.shjprofessionals.careride1.domain.model.QuickReply
 
 @Composable
 fun QuickReplyChip(

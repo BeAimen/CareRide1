@@ -1,9 +1,9 @@
-package com.careride.data.fakebackend
+﻿package com.shjprofessionals.careride1.data.fakebackend
 
-import com.careride.domain.model.PatientSubscription
-import com.careride.domain.model.SubscriptionPlan
-import com.careride.domain.model.SubscriptionRecordStatus
-import com.careride.domain.model.SubscriptionStatus
+import com.shjprofessionals.careride1.domain.model.PatientSubscription
+import com.shjprofessionals.careride1.domain.model.SubscriptionPlan
+import com.shjprofessionals.careride1.domain.model.SubscriptionRecordStatus
+import com.shjprofessionals.careride1.domain.model.SubscriptionStatus
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow

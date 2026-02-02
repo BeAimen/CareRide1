@@ -1,10 +1,10 @@
-package com.careride.data.repository
+﻿package com.shjprofessionals.careride1.data.repository
 
-import com.careride.data.fakebackend.FakeBackend
-import com.careride.domain.model.Conversation
-import com.careride.domain.model.Message
-import com.careride.domain.model.QuickReply
-import com.careride.domain.repository.MessageRepository
+import com.shjprofessionals.careride1.data.fakebackend.FakeBackend
+import com.shjprofessionals.careride1.domain.model.Conversation
+import com.shjprofessionals.careride1.domain.model.Message
+import com.shjprofessionals.careride1.domain.model.QuickReply
+import com.shjprofessionals.careride1.domain.repository.MessageRepository
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow

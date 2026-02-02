@@ -1,25 +1,25 @@
-package com.careride.core.di
+﻿package com.shjprofessionals.careride1.core.di
 
-import com.careride.data.repository.BoostRepositoryImpl
-import com.careride.data.repository.DoctorRepositoryImpl
-import com.careride.data.repository.MessageRepositoryImpl
-import com.careride.data.repository.SubscriptionRepositoryImpl
-import com.careride.domain.repository.BoostRepository
-import com.careride.domain.repository.DoctorRepository
-import com.careride.domain.repository.MessageRepository
-import com.careride.domain.repository.SubscriptionRepository
-import com.careride.feature.doctor.boost.DoctorBoostCheckoutViewModel
-import com.careride.feature.doctor.boost.DoctorBoostViewModel
-import com.careride.feature.doctor.inbox.DoctorChatViewModel
-import com.careride.feature.doctor.inbox.DoctorInboxViewModel
-import com.careride.feature.patient.doctorprofile.DoctorProfileViewModel
-import com.careride.feature.patient.home.PatientHomeViewModel
-import com.careride.feature.patient.messages.PatientChatViewModel
-import com.careride.feature.patient.messages.PatientMessagesViewModel
-import com.careride.feature.patient.profile.PatientProfileViewModel
-import com.careride.feature.patient.subscription.ManageSubscriptionViewModel
-import com.careride.feature.patient.subscription.MockCheckoutViewModel
-import com.careride.feature.patient.subscription.PaywallViewModel
+import com.shjprofessionals.careride1.data.repository.BoostRepositoryImpl
+import com.shjprofessionals.careride1.data.repository.DoctorRepositoryImpl
+import com.shjprofessionals.careride1.data.repository.MessageRepositoryImpl
+import com.shjprofessionals.careride1.data.repository.SubscriptionRepositoryImpl
+import com.shjprofessionals.careride1.domain.repository.BoostRepository
+import com.shjprofessionals.careride1.domain.repository.DoctorRepository
+import com.shjprofessionals.careride1.domain.repository.MessageRepository
+import com.shjprofessionals.careride1.domain.repository.SubscriptionRepository
+import com.shjprofessionals.careride1.feature.doctor.boost.DoctorBoostCheckoutViewModel
+import com.shjprofessionals.careride1.feature.doctor.boost.DoctorBoostViewModel
+import com.shjprofessionals.careride1.feature.doctor.inbox.DoctorChatViewModel
+import com.shjprofessionals.careride1.feature.doctor.inbox.DoctorInboxViewModel
+import com.shjprofessionals.careride1.feature.patient.doctorprofile.DoctorProfileViewModel
+import com.shjprofessionals.careride1.feature.patient.home.PatientHomeViewModel
+import com.shjprofessionals.careride1.feature.patient.messages.PatientChatViewModel
+import com.shjprofessionals.careride1.feature.patient.messages.PatientMessagesViewModel
+import com.shjprofessionals.careride1.feature.patient.profile.PatientProfileViewModel
+import com.shjprofessionals.careride1.feature.patient.subscription.ManageSubscriptionViewModel
+import com.shjprofessionals.careride1.feature.patient.subscription.MockCheckoutViewModel
+import com.shjprofessionals.careride1.feature.patient.subscription.PaywallViewModel
 import org.koin.dsl.module
 
 val appModule = module {

@@ -1,11 +1,11 @@
-package com.careride.data.fakebackend
+﻿package com.shjprofessionals.careride1.data.fakebackend
 
-import com.careride.domain.model.Conversation
-import com.careride.domain.model.Doctor
-import com.careride.domain.model.Message
-import com.careride.domain.model.MessageSenderType
-import com.careride.domain.model.QuickReplies
-import com.careride.domain.model.QuickReply
+import com.shjprofessionals.careride1.domain.model.Conversation
+import com.shjprofessionals.careride1.domain.model.Doctor
+import com.shjprofessionals.careride1.domain.model.Message
+import com.shjprofessionals.careride1.domain.model.MessageSenderType
+import com.shjprofessionals.careride1.domain.model.QuickReplies
+import com.shjprofessionals.careride1.domain.model.QuickReply
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -79,7 +79,7 @@ class FakeMessageStore {
                 conversationId = conv2Id,
                 senderId = currentPatientId,
                 senderType = MessageSenderType.PATIENT,
-                content = "Dr. Park, my child has a fever of 101°F. What should I do?",
+                content = "Dr. Park, my child has a fever of 101Â°F. What should I do?",
                 timestamp = now() - (24 * 60 * 60 * 1000),
                 isRead = true
             ),
@@ -88,7 +88,7 @@ class FakeMessageStore {
                 conversationId = conv2Id,
                 senderId = "doc_004",
                 senderType = MessageSenderType.DOCTOR,
-                content = "For a fever of 101°F, you can give children's acetaminophen or ibuprofen as directed. Make sure they stay hydrated. If the fever persists beyond 3 days or goes above 103°F, please bring them in.",
+                content = "For a fever of 101Â°F, you can give children's acetaminophen or ibuprofen as directed. Make sure they stay hydrated. If the fever persists beyond 3 days or goes above 103Â°F, please bring them in.",
                 timestamp = now() - (23 * 60 * 60 * 1000),
                 isRead = false
             )

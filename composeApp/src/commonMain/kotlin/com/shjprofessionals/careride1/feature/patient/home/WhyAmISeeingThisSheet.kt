@@ -1,4 +1,4 @@
-package com.careride.feature.patient.home
+﻿package com.shjprofessionals.careride1.feature.patient.home
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
@@ -9,9 +9,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.careride.core.designsystem.theme.CareRideLightColors
-import com.careride.core.designsystem.theme.CareRideTheme
-import com.careride.domain.model.Doctor
+import com.shjprofessionals.careride1.core.designsystem.theme.CareRideLightColors
+import com.shjprofessionals.careride1.core.designsystem.theme.CareRideTheme
+import com.shjprofessionals.careride1.domain.model.Doctor
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -113,7 +113,7 @@ fun WhyAmISeeingThisSheet(
                         verticalAlignment = Alignment.Top
                     ) {
                         Text(
-                            text = "ℹ️",
+                            text = "â„¹ï¸",
                             style = MaterialTheme.typography.bodyMedium
                         )
                         Spacer(modifier = Modifier.width(CareRideTheme.spacing.xs))

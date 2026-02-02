@@ -1,4 +1,4 @@
-package com.careride.core.designsystem.components
+﻿package com.shjprofessionals.careride1.core.designsystem.components
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Icon
@@ -10,7 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
-import com.careride.core.designsystem.theme.CareRideTheme
+import com.shjprofessionals.careride1.core.designsystem.theme.CareRideTheme
 
 @Composable
 fun InfoRow(

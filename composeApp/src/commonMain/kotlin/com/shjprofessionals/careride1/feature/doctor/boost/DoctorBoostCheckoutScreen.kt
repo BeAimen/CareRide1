@@ -1,4 +1,4 @@
-package com.careride.feature.doctor.boost
+﻿package com.shjprofessionals.careride1.feature.doctor.boost
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -19,11 +19,11 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
-import com.careride.core.designsystem.components.CareRidePrimaryButton
-import com.careride.core.designsystem.components.CareRideSecondaryButton
-import com.careride.core.designsystem.theme.CareRideLightColors
-import com.careride.core.designsystem.theme.CareRideTheme
-import com.careride.domain.model.DoctorBoostStatus
+import com.shjprofessionals.careride1.core.designsystem.components.CareRidePrimaryButton
+import com.shjprofessionals.careride1.core.designsystem.components.CareRideSecondaryButton
+import com.shjprofessionals.careride1.core.designsystem.theme.CareRideLightColors
+import com.shjprofessionals.careride1.core.designsystem.theme.CareRideTheme
+import com.shjprofessionals.careride1.domain.model.DoctorBoostStatus
 import org.koin.core.parameter.parametersOf
 
 data class DoctorBoostCheckoutScreen(
@@ -148,7 +148,7 @@ private fun ReviewStep(
                     .padding(CareRideTheme.spacing.sm),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(text = "🧪", style = MaterialTheme.typography.titleMedium)
+                Text(text = "ðŸ§ª", style = MaterialTheme.typography.titleMedium)
                 Spacer(modifier = Modifier.width(CareRideTheme.spacing.sm))
                 Text(
                     text = "This is a mock checkout. No real payment will be processed.",
@@ -261,14 +261,14 @@ private fun ReviewStep(
                     .padding(CareRideTheme.spacing.md)
             ) {
                 Text(
-                    text = "✨ What you get",
+                    text = "âœ¨ What you get",
                     style = MaterialTheme.typography.titleSmall,
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 Spacer(modifier = Modifier.height(CareRideTheme.spacing.sm))
                 plan.features.forEach { feature ->
                     Text(
-                        text = "• $feature",
+                        text = "â€¢ $feature",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )

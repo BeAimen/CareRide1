@@ -1,11 +1,11 @@
-package com.careride.feature.doctor.boost
+﻿package com.shjprofessionals.careride1.feature.doctor.boost
 
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
-import com.careride.domain.model.BoostAnalytics
-import com.careride.domain.model.BoostPlan
-import com.careride.domain.model.DoctorBoostStatus
-import com.careride.domain.repository.BoostRepository
+import com.shjprofessionals.careride1.domain.model.BoostAnalytics
+import com.shjprofessionals.careride1.domain.model.BoostPlan
+import com.shjprofessionals.careride1.domain.model.DoctorBoostStatus
+import com.shjprofessionals.careride1.domain.repository.BoostRepository
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 

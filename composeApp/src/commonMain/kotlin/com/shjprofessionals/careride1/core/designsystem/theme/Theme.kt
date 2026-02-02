@@ -1,4 +1,4 @@
-package com.careride.core.designsystem.theme
+﻿package com.shjprofessionals.careride1.core.designsystem.theme
 
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme

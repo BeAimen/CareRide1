@@ -1,4 +1,4 @@
-package com.careride.core.designsystem.components
+﻿package com.shjprofessionals.careride1.core.designsystem.components
 
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
@@ -13,7 +13,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.unit.dp
-import com.careride.core.designsystem.theme.CareRideTheme
+import com.shjprofessionals.careride1.core.designsystem.theme.CareRideTheme
 
 @Composable
 fun DoctorCardSkeleton(

@@ -1,4 +1,4 @@
-package com.careride.feature.patient.subscription
+﻿package com.shjprofessionals.careride1.feature.patient.subscription
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
@@ -13,12 +13,12 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
-import com.careride.core.designsystem.components.CareRidePrimaryButton
-import com.careride.core.designsystem.components.CareRideSecondaryButton
-import com.careride.core.designsystem.components.InfoRow
-import com.careride.core.designsystem.components.SectionHeader
-import com.careride.core.designsystem.theme.CareRideTheme
-import com.careride.domain.model.SubscriptionStatus
+import com.shjprofessionals.careride1.core.designsystem.components.CareRidePrimaryButton
+import com.shjprofessionals.careride1.core.designsystem.components.CareRideSecondaryButton
+import com.shjprofessionals.careride1.core.designsystem.components.InfoRow
+import com.shjprofessionals.careride1.core.designsystem.components.SectionHeader
+import com.shjprofessionals.careride1.core.designsystem.theme.CareRideTheme
+import com.shjprofessionals.careride1.domain.model.SubscriptionStatus
 
 class ManageSubscriptionScreen : Screen {
 

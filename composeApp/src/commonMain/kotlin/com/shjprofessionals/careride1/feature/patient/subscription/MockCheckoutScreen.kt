@@ -1,4 +1,4 @@
-package com.careride.feature.patient.subscription
+﻿package com.shjprofessionals.careride1.feature.patient.subscription
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -19,10 +19,10 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
-import com.careride.core.designsystem.components.CareRidePrimaryButton
-import com.careride.core.designsystem.components.CareRideSecondaryButton
-import com.careride.core.designsystem.theme.CareRideTheme
-import com.careride.domain.model.SubscriptionStatus
+import com.shjprofessionals.careride1.core.designsystem.components.CareRidePrimaryButton
+import com.shjprofessionals.careride1.core.designsystem.components.CareRideSecondaryButton
+import com.shjprofessionals.careride1.core.designsystem.theme.CareRideTheme
+import com.shjprofessionals.careride1.domain.model.SubscriptionStatus
 import org.koin.core.parameter.parametersOf
 
 data class MockCheckoutScreen(
@@ -155,7 +155,7 @@ private fun ReviewStep(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "🧪",
+                    text = "ðŸ§ª",
                     style = MaterialTheme.typography.titleMedium
                 )
                 Spacer(modifier = Modifier.width(CareRideTheme.spacing.sm))
@@ -252,7 +252,7 @@ private fun ReviewStep(
                     .padding(CareRideTheme.spacing.md)
             ) {
                 Text(
-                    text = "📅 Renewal Information",
+                    text = "ðŸ“… Renewal Information",
                     style = MaterialTheme.typography.titleSmall,
                     color = MaterialTheme.colorScheme.onSurface
                 )

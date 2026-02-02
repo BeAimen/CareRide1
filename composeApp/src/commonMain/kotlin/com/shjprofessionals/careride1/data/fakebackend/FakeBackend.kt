@@ -1,9 +1,9 @@
-package com.careride.data.fakebackend
+﻿package com.shjprofessionals.careride1.data.fakebackend
 
-import com.careride.domain.model.Doctor
-import com.careride.domain.model.Specialty
-import com.careride.domain.model.SubscriptionPlan
-import com.careride.domain.model.SubscriptionPlans
+import com.shjprofessionals.careride1.domain.model.Doctor
+import com.shjprofessionals.careride1.domain.model.Specialty
+import com.shjprofessionals.careride1.domain.model.SubscriptionPlan
+import com.shjprofessionals.careride1.domain.model.SubscriptionPlans
 
 /**
  * In-memory fake backend for development.

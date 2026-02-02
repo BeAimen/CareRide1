@@ -1,7 +1,7 @@
-package com.careride.data.fakebackend
+﻿package com.shjprofessionals.careride1.data.fakebackend
 
-import com.careride.domain.model.SubscriptionPlans
-import com.careride.domain.model.SubscriptionStatus
+import com.shjprofessionals.careride1.domain.model.SubscriptionPlans
+import com.shjprofessionals.careride1.domain.model.SubscriptionStatus
 
 /**
  * Helper for testing subscription flows.

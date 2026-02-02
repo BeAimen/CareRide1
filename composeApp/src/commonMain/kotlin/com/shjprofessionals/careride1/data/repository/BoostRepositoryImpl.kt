@@ -1,11 +1,11 @@
-package com.careride.data.repository
+﻿package com.shjprofessionals.careride1.data.repository
 
-import com.careride.data.fakebackend.FakeBackend
-import com.careride.domain.model.BoostAnalytics
-import com.careride.domain.model.BoostPlan
-import com.careride.domain.model.BoostPlans
-import com.careride.domain.model.DoctorBoostStatus
-import com.careride.domain.repository.BoostRepository
+import com.shjprofessionals.careride1.data.fakebackend.FakeBackend
+import com.shjprofessionals.careride1.domain.model.BoostAnalytics
+import com.shjprofessionals.careride1.domain.model.BoostPlan
+import com.shjprofessionals.careride1.domain.model.BoostPlans
+import com.shjprofessionals.careride1.domain.model.DoctorBoostStatus
+import com.shjprofessionals.careride1.domain.repository.BoostRepository
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 

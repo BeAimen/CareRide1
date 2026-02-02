@@ -1,11 +1,11 @@
-package com.careride.data.fakebackend
+﻿package com.shjprofessionals.careride1.data.fakebackend
 
-import com.careride.domain.model.AnalyticsPeriod
-import com.careride.domain.model.BillingPeriod
-import com.careride.domain.model.BoostAnalytics
-import com.careride.domain.model.BoostPlan
-import com.careride.domain.model.DoctorBoost
-import com.careride.domain.model.DoctorBoostStatus
+import com.shjprofessionals.careride1.domain.model.AnalyticsPeriod
+import com.shjprofessionals.careride1.domain.model.BillingPeriod
+import com.shjprofessionals.careride1.domain.model.BoostAnalytics
+import com.shjprofessionals.careride1.domain.model.BoostPlan
+import com.shjprofessionals.careride1.domain.model.DoctorBoost
+import com.shjprofessionals.careride1.domain.model.DoctorBoostStatus
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow

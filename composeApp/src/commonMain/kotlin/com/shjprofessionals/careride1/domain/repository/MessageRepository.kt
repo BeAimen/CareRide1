@@ -1,8 +1,8 @@
-package com.careride.domain.repository
+﻿package com.shjprofessionals.careride1.domain.repository
 
-import com.careride.domain.model.Conversation
-import com.careride.domain.model.Message
-import com.careride.domain.model.QuickReply
+import com.shjprofessionals.careride1.domain.model.Conversation
+import com.shjprofessionals.careride1.domain.model.Message
+import com.shjprofessionals.careride1.domain.model.QuickReply
 import kotlinx.coroutines.flow.Flow
 
 interface MessageRepository {

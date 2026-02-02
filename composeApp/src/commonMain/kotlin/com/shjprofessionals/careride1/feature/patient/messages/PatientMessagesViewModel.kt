@@ -1,11 +1,11 @@
-package com.careride.feature.patient.messages
+﻿package com.shjprofessionals.careride1.feature.patient.messages
 
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
-import com.careride.domain.model.Conversation
-import com.careride.domain.model.SubscriptionStatus
-import com.careride.domain.repository.MessageRepository
-import com.careride.domain.repository.SubscriptionRepository
+import com.shjprofessionals.careride1.domain.model.Conversation
+import com.shjprofessionals.careride1.domain.model.SubscriptionStatus
+import com.shjprofessionals.careride1.domain.repository.MessageRepository
+import com.shjprofessionals.careride1.domain.repository.SubscriptionRepository
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 

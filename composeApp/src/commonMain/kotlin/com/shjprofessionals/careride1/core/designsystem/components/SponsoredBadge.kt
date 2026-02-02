@@ -1,4 +1,4 @@
-package com.careride.core.designsystem.components
+﻿package com.shjprofessionals.careride1.core.designsystem.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Row
@@ -16,8 +16,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
-import com.careride.core.designsystem.theme.CareRideLightColors
-import com.careride.core.designsystem.theme.CareRideTheme
+import com.shjprofessionals.careride1.core.designsystem.theme.CareRideLightColors
+import com.shjprofessionals.careride1.core.designsystem.theme.CareRideTheme
 
 @Composable
 fun SponsoredBadge(

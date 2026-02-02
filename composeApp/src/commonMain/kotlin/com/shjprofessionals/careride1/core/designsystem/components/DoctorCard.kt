@@ -1,4 +1,4 @@
-package com.careride.core.designsystem.components
+﻿package com.shjprofessionals.careride1.core.designsystem.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -18,9 +18,9 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.careride.core.designsystem.theme.CareRideTheme
-import com.careride.domain.model.Doctor
-import com.careride.core.designsystem.theme.CareRideLightColors
+import com.shjprofessionals.careride1.core.designsystem.theme.CareRideTheme
+import com.shjprofessionals.careride1.domain.model.Doctor
+import com.shjprofessionals.careride1.core.designsystem.theme.CareRideLightColors
 
 @Composable
 fun DoctorCard(
@@ -149,7 +149,7 @@ fun DoctorCard(
                     if (doctor.isAvailableToday) {
                         Spacer(modifier = Modifier.width(CareRideTheme.spacing.sm))
                         Text(
-                            text = "• Available today",
+                            text = "â€¢ Available today",
                             style = MaterialTheme.typography.labelMedium,
                             color = MaterialTheme.colorScheme.secondary
                         )

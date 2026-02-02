@@ -1,4 +1,4 @@
-package com.careride.feature.doctor.profile
+﻿package com.shjprofessionals.careride1.feature.doctor.profile
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
@@ -6,7 +6,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import cafe.adriel.voyager.core.screen.Screen
-import com.careride.core.designsystem.theme.CareRideTheme
+import com.shjprofessionals.careride1.core.designsystem.theme.CareRideTheme
 
 class DoctorProfileTab : Screen {
 

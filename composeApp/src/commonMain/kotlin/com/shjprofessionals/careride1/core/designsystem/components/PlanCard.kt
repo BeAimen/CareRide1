@@ -1,4 +1,4 @@
-package com.careride.core.designsystem.components
+﻿package com.shjprofessionals.careride1.core.designsystem.components
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
@@ -14,8 +14,8 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.careride.core.designsystem.theme.CareRideTheme
-import com.careride.domain.model.SubscriptionPlan
+import com.shjprofessionals.careride1.core.designsystem.theme.CareRideTheme
+import com.shjprofessionals.careride1.domain.model.SubscriptionPlan
 
 @Composable
 fun PlanCard(
@@ -115,7 +115,7 @@ fun PlanCard(
             }
 
             // Monthly equivalent for yearly
-            if (plan.billingPeriod == com.careride.domain.model.BillingPeriod.YEARLY) {
+            if (plan.billingPeriod == com.shjprofessionals.careride1.domain.model.BillingPeriod.YEARLY) {
                 Text(
                     text = "Just ${plan.monthlyEquivalentDisplay}",
                     style = MaterialTheme.typography.labelMedium,

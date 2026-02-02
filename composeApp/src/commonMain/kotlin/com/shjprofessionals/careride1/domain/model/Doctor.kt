@@ -1,4 +1,4 @@
-package com.careride.domain.model
+﻿package com.shjprofessionals.careride1.domain.model
 
 data class Doctor(
     val id: String,

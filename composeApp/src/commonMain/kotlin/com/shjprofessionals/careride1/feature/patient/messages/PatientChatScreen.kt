@@ -1,4 +1,4 @@
-package com.careride.feature.patient.messages
+﻿package com.shjprofessionals.careride1.feature.patient.messages
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -19,11 +19,11 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
-import com.careride.core.designsystem.components.ChatBubble
-import com.careride.core.designsystem.components.EmergencyDisclaimer
-import com.careride.core.designsystem.components.MessageInput
-import com.careride.core.designsystem.theme.CareRideTheme
-import com.careride.feature.patient.subscription.PaywallScreen
+import com.shjprofessionals.careride1.core.designsystem.components.ChatBubble
+import com.shjprofessionals.careride1.core.designsystem.components.EmergencyDisclaimer
+import com.shjprofessionals.careride1.core.designsystem.components.MessageInput
+import com.shjprofessionals.careride1.core.designsystem.theme.CareRideTheme
+import com.shjprofessionals.careride1.feature.patient.subscription.PaywallScreen
 import org.koin.core.parameter.parametersOf
 
 data class PatientChatScreen(

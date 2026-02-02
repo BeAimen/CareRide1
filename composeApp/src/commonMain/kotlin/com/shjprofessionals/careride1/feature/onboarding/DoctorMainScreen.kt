@@ -1,4 +1,4 @@
-package com.careride.feature.onboarding
+﻿package com.shjprofessionals.careride1.feature.onboarding
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.RowScope
@@ -11,9 +11,9 @@ import cafe.adriel.voyager.navigator.tab.CurrentTab
 import cafe.adriel.voyager.navigator.tab.LocalTabNavigator
 import cafe.adriel.voyager.navigator.tab.Tab
 import cafe.adriel.voyager.navigator.tab.TabNavigator
-import com.careride.core.navigation.DoctorBoostNavTab
-import com.careride.core.navigation.DoctorInboxNavTab
-import com.careride.core.navigation.DoctorProfileNavTab
+import com.shjprofessionals.careride1.core.navigation.DoctorBoostNavTab
+import com.shjprofessionals.careride1.core.navigation.DoctorInboxNavTab
+import com.shjprofessionals.careride1.core.navigation.DoctorProfileNavTab
 
 class DoctorMainScreen : Screen {
 

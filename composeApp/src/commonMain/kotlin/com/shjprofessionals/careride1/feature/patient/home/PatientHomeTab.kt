@@ -1,4 +1,4 @@
-package com.careride.feature.patient.home
+﻿package com.shjprofessionals.careride1.feature.patient.home
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -12,10 +12,10 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
-import com.careride.core.designsystem.components.*
-import com.careride.core.designsystem.theme.CareRideTheme
-import com.careride.domain.model.Doctor
-import com.careride.feature.patient.doctorprofile.DoctorProfileScreen
+import com.shjprofessionals.careride1.core.designsystem.components.*
+import com.shjprofessionals.careride1.core.designsystem.theme.CareRideTheme
+import com.shjprofessionals.careride1.domain.model.Doctor
+import com.shjprofessionals.careride1.feature.patient.doctorprofile.DoctorProfileScreen
 
 class PatientHomeTab : Screen {
 

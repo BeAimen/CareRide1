@@ -1,4 +1,4 @@
-package com.careride.feature.patient.doctorprofile
+﻿package com.shjprofessionals.careride1.feature.patient.doctorprofile
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -24,12 +24,12 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
-import com.careride.core.designsystem.components.*
-import com.careride.core.designsystem.theme.CareRideLightColors
-import com.careride.core.designsystem.theme.CareRideTheme
-import com.careride.domain.model.Doctor
-import com.careride.feature.patient.messages.PatientChatScreen
-import com.careride.feature.patient.subscription.PaywallScreen
+import com.shjprofessionals.careride1.core.designsystem.components.*
+import com.shjprofessionals.careride1.core.designsystem.theme.CareRideLightColors
+import com.shjprofessionals.careride1.core.designsystem.theme.CareRideTheme
+import com.shjprofessionals.careride1.domain.model.Doctor
+import com.shjprofessionals.careride1.feature.patient.messages.PatientChatScreen
+import com.shjprofessionals.careride1.feature.patient.subscription.PaywallScreen
 import org.koin.core.parameter.parametersOf
 
 data class DoctorProfileScreen(

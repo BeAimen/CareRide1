@@ -1,4 +1,4 @@
-package com.careride.domain.model
+﻿package com.shjprofessionals.careride1.domain.model
 
 /**
  * Represents available subscription plans for patients.
@@ -63,7 +63,7 @@ object SubscriptionPlans {
     val YEARLY = SubscriptionPlan(
         id = "plan_yearly",
         name = "Annual",
-        description = "Best value — save 33%",
+        description = "Best value â€” save 33%",
         priceInCents = 15999, // $159.99 ($13.33/mo)
         billingPeriod = BillingPeriod.YEARLY,
         features = listOf(

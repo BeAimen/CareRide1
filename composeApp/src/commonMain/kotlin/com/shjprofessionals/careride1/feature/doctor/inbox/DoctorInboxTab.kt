@@ -1,4 +1,4 @@
-package com.careride.feature.doctor.inbox
+﻿package com.shjprofessionals.careride1.feature.doctor.inbox
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -22,10 +22,10 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
-import com.careride.core.designsystem.components.EmptyState
-import com.careride.core.designsystem.components.ErrorState
-import com.careride.core.designsystem.theme.CareRideTheme
-import com.careride.domain.model.Conversation
+import com.shjprofessionals.careride1.core.designsystem.components.EmptyState
+import com.shjprofessionals.careride1.core.designsystem.components.ErrorState
+import com.shjprofessionals.careride1.core.designsystem.theme.CareRideTheme
+import com.shjprofessionals.careride1.domain.model.Conversation
 
 class DoctorInboxTab : Screen {
 

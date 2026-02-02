@@ -1,4 +1,4 @@
-package com.careride.feature.patient.subscription
+﻿package com.shjprofessionals.careride1.feature.patient.subscription
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -15,10 +15,10 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
-import com.careride.core.designsystem.components.CareRidePrimaryButton
-import com.careride.core.designsystem.components.PlanCard
-import com.careride.core.designsystem.theme.CareRideTheme
-import com.careride.domain.model.SubscriptionStatus
+import com.shjprofessionals.careride1.core.designsystem.components.CareRidePrimaryButton
+import com.shjprofessionals.careride1.core.designsystem.components.PlanCard
+import com.shjprofessionals.careride1.core.designsystem.theme.CareRideTheme
+import com.shjprofessionals.careride1.domain.model.SubscriptionStatus
 
 class PaywallScreen : Screen {
 
@@ -55,7 +55,7 @@ class PaywallScreen : Screen {
 private fun PaywallContent(
     state: PaywallState,
     onBackClick: () -> Unit,
-    onPlanSelect: (com.careride.domain.model.SubscriptionPlan) -> Unit,
+    onPlanSelect: (com.shjprofessionals.careride1.domain.model.SubscriptionPlan) -> Unit,
     onContinue: () -> Unit,
     onRestorePurchases: () -> Unit,
     onDismissMessage: () -> Unit

@@ -1,4 +1,4 @@
-package com.careride.feature.patient.doctorprofile
+﻿package com.shjprofessionals.careride1.feature.patient.doctorprofile
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
@@ -9,9 +9,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.careride.core.designsystem.components.CareRidePrimaryButton
-import com.careride.core.designsystem.components.CareRideSecondaryButton
-import com.careride.core.designsystem.theme.CareRideTheme
+import com.shjprofessionals.careride1.core.designsystem.components.CareRidePrimaryButton
+import com.shjprofessionals.careride1.core.designsystem.components.CareRideSecondaryButton
+import com.shjprofessionals.careride1.core.designsystem.theme.CareRideTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -118,7 +118,7 @@ private fun BenefitItem(text: String) {
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
-            text = "✓",
+            text = "âœ“",
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.primary
         )
