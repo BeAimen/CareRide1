@@ -1,4 +1,3 @@
-import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
@@ -6,15 +5,18 @@ plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
+    //alias(libs.plugins.googleServices)
+
+    //kotlin("plugin.serialization") version libs.versions.kotlin.get()
 }
 
 kotlin {
     androidTarget {
         compilerOptions {
-            jvmTarget.set(JvmTarget.JVM_11)
+            jvmTarget.set(JvmTarget.JVM_17)
         }
     }
-    
+
     listOf(
         iosArm64(),
         iosSimulatorArm64()
@@ -24,21 +26,43 @@ kotlin {
             isStatic = true
         }
     }
-    
+
     sourceSets {
         androidMain.dependencies {
-            implementation(libs.compose.uiToolingPreview)
+            implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
+
+            implementation(libs.koin.android)
         }
         commonMain.dependencies {
-            implementation(libs.compose.runtime)
-            implementation(libs.compose.foundation)
-            implementation(libs.compose.material3)
-            implementation(libs.compose.ui)
-            implementation(libs.compose.components.resources)
-            implementation(libs.compose.uiToolingPreview)
+            implementation(compose.runtime)
+            implementation(compose.foundation)
+            implementation(compose.material3)
+            implementation(compose.ui)
+            implementation(compose.components.resources)
+            implementation(compose.components.uiToolingPreview)
             implementation(libs.androidx.lifecycle.viewmodelCompose)
             implementation(libs.androidx.lifecycle.runtimeCompose)
+
+            //implementation(libs.serialization.json)
+            implementation(compose.materialIconsExtended)
+
+            //implementation(libs.firebase.auth)
+            //implementation(libs.firebase.firestore)
+            //implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
+
+            implementation(libs.voyager.navigator)
+            implementation(libs.voyager.transitions)
+            implementation(libs.voyager.screenModel)
+            implementation(libs.voyager.tab.navigator)
+            implementation(libs.voyager.koin)
+
+            implementation(libs.koin.core)
+            implementation(libs.koin.compose)
+
+            implementation(libs.date.time.picker)
+
+            implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.7.1")
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
@@ -68,12 +92,11 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
 }
 
 dependencies {
-    debugImplementation(libs.compose.uiTooling)
+    debugImplementation(compose.uiTooling)
 }
-

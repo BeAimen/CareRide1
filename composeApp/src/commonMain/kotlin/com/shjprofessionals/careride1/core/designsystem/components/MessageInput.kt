@@ -1,0 +1,129 @@
+package com.careride.core.designsystem.components
+
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Send
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material3.*
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.unit.dp
+import com.careride.core.designsystem.theme.CareRideTheme
+
+@Composable
+fun MessageInput(
+    value: String,
+    onValueChange: (String) -> Unit,
+    onSend: () -> Unit,
+    enabled: Boolean,
+    onSubscribeClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Surface(
+        shadowElevation = CareRideTheme.elevation.md,
+        color = MaterialTheme.colorScheme.surface,
+        modifier = modifier
+    ) {
+        if (enabled) {
+            EnabledMessageInput(
+                value = value,
+                onValueChange = onValueChange,
+                onSend = onSend
+            )
+        } else {
+            DisabledMessageInput(
+                onSubscribeClick = onSubscribeClick
+            )
+        }
+    }
+}
+
+@Composable
+private fun EnabledMessageInput(
+    value: String,
+    onValueChange: (String) -> Unit,
+    onSend: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(CareRideTheme.spacing.sm),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        TextField(
+            value = value,
+            onValueChange = onValueChange,
+            modifier = Modifier.weight(1f),
+            placeholder = {
+                Text(
+                    text = "Type a message...",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            },
+            shape = RoundedCornerShape(CareRideTheme.radii.xl),
+            colors = TextFieldDefaults.colors(
+                focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                focusedIndicatorColor = Color.Transparent,
+                unfocusedIndicatorColor = Color.Transparent
+            ),
+            singleLine = false,
+            maxLines = 4,
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
+            keyboardActions = KeyboardActions(onSend = { if (value.isNotBlank()) onSend() })
+        )
+
+        Spacer(modifier = Modifier.width(CareRideTheme.spacing.xs))
+
+        FilledIconButton(
+            onClick = onSend,
+            enabled = value.isNotBlank(),
+            modifier = Modifier.size(48.dp)
+        ) {
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.Send,
+                contentDescription = "Send message"
+            )
+        }
+    }
+}
+
+@Composable
+private fun DisabledMessageInput(
+    onSubscribeClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(CareRideTheme.spacing.sm),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Center
+    ) {
+        Icon(
+            imageVector = Icons.Default.Lock,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.size(20.dp)
+        )
+
+        Spacer(modifier = Modifier.width(CareRideTheme.spacing.sm))
+
+        Text(
+            text = "Subscribe to send messages",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+
+        Spacer(modifier = Modifier.width(CareRideTheme.spacing.sm))
+
+        TextButton(onClick = onSubscribeClick) {
+            Text("Subscribe")
+        }
+    }
+}

@@ -1,0 +1,38 @@
+package com.careride.core.designsystem.components
+
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.*
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import com.careride.core.designsystem.theme.CareRideTheme
+import com.careride.domain.model.QuickReply
+
+@Composable
+fun QuickReplyChip(
+    quickReply: QuickReply,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Surface(
+        onClick = onClick,
+        modifier = modifier,
+        shape = MaterialTheme.shapes.medium,
+        color = MaterialTheme.colorScheme.surface,
+        border = BorderStroke(
+            width = 1.dp,
+            color = MaterialTheme.colorScheme.primary
+        )
+    ) {
+        Text(
+            text = quickReply.label,
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.padding(
+                horizontal = CareRideTheme.spacing.sm,
+                vertical = CareRideTheme.spacing.xs
+            )
+        )
+    }
+}
