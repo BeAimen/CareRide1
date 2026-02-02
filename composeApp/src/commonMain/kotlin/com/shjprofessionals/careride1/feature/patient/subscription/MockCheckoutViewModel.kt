@@ -1,4 +1,7 @@
-﻿package com.shjprofessionals.careride1.feature.patient.subscription
+package com.shjprofessionals.careride1.feature.patient.subscription
+
+import com.shjprofessionals.careride1.core.util.AppError
+import com.shjprofessionals.careride1.core.util.toAppError
 
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
@@ -22,7 +25,7 @@ data class MockCheckoutState(
     val plan: SubscriptionPlan? = null,
     val step: CheckoutStep = CheckoutStep.REVIEW,
     val isLoading: Boolean = true,
-    val error: String? = null,
+    val error: AppError? = null,
     val subscriptionStatus: SubscriptionStatus? = null
 )
 
@@ -44,7 +47,7 @@ class MockCheckoutViewModel(
             it.copy(
                 plan = plan,
                 isLoading = false,
-                error = if (plan == null) "Invalid plan" else null
+                error = if (plan == null) AppError.Validation("Invalid plan") else null
             )
         }
     }
@@ -70,7 +73,7 @@ class MockCheckoutViewModel(
                     _state.update {
                         it.copy(
                             step = CheckoutStep.FAILURE,
-                            error = error.message ?: "Payment failed"
+                            error = error.toAppError()
                         )
                     }
                 }
@@ -84,7 +87,7 @@ class MockCheckoutViewModel(
             _state.update {
                 it.copy(
                     step = CheckoutStep.FAILURE,
-                    error = "Payment was declined. Please try again."
+                    error = AppError.Payment()
                 )
             }
         }
@@ -98,3 +101,4 @@ class MockCheckoutViewModel(
         _state.update { it.copy(step = CheckoutStep.REVIEW, error = null) }
     }
 }
+

@@ -1,4 +1,4 @@
-﻿package com.shjprofessionals.careride1.feature.doctor.boost
+package com.shjprofessionals.careride1.feature.doctor.boost
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState

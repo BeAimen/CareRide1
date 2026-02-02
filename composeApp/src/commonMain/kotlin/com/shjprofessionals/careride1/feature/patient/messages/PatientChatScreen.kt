@@ -1,4 +1,4 @@
-﻿package com.shjprofessionals.careride1.feature.patient.messages
+package com.shjprofessionals.careride1.feature.patient.messages
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*

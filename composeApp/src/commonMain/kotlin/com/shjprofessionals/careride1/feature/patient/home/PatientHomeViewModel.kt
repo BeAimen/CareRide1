@@ -1,19 +1,21 @@
-﻿package com.shjprofessionals.careride1.feature.patient.home
+package com.shjprofessionals.careride1.feature.patient.home
 
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
+import com.shjprofessionals.careride1.core.util.AppError
+import com.shjprofessionals.careride1.core.util.ErrorHandler
 import com.shjprofessionals.careride1.domain.model.Doctor
 import com.shjprofessionals.careride1.domain.repository.DoctorRepository
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-
+import com.shjprofessionals.careride1.core.util.toAppError
 data class PatientHomeState(
     val searchQuery: String = "",
     val doctors: List<Doctor> = emptyList(),
     val isLoading: Boolean = true,
-    val error: String? = null,
-    val selectedDoctorForInfo: Doctor? = null // For "Why am I seeing this?" sheet
+    val error: AppError? = null,
+    val selectedDoctorForInfo: Doctor? = null
 )
 
 @OptIn(FlowPreview::class)
@@ -45,7 +47,13 @@ class PatientHomeViewModel(
     private fun loadDoctors() {
         screenModelScope.launch {
             _state.update { it.copy(isLoading = true, error = null) }
-            try {
+
+            runCatchingWithHandler(
+                onError = { error ->
+                    _state.update { it.copy(isLoading = false, error = error) }
+                },
+                retryAction = ::loadDoctors
+            ) {
                 doctorRepository.getAllDoctors().collect { doctors ->
                     _state.update {
                         it.copy(
@@ -54,13 +62,6 @@ class PatientHomeViewModel(
                             error = null
                         )
                     }
-                }
-            } catch (e: Exception) {
-                _state.update {
-                    it.copy(
-                        isLoading = false,
-                        error = e.message ?: "Failed to load doctors"
-                    )
                 }
             }
         }
@@ -73,7 +74,13 @@ class PatientHomeViewModel(
 
     private suspend fun searchDoctors(query: String) {
         _state.update { it.copy(isLoading = true) }
-        try {
+
+        runCatchingWithHandler(
+            onError = { error ->
+                _state.update { it.copy(isLoading = false, error = error) }
+            },
+            retryAction = { screenModelScope.launch { searchDoctors(query) } }
+        ) {
             doctorRepository.searchDoctors(query).collect { doctors ->
                 _state.update {
                     it.copy(
@@ -83,17 +90,11 @@ class PatientHomeViewModel(
                     )
                 }
             }
-        } catch (e: Exception) {
-            _state.update {
-                it.copy(
-                    isLoading = false,
-                    error = e.message ?: "Search failed"
-                )
-            }
         }
     }
 
     fun onRetry() {
+        _state.update { it.copy(error = null) }
         if (_state.value.searchQuery.isEmpty()) {
             loadDoctors()
         } else {
@@ -109,5 +110,26 @@ class PatientHomeViewModel(
 
     fun hideWhyThisDoctor() {
         _state.update { it.copy(selectedDoctorForInfo = null) }
+    }
+
+    fun dismissError() {
+        _state.update { it.copy(error = null) }
+    }
+}
+
+/**
+ * Helper to run with error handling
+ */
+private inline fun ScreenModel.runCatchingWithHandler(
+    onError: (AppError) -> Unit,
+    noinline retryAction: (() -> Unit)? = null,
+    block: () -> Unit
+) {
+    try {
+        block()
+    } catch (e: Exception) {
+        val appError = e.toAppError()
+        onError(appError)
+        ErrorHandler.emit(appError, retryAction)
     }
 }

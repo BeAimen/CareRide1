@@ -1,4 +1,4 @@
-﻿package com.shjprofessionals.careride1.core.navigation
+package com.shjprofessionals.careride1.core.navigation
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email

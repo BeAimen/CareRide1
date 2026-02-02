@@ -1,4 +1,7 @@
-﻿package com.shjprofessionals.careride1.feature.doctor.inbox
+package com.shjprofessionals.careride1.feature.doctor.inbox
+
+import com.shjprofessionals.careride1.core.util.AppError
+import com.shjprofessionals.careride1.core.util.toAppError
 
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
@@ -18,7 +21,7 @@ data class DoctorChatState(
     val showQuickReplies: Boolean = false,
     val isLoading: Boolean = true,
     val isSending: Boolean = false,
-    val error: String? = null
+    val error: AppError? = null
 ) {
     val canSendMessage: Boolean
         get() = messageInput.isNotBlank() && !isSending
@@ -65,7 +68,7 @@ class DoctorChatViewModel(
                 _state.update {
                     it.copy(
                         isLoading = false,
-                        error = e.message ?: "Failed to load messages"
+                        error = e.toAppError()
                     )
                 }
             }
@@ -120,7 +123,7 @@ class DoctorChatViewModel(
                         it.copy(
                             isSending = false,
                             messageInput = content,
-                            error = error.message ?: "Failed to send message"
+                            error = error.toAppError()
                         )
                     }
                 }
@@ -131,3 +134,4 @@ class DoctorChatViewModel(
         _state.update { it.copy(error = null) }
     }
 }
+

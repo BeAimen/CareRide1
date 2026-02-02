@@ -1,4 +1,4 @@
-﻿package com.shjprofessionals.careride1.core.designsystem.components
+package com.shjprofessionals.careride1.core.designsystem.components
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
@@ -84,7 +84,7 @@ private fun ActiveBoostBanner(
                     )
                 }
                 Text(
-                    text = "${status.boost.planName} â€¢ Renews ${status.renewalDateFormatted}",
+                    text = "${status.boost.planName} • Renews ${status.renewalDateFormatted}",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
                 )

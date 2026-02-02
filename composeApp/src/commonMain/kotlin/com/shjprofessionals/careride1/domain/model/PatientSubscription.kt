@@ -1,4 +1,4 @@
-﻿package com.shjprofessionals.careride1.domain.model
+package com.shjprofessionals.careride1.domain.model
 
 /**
  * Represents a patient's subscription record.

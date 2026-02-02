@@ -1,4 +1,4 @@
-﻿package com.shjprofessionals.careride1.feature.patient.doctorprofile
+package com.shjprofessionals.careride1.feature.patient.doctorprofile
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -135,7 +135,7 @@ private fun DoctorProfileContent(
 
                 state.error != null -> {
                     ErrorState(
-                        message = state.error,
+                        message = state.error?.userMessage ?: "Unknown error",
                         onRetry = onRetry,
                         modifier = Modifier.fillMaxSize()
                     )

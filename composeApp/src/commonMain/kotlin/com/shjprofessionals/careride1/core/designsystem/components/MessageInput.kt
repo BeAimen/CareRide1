@@ -1,4 +1,4 @@
-﻿package com.shjprofessionals.careride1.core.designsystem.components
+package com.shjprofessionals.careride1.core.designsystem.components
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape

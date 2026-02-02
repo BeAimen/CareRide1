@@ -1,4 +1,4 @@
-﻿package com.shjprofessionals.careride1.domain.repository
+package com.shjprofessionals.careride1.domain.repository
 
 import com.shjprofessionals.careride1.domain.model.PatientSubscription
 import com.shjprofessionals.careride1.domain.model.SubscriptionPlan

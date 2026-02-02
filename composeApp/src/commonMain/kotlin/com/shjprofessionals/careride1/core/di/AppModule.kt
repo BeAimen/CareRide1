@@ -1,4 +1,4 @@
-﻿package com.shjprofessionals.careride1.core.di
+package com.shjprofessionals.careride1.core.di
 
 import com.shjprofessionals.careride1.data.repository.BoostRepositoryImpl
 import com.shjprofessionals.careride1.data.repository.DoctorRepositoryImpl

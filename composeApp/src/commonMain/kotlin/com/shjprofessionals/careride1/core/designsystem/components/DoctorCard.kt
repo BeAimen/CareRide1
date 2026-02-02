@@ -1,4 +1,4 @@
-﻿package com.shjprofessionals.careride1.core.designsystem.components
+package com.shjprofessionals.careride1.core.designsystem.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -149,7 +149,7 @@ fun DoctorCard(
                     if (doctor.isAvailableToday) {
                         Spacer(modifier = Modifier.width(CareRideTheme.spacing.sm))
                         Text(
-                            text = "â€¢ Available today",
+                            text = "• Available today",
                             style = MaterialTheme.typography.labelMedium,
                             color = MaterialTheme.colorScheme.secondary
                         )

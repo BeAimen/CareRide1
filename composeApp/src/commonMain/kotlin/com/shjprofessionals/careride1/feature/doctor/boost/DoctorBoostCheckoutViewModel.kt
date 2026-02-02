@@ -1,4 +1,7 @@
-﻿package com.shjprofessionals.careride1.feature.doctor.boost
+package com.shjprofessionals.careride1.feature.doctor.boost
+
+import com.shjprofessionals.careride1.core.util.AppError
+import com.shjprofessionals.careride1.core.util.toAppError
 
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
@@ -21,7 +24,7 @@ data class BoostCheckoutState(
     val plan: BoostPlan? = null,
     val step: BoostCheckoutStep = BoostCheckoutStep.REVIEW,
     val isLoading: Boolean = true,
-    val error: String? = null,
+    val error: AppError? = null,
     val boostStatus: DoctorBoostStatus? = null
 )
 
@@ -43,7 +46,7 @@ class DoctorBoostCheckoutViewModel(
             it.copy(
                 plan = plan,
                 isLoading = false,
-                error = if (plan == null) "Invalid plan" else null
+                error = if (plan == null) AppError.Validation("Invalid plan") else null
             )
         }
     }
@@ -68,7 +71,7 @@ class DoctorBoostCheckoutViewModel(
                     _state.update {
                         it.copy(
                             step = BoostCheckoutStep.FAILURE,
-                            error = error.message ?: "Payment failed"
+                            error = error.toAppError()
                         )
                     }
                 }
@@ -82,7 +85,7 @@ class DoctorBoostCheckoutViewModel(
             _state.update {
                 it.copy(
                     step = BoostCheckoutStep.FAILURE,
-                    error = "Payment was declined. Please try again."
+                    error = AppError.Payment()
                 )
             }
         }
@@ -92,3 +95,4 @@ class DoctorBoostCheckoutViewModel(
         _state.update { it.copy(step = BoostCheckoutStep.REVIEW, error = null) }
     }
 }
+

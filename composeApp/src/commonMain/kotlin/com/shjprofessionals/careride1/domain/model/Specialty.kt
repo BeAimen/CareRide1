@@ -1,4 +1,4 @@
-﻿package com.shjprofessionals.careride1.domain.model
+package com.shjprofessionals.careride1.domain.model
 
 enum class Specialty(val displayName: String) {
     GENERAL_PRACTICE("General Practice"),

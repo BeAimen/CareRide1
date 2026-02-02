@@ -1,4 +1,4 @@
-﻿package com.shjprofessionals.careride1.feature.patient.home
+package com.shjprofessionals.careride1.feature.patient.home
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -98,7 +98,7 @@ private fun PatientHomeContent(
 
                 state.error != null -> {
                     ErrorState(
-                        message = state.error,
+                        message = state.error?.userMessage ?: "Unknown error",
                         onRetry = onRetry,
                         modifier = Modifier.weight(1f)
                     )

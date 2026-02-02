@@ -1,4 +1,4 @@
-﻿package com.shjprofessionals.careride1.core.designsystem.components
+package com.shjprofessionals.careride1.core.designsystem.components
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.padding

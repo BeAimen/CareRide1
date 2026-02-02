@@ -1,4 +1,4 @@
-﻿package com.shjprofessionals.careride1.feature.onboarding
+package com.shjprofessionals.careride1.feature.onboarding
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*

@@ -1,4 +1,4 @@
-﻿package com.shjprofessionals.careride1.data.fakebackend
+package com.shjprofessionals.careride1.data.fakebackend
 
 import com.shjprofessionals.careride1.domain.model.Doctor
 import com.shjprofessionals.careride1.domain.model.Specialty

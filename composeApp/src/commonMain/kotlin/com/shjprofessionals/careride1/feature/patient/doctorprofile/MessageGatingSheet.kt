@@ -1,4 +1,4 @@
-﻿package com.shjprofessionals.careride1.feature.patient.doctorprofile
+package com.shjprofessionals.careride1.feature.patient.doctorprofile
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
@@ -118,7 +118,7 @@ private fun BenefitItem(text: String) {
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
-            text = "âœ“",
+            text = "✓",
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.primary
         )

@@ -1,4 +1,4 @@
-﻿package com.shjprofessionals.careride1.feature.doctor.profile
+package com.shjprofessionals.careride1.feature.doctor.profile
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*

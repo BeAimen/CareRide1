@@ -1,4 +1,4 @@
-﻿package com.shjprofessionals.careride1
+package com.shjprofessionals.careride1
 
 import androidx.compose.ui.window.ComposeUIViewController
 import com.shjprofessionals.careride1.App

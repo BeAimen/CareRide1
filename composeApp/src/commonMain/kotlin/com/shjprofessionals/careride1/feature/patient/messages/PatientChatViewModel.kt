@@ -1,4 +1,7 @@
-﻿package com.shjprofessionals.careride1.feature.patient.messages
+package com.shjprofessionals.careride1.feature.patient.messages
+
+import com.shjprofessionals.careride1.core.util.AppError
+import com.shjprofessionals.careride1.core.util.toAppError
 
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
@@ -18,7 +21,7 @@ data class PatientChatState(
     val messageInput: String = "",
     val isLoading: Boolean = true,
     val isSending: Boolean = false,
-    val error: String? = null,
+    val error: AppError? = null,
     val subscriptionStatus: SubscriptionStatus = SubscriptionStatus.None
 ) {
     val canSendMessage: Boolean
@@ -71,7 +74,7 @@ class PatientChatViewModel(
                 _state.update {
                     it.copy(
                         isLoading = false,
-                        error = e.message ?: "Failed to load messages"
+                        error = e.toAppError()
                     )
                 }
             }
@@ -113,7 +116,7 @@ class PatientChatViewModel(
                         it.copy(
                             isSending = false,
                             messageInput = content, // Restore message
-                            error = error.message ?: "Failed to send message"
+                            error = error.toAppError()
                         )
                     }
                 }
@@ -124,3 +127,4 @@ class PatientChatViewModel(
         _state.update { it.copy(error = null) }
     }
 }
+

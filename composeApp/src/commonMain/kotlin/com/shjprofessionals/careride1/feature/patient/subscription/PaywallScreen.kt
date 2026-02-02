@@ -1,4 +1,4 @@
-﻿package com.shjprofessionals.careride1.feature.patient.subscription
+package com.shjprofessionals.careride1.feature.patient.subscription
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState

@@ -1,4 +1,4 @@
-﻿package com.shjprofessionals.careride1.feature.patient.profile
+package com.shjprofessionals.careride1.feature.patient.profile
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*

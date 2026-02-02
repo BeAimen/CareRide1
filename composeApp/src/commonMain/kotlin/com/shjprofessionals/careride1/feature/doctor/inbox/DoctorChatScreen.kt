@@ -1,4 +1,4 @@
-﻿package com.shjprofessionals.careride1.feature.doctor.inbox
+package com.shjprofessionals.careride1.feature.doctor.inbox
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.slideInVertically

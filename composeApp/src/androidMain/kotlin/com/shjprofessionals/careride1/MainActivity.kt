@@ -1,4 +1,4 @@
-﻿package com.shjprofessionals.careride1
+package com.shjprofessionals.careride1
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity

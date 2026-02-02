@@ -1,4 +1,7 @@
-﻿package com.shjprofessionals.careride1.feature.patient.doctorprofile
+package com.shjprofessionals.careride1.feature.patient.doctorprofile
+
+import com.shjprofessionals.careride1.core.util.AppError
+import com.shjprofessionals.careride1.core.util.toAppError
 
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
@@ -14,7 +17,7 @@ import kotlinx.coroutines.launch
 data class DoctorProfileState(
     val doctor: Doctor? = null,
     val isLoading: Boolean = true,
-    val error: String? = null,
+    val error: AppError? = null,
     val subscriptionStatus: SubscriptionStatus = SubscriptionStatus.None,
     val showGatingSheet: Boolean = false,
     val navigateToChat: Conversation? = null
@@ -51,7 +54,7 @@ class DoctorProfileViewModel(
                     _state.update {
                         it.copy(
                             isLoading = false,
-                            error = "Doctor not found"
+                            error = AppError.NotFound("Doctor")
                         )
                     }
                 }
@@ -59,7 +62,7 @@ class DoctorProfileViewModel(
                 _state.update {
                     it.copy(
                         isLoading = false,
-                        error = e.message ?: "Failed to load doctor profile"
+                        error = e.toAppError()
                     )
                 }
             }
@@ -84,7 +87,7 @@ class DoctorProfileViewModel(
                         _state.update { it.copy(navigateToChat = conversation) }
                     }
                     .onFailure {
-                        _state.update { it.copy(error = "Failed to start conversation") }
+                        _state.update { it.copy(error = AppError.Unknown("Failed to start conversation")) }
                     }
             }
         } else {
@@ -104,3 +107,4 @@ class DoctorProfileViewModel(
         loadDoctor()
     }
 }
+

@@ -1,4 +1,7 @@
-﻿package com.shjprofessionals.careride1.feature.doctor.inbox
+package com.shjprofessionals.careride1.feature.doctor.inbox
+
+import com.shjprofessionals.careride1.core.util.AppError
+import com.shjprofessionals.careride1.core.util.toAppError
 
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
@@ -10,7 +13,7 @@ import kotlinx.coroutines.launch
 data class DoctorInboxState(
     val conversations: List<Conversation> = emptyList(),
     val isLoading: Boolean = true,
-    val error: String? = null,
+    val error: AppError? = null,
     val unreadCount: Int = 0
 )
 
@@ -43,7 +46,7 @@ class DoctorInboxViewModel(
                 _state.update {
                     it.copy(
                         isLoading = false,
-                        error = e.message ?: "Failed to load conversations"
+                        error = e.toAppError()
                     )
                 }
             }
@@ -62,3 +65,4 @@ class DoctorInboxViewModel(
         loadConversations()
     }
 }
+

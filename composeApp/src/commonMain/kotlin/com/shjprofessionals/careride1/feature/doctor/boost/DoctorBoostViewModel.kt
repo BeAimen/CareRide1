@@ -1,4 +1,4 @@
-﻿package com.shjprofessionals.careride1.feature.doctor.boost
+package com.shjprofessionals.careride1.feature.doctor.boost
 
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope

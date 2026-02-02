@@ -1,4 +1,4 @@
-﻿package com.shjprofessionals.careride1.feature.patient.messages
+package com.shjprofessionals.careride1.feature.patient.messages
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -90,7 +90,7 @@ private fun PatientMessagesContent(
 
                 state.error != null -> {
                     ErrorState(
-                        message = state.error,
+                        message = state.error?.userMessage ?: "Unknown error",
                         onRetry = onRetry,
                         modifier = Modifier.weight(1f)
                     )

@@ -1,4 +1,4 @@
-﻿package com.shjprofessionals.careride1.feature.patient.home
+package com.shjprofessionals.careride1.feature.patient.home
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
@@ -113,7 +113,7 @@ fun WhyAmISeeingThisSheet(
                         verticalAlignment = Alignment.Top
                     ) {
                         Text(
-                            text = "â„¹ï¸",
+                            text = "ℹ️",
                             style = MaterialTheme.typography.bodyMedium
                         )
                         Spacer(modifier = Modifier.width(CareRideTheme.spacing.xs))

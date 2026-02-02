@@ -1,4 +1,4 @@
-﻿package com.shjprofessionals.careride1.feature.patient.subscription
+package com.shjprofessionals.careride1.feature.patient.subscription
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -114,7 +114,7 @@ private fun MockCheckoutContent(
 
                 CheckoutStep.FAILURE -> {
                     FailureStep(
-                        error = state.error ?: "Payment failed",
+                        error = state.error?.userMessage ?: "Payment failed",
                         onRetry = onRetry,
                         onCancel = onCancel
                     )
@@ -155,7 +155,7 @@ private fun ReviewStep(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "ðŸ§ª",
+                    text = "🧪",
                     style = MaterialTheme.typography.titleMedium
                 )
                 Spacer(modifier = Modifier.width(CareRideTheme.spacing.sm))
@@ -252,7 +252,7 @@ private fun ReviewStep(
                     .padding(CareRideTheme.spacing.md)
             ) {
                 Text(
-                    text = "ðŸ“… Renewal Information",
+                    text = "📅 Renewal Information",
                     style = MaterialTheme.typography.titleSmall,
                     color = MaterialTheme.colorScheme.onSurface
                 )

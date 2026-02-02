@@ -1,4 +1,4 @@
-﻿package com.shjprofessionals.careride1.feature.patient.profile
+package com.shjprofessionals.careride1.feature.patient.profile
 
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope

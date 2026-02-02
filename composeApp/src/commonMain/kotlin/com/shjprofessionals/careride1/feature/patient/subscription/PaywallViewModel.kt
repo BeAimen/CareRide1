@@ -1,4 +1,7 @@
-﻿package com.shjprofessionals.careride1.feature.patient.subscription
+package com.shjprofessionals.careride1.feature.patient.subscription
+
+import com.shjprofessionals.careride1.core.util.AppError
+import com.shjprofessionals.careride1.core.util.toAppError
 
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
@@ -14,7 +17,7 @@ data class PaywallState(
     val subscriptionStatus: SubscriptionStatus = SubscriptionStatus.None,
     val isLoading: Boolean = true,
     val isRestoring: Boolean = false,
-    val error: String? = null,
+    val error: AppError? = null,
     val restoreMessage: String? = null
 )
 
@@ -47,7 +50,7 @@ class PaywallViewModel(
                 _state.update {
                     it.copy(
                         isLoading = false,
-                        error = e.message ?: "Failed to load plans"
+                        error = e.toAppError()
                     )
                 }
             }
@@ -104,3 +107,4 @@ class PaywallViewModel(
         _state.update { it.copy(error = null) }
     }
 }
+
