@@ -3,13 +3,11 @@ package com.shjprofessionals.careride1.feature.doctor.inbox
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -22,7 +20,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -85,19 +82,11 @@ private fun DoctorChatContent(
             TopAppBar(
                 title = {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Box(
-                            modifier = Modifier
-                                .size(40.dp)
-                                .clip(CircleShape)
-                                .background(MaterialTheme.colorScheme.secondaryContainer),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(
-                                text = state.patientName.first().toString(),
-                                style = MaterialTheme.typography.titleMedium,
-                                color = MaterialTheme.colorScheme.onSecondaryContainer
-                            )
-                        }
+                        // Patient avatar with initials
+                        PatientAvatar(
+                            name = state.patientName,
+                            size = AvatarSize.Medium
+                        )
 
                         Spacer(modifier = Modifier.width(CareRideTheme.spacing.sm))
 
@@ -253,7 +242,7 @@ private fun DoctorMessageInput(
             ) {
                 Icon(
                     imageVector = if (showQuickRepliesActive) Icons.Default.Close else Icons.Default.Add,
-                    contentDescription = null, // Button has semantics
+                    contentDescription = null,
                     tint = if (showQuickRepliesActive) {
                         MaterialTheme.colorScheme.primary
                     } else {
@@ -307,7 +296,7 @@ private fun DoctorMessageInput(
                 } else {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.Send,
-                        contentDescription = null // Button has semantics
+                        contentDescription = null
                     )
                 }
             }
@@ -351,7 +340,7 @@ private fun QuickRepliesPanel(
                 ) {
                     Icon(
                         imageVector = Icons.Default.Close,
-                        contentDescription = null, // Button has semantics
+                        contentDescription = null,
                         modifier = Modifier.size(16.dp)
                     )
                 }

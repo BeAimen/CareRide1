@@ -34,6 +34,7 @@ class PatientMessagesTab : Screen {
                 navigator.push(PatientChatScreen(conversationId = conversation.id))
             },
             onRetry = viewModel::refresh,
+            onRefresh = viewModel::refresh,
             onSubscribe = { navigator.push(PaywallScreen()) }
         )
     }
@@ -45,6 +46,7 @@ private fun PatientMessagesContent(
     state: PatientMessagesState,
     onConversationClick: (Conversation) -> Unit,
     onRetry: () -> Unit,
+    onRefresh: () -> Unit,
     onSubscribe: () -> Unit
 ) {
     Scaffold(
@@ -75,7 +77,7 @@ private fun PatientMessagesContent(
             )
 
             LoadingContent(
-                isLoading = state.isLoading,
+                isLoading = state.isLoading && state.conversations.isEmpty(),
                 isEmpty = state.conversations.isEmpty(),
                 data = state.conversations,
                 error = state.error,
@@ -110,21 +112,27 @@ private fun PatientMessagesContent(
                     )
                 }
             ) { conversations ->
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize()
+                RefreshableContent(
+                    isRefreshing = state.isLoading && state.conversations.isNotEmpty(),
+                    onRefresh = onRefresh,
+                    modifier = Modifier.weight(1f)
                 ) {
-                    items(
-                        items = conversations,
-                        key = { it.id }
-                    ) { conversation ->
-                        ConversationCard(
-                            conversation = conversation,
-                            onClick = { onConversationClick(conversation) }
-                        )
-                        HorizontalDivider(
-                            modifier = Modifier.padding(start = 76.dp),
-                            color = MaterialTheme.colorScheme.outlineVariant
-                        )
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        items(
+                            items = conversations,
+                            key = { it.id }
+                        ) { conversation ->
+                            ConversationCard(
+                                conversation = conversation,
+                                onClick = { onConversationClick(conversation) }
+                            )
+                            HorizontalDivider(
+                                modifier = Modifier.padding(start = 76.dp),
+                                color = MaterialTheme.colorScheme.outlineVariant
+                            )
+                        }
                     }
                 }
             }

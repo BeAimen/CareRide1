@@ -1,18 +1,19 @@
 package com.shjprofessionals.careride1
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.transitions.SlideTransition
 import com.shjprofessionals.careride1.core.designsystem.components.AppErrorSnackbarHost
 import com.shjprofessionals.careride1.core.designsystem.theme.CareRideTheme
-import com.shjprofessionals.careride1.feature.onboarding.RoleSelectionScreen
+import com.shjprofessionals.careride1.core.navigation.CareRideTransition
+import com.shjprofessionals.careride1.feature.onboarding.SplashScreen
 import org.koin.compose.KoinContext
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
 
 @Composable
 fun App() {
@@ -21,8 +22,8 @@ fun App() {
             val snackbarHostState = remember { SnackbarHostState() }
 
             Box(modifier = Modifier.fillMaxSize()) {
-                Navigator(RoleSelectionScreen()) { navigator ->
-                    SlideTransition(navigator)
+                Navigator(SplashScreen()) { navigator ->
+                    CareRideTransition(navigator)
                 }
 
                 AppErrorSnackbarHost(

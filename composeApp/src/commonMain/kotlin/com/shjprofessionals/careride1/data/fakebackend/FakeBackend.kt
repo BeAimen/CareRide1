@@ -139,6 +139,7 @@ object FakeBackend {
     val subscriptionStore: FakeSubscriptionStore by lazy { FakeSubscriptionStore() }
     val messageStore: FakeMessageStore by lazy { FakeMessageStore() }
     val boostStore: FakeBoostStore by lazy { FakeBoostStore() }
+    val doctorProfileStore: FakeDoctorProfileStore by lazy { FakeDoctorProfileStore() }
 
     // ============ Subscription Plans ============
     fun getAvailablePlans(): List<SubscriptionPlan> = SubscriptionPlans.ALL
@@ -158,6 +159,10 @@ object FakeBackend {
     }
 
     fun getDoctorById(id: String): Doctor? {
+        // Check if it's the current doctor's profile (may have edits)
+        if (id == doctorProfileStore.getCurrentDoctorId()) {
+            return doctorProfileStore.getCurrentDoctor()
+        }
         return doctors.find { it.id == id }
     }
 

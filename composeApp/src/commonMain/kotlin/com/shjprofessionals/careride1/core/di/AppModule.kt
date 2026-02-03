@@ -12,7 +12,8 @@ import com.shjprofessionals.careride1.feature.doctor.boost.DoctorBoostCheckoutVi
 import com.shjprofessionals.careride1.feature.doctor.boost.DoctorBoostViewModel
 import com.shjprofessionals.careride1.feature.doctor.inbox.DoctorChatViewModel
 import com.shjprofessionals.careride1.feature.doctor.inbox.DoctorInboxViewModel
-import com.shjprofessionals.careride1.feature.patient.doctorprofile.DoctorProfileViewModel
+import com.shjprofessionals.careride1.feature.doctor.profile.DoctorProfileViewModel
+import com.shjprofessionals.careride1.feature.patient.doctorprofile.DoctorProfileViewModel as PatientDoctorProfileViewModel
 import com.shjprofessionals.careride1.feature.patient.home.PatientHomeViewModel
 import com.shjprofessionals.careride1.feature.patient.messages.PatientChatViewModel
 import com.shjprofessionals.careride1.feature.patient.messages.PatientMessagesViewModel
@@ -37,7 +38,7 @@ val appModule = module {
     factory { PatientMessagesViewModel(get(), get()) }
 
     factory { (doctorId: String) ->
-        DoctorProfileViewModel(
+        PatientDoctorProfileViewModel(
             doctorId = doctorId,
             doctorRepository = get(),
             subscriptionRepository = get(),
@@ -63,6 +64,7 @@ val appModule = module {
     // ============ Doctor ViewModels ============
     factory { DoctorBoostViewModel(get()) }
     factory { DoctorInboxViewModel(get()) }
+    factory { DoctorProfileViewModel(get()) }  // <-- Added
 
     factory { (planId: String) ->
         DoctorBoostCheckoutViewModel(

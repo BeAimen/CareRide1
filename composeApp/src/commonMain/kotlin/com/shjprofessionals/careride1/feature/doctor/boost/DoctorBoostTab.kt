@@ -1,8 +1,7 @@
 package com.shjprofessionals.careride1.feature.doctor.boost
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -16,8 +15,6 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import com.shjprofessionals.careride1.core.designsystem.components.*
 import com.shjprofessionals.careride1.core.designsystem.theme.CareRideTheme
 import com.shjprofessionals.careride1.domain.model.DoctorBoostStatus
-import com.shjprofessionals.careride1.core.designsystem.components.AnalyticsCard
-import com.shjprofessionals.careride1.core.designsystem.components.BoostPlanCard
 
 class DoctorBoostTab : Screen {
 
@@ -41,7 +38,8 @@ class DoctorBoostTab : Screen {
             onReactivateClick = viewModel::showReactivateDialog,
             onConfirmReactivate = viewModel::confirmReactivate,
             onDismissReactivate = viewModel::dismissReactivateDialog,
-            onDismissMessage = viewModel::clearMessage
+            onDismissMessage = viewModel::clearMessage,
+            onRefresh = viewModel::refresh
         )
     }
 }
@@ -58,7 +56,8 @@ private fun DoctorBoostContent(
     onReactivateClick: () -> Unit,
     onConfirmReactivate: () -> Unit,
     onDismissReactivate: () -> Unit,
-    onDismissMessage: () -> Unit
+    onDismissMessage: () -> Unit,
+    onRefresh: () -> Unit
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -85,7 +84,7 @@ private fun DoctorBoostContent(
         },
         snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { paddingValues ->
-        if (state.isLoading) {
+        if (state.isLoading && state.plans.isEmpty()) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -100,49 +99,56 @@ private fun DoctorBoostContent(
                     .fillMaxSize()
                     .padding(paddingValues)
             ) {
-                Column(
-                    modifier = Modifier
-                        .weight(1f)
-                        .verticalScroll(rememberScrollState())
-                        .padding(CareRideTheme.spacing.md)
+                RefreshableContent(
+                    isRefreshing = state.isLoading && state.plans.isNotEmpty(),
+                    onRefresh = onRefresh,
+                    modifier = Modifier.weight(1f)
                 ) {
-                    // Status banner (if active or cancelled)
-                    BoostStatusBanner(
-                        status = state.status,
-                        onManageClick = {
-                            when (state.status) {
-                                is DoctorBoostStatus.Cancelled -> onReactivateClick()
-                                else -> onCancelClick()
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        contentPadding = PaddingValues(CareRideTheme.spacing.md),
+                        verticalArrangement = Arrangement.spacedBy(CareRideTheme.spacing.md)
+                    ) {
+                        // Status banner (if active or cancelled)
+                        item {
+                            BoostStatusBanner(
+                                status = state.status,
+                                onManageClick = {
+                                    when (state.status) {
+                                        is DoctorBoostStatus.Cancelled -> onReactivateClick()
+                                        else -> onCancelClick()
+                                    }
+                                }
+                            )
+                        }
+
+                        // Analytics section (if has/had boost)
+                        if (state.analytics != null && state.status !is DoctorBoostStatus.None) {
+                            item {
+                                AnalyticsSection(analytics = state.analytics)
+                            }
+
+                            item {
+                                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                             }
                         }
-                    )
 
-                    if (state.status.isActive()) {
-                        Spacer(modifier = Modifier.height(CareRideTheme.spacing.lg))
-                    }
-
-                    // Analytics section (if has/had boost)
-                    if (state.analytics != null && state.status !is DoctorBoostStatus.None) {
-                        AnalyticsSection(analytics = state.analytics)
-
-                        Spacer(modifier = Modifier.height(CareRideTheme.spacing.lg))
-
-                        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-
-                        Spacer(modifier = Modifier.height(CareRideTheme.spacing.lg))
-                    }
-
-                    // Plans section
-                    if (!state.status.isActive() || state.status is DoctorBoostStatus.Cancelled) {
-                        PlansSection(
-                            plans = state.plans,
-                            selectedPlan = state.selectedPlan,
-                            onPlanSelect = onPlanSelect,
-                            showUpgrade = state.status.isActive()
-                        )
-                    } else {
-                        // Active boost - show current plan details
-                        CurrentPlanSection(status = state.status as DoctorBoostStatus.Active)
+                        // Plans section
+                        if (!state.status.isActive() || state.status is DoctorBoostStatus.Cancelled) {
+                            item {
+                                PlansSection(
+                                    plans = state.plans,
+                                    selectedPlan = state.selectedPlan,
+                                    onPlanSelect = onPlanSelect,
+                                    showUpgrade = state.status.isActive()
+                                )
+                            }
+                        } else {
+                            // Active boost - show current plan details
+                            item {
+                                CurrentPlanSection(status = state.status as DoctorBoostStatus.Active)
+                            }
+                        }
                     }
                 }
 
@@ -255,60 +261,62 @@ private fun DoctorBoostContent(
 
 @Composable
 private fun AnalyticsSection(analytics: com.shjprofessionals.careride1.domain.model.BoostAnalytics) {
-    SectionHeader(title = "Performance (${analytics.period.displayName})")
+    Column {
+        SectionHeader(title = "Performance (${analytics.period.displayName})")
 
-    Spacer(modifier = Modifier.height(CareRideTheme.spacing.sm))
+        Spacer(modifier = Modifier.height(CareRideTheme.spacing.sm))
 
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(CareRideTheme.spacing.sm)
-    ) {
-        AnalyticsCard(
-            title = "Profile Views",
-            value = analytics.profileViews.toString(),
-            change = analytics.profileViewsChangePercent,
-            isPositiveChange = analytics.profileViewsChange >= 0,
-            icon = Icons.Default.Person,
-            modifier = Modifier.weight(1f)
-        )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(CareRideTheme.spacing.sm)
+        ) {
+            AnalyticsCard(
+                title = "Profile Views",
+                value = analytics.profileViews.toString(),
+                change = analytics.profileViewsChangePercent,
+                isPositiveChange = analytics.profileViewsChange >= 0,
+                icon = Icons.Default.Person,
+                modifier = Modifier.weight(1f)
+            )
 
-        AnalyticsCard(
-            title = "Search Hits",
-            value = analytics.searchAppearances.toString(),
-            change = analytics.searchAppearancesChangePercent,
-            isPositiveChange = analytics.searchAppearancesChange >= 0,
-            icon = Icons.Default.Search,
-            modifier = Modifier.weight(1f)
-        )
-    }
+            AnalyticsCard(
+                title = "Search Hits",
+                value = analytics.searchAppearances.toString(),
+                change = analytics.searchAppearancesChangePercent,
+                isPositiveChange = analytics.searchAppearancesChange >= 0,
+                icon = Icons.Default.Search,
+                modifier = Modifier.weight(1f)
+            )
+        }
 
-    Spacer(modifier = Modifier.height(CareRideTheme.spacing.sm))
+        Spacer(modifier = Modifier.height(CareRideTheme.spacing.sm))
 
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(CareRideTheme.spacing.sm)
-    ) {
-        AnalyticsCard(
-            title = "Messages",
-            value = analytics.messageRequests.toString(),
-            change = analytics.messageRequestsChangePercent,
-            isPositiveChange = analytics.messageRequestsChange >= 0,
-            icon = Icons.Default.Email,
-            modifier = Modifier.weight(1f)
-        )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(CareRideTheme.spacing.sm)
+        ) {
+            AnalyticsCard(
+                title = "Messages",
+                value = analytics.messageRequests.toString(),
+                change = analytics.messageRequestsChangePercent,
+                isPositiveChange = analytics.messageRequestsChange >= 0,
+                icon = Icons.Default.Email,
+                modifier = Modifier.weight(1f)
+            )
 
-        AnalyticsCard(
-            title = "Avg Position",
-            value = "#${analytics.averagePosition.toInt()}",
-            change = if (analytics.positionChange < 0) {
-                "+${(-analytics.positionChange).toInt()}"
-            } else {
-                "-${analytics.positionChange.toInt()}"
-            },
-            isPositiveChange = analytics.positionChange < 0, // Lower position is better
-            icon = Icons.Default.Star,
-            modifier = Modifier.weight(1f)
-        )
+            AnalyticsCard(
+                title = "Avg Position",
+                value = "#${analytics.averagePosition.toInt()}",
+                change = if (analytics.positionChange < 0) {
+                    "+${(-analytics.positionChange).toInt()}"
+                } else {
+                    "-${analytics.positionChange.toInt()}"
+                },
+                isPositiveChange = analytics.positionChange < 0,
+                icon = Icons.Default.Star,
+                modifier = Modifier.weight(1f)
+            )
+        }
     }
 }
 
@@ -319,68 +327,72 @@ private fun PlansSection(
     onPlanSelect: (com.shjprofessionals.careride1.domain.model.BoostPlan) -> Unit,
     showUpgrade: Boolean
 ) {
-    SectionHeader(
-        title = if (showUpgrade) "Upgrade Your Plan" else "Choose a Boost Plan"
-    )
-
-    Spacer(modifier = Modifier.height(CareRideTheme.spacing.sm))
-
-    plans.forEach { plan ->
-        BoostPlanCard(
-            plan = plan,
-            isSelected = selectedPlan?.id == plan.id,
-            onSelect = { onPlanSelect(plan) }
+    Column {
+        SectionHeader(
+            title = if (showUpgrade) "Upgrade Your Plan" else "Choose a Boost Plan"
         )
+
         Spacer(modifier = Modifier.height(CareRideTheme.spacing.sm))
+
+        plans.forEach { plan ->
+            BoostPlanCard(
+                plan = plan,
+                isSelected = selectedPlan?.id == plan.id,
+                onSelect = { onPlanSelect(plan) }
+            )
+            Spacer(modifier = Modifier.height(CareRideTheme.spacing.sm))
+        }
     }
 }
 
 @Composable
 private fun CurrentPlanSection(status: DoctorBoostStatus.Active) {
-    SectionHeader(title = "Current Plan")
+    Column {
+        SectionHeader(title = "Current Plan")
 
-    Spacer(modifier = Modifier.height(CareRideTheme.spacing.sm))
+        Spacer(modifier = Modifier.height(CareRideTheme.spacing.sm))
 
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant
-        )
-    ) {
-        Column(
-            modifier = Modifier.padding(CareRideTheme.spacing.md)
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceVariant
+            )
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
+            Column(
+                modifier = Modifier.padding(CareRideTheme.spacing.md)
             ) {
-                Text(
-                    text = status.boost.planName,
-                    style = MaterialTheme.typography.titleLarge,
-                    color = MaterialTheme.colorScheme.onSurface
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(
+                        text = status.boost.planName,
+                        style = MaterialTheme.typography.titleLarge,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    Text(
+                        text = "${status.boost.boostMultiplier}x boost",
+                        style = MaterialTheme.typography.labelLarge,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(CareRideTheme.spacing.md))
+
+                InfoRow(
+                    icon = Icons.Default.DateRange,
+                    label = "Renews",
+                    value = status.renewalDateFormatted
                 )
-                Text(
-                    text = "${status.boost.boostMultiplier}x boost",
-                    style = MaterialTheme.typography.labelLarge,
-                    color = MaterialTheme.colorScheme.primary
+
+                Spacer(modifier = Modifier.height(CareRideTheme.spacing.xs))
+
+                InfoRow(
+                    icon = Icons.Default.Info,
+                    label = "Days left",
+                    value = "${status.daysRemaining} days"
                 )
             }
-
-            Spacer(modifier = Modifier.height(CareRideTheme.spacing.md))
-
-            InfoRow(
-                icon = Icons.Default.DateRange,
-                label = "Renews",
-                value = status.renewalDateFormatted
-            )
-
-            Spacer(modifier = Modifier.height(CareRideTheme.spacing.xs))
-
-            InfoRow(
-                icon = Icons.Default.Info,
-                label = "Days left",
-                value = "${status.daysRemaining} days"
-            )
         }
     }
 }

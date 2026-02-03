@@ -5,19 +5,36 @@ import cafe.adriel.voyager.core.model.screenModelScope
 import com.shjprofessionals.careride1.core.util.AppError
 import com.shjprofessionals.careride1.core.util.ErrorHandler
 import com.shjprofessionals.careride1.core.util.Validators
+import com.shjprofessionals.careride1.core.util.toAppError
 import com.shjprofessionals.careride1.domain.model.Doctor
+import com.shjprofessionals.careride1.domain.model.Specialty
 import com.shjprofessionals.careride1.domain.repository.DoctorRepository
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import com.shjprofessionals.careride1.core.util.toAppError
+
 data class PatientHomeState(
     val searchQuery: String = "",
+    val selectedSpecialty: Specialty? = null,
     val doctors: List<Doctor> = emptyList(),
     val isLoading: Boolean = true,
     val error: AppError? = null,
     val selectedDoctorForInfo: Doctor? = null
-)
+) {
+    val hasActiveFilters: Boolean
+        get() = searchQuery.isNotEmpty() || selectedSpecialty != null
+
+    val filterDescription: String
+        get() = buildString {
+            if (selectedSpecialty != null) {
+                append(selectedSpecialty.displayName)
+            }
+            if (searchQuery.isNotEmpty()) {
+                if (isNotEmpty()) append(" • ")
+                append("\"$searchQuery\"")
+            }
+        }
+}
 
 @OptIn(FlowPreview::class)
 class PatientHomeViewModel(
@@ -28,20 +45,24 @@ class PatientHomeViewModel(
     val state: StateFlow<PatientHomeState> = _state.asStateFlow()
 
     private val searchQueryFlow = MutableStateFlow("")
+    private val specialtyFlow = MutableStateFlow<Specialty?>(null)
 
     init {
-        observeSearch()
+        observeFilters()
         loadDoctors()
     }
 
-    private fun observeSearch() {
+    private fun observeFilters() {
         screenModelScope.launch {
-            searchQueryFlow
-                .debounce(300)
-                .distinctUntilChanged()
-                .collectLatest { query ->
-                    searchDoctors(query)
-                }
+            // Combine search query and specialty filter
+            combine(
+                searchQueryFlow.debounce(300).distinctUntilChanged(),
+                specialtyFlow
+            ) { query, specialty ->
+                Pair(query, specialty)
+            }.collectLatest { (query, specialty) ->
+                filterDoctors(query, specialty)
+            }
         }
     }
 
@@ -77,16 +98,52 @@ class PatientHomeViewModel(
         }
     }
 
-    private suspend fun searchDoctors(query: String) {
+    fun onSpecialtySelected(specialty: Specialty?) {
+        _state.update { it.copy(selectedSpecialty = specialty) }
+        specialtyFlow.value = specialty
+    }
+
+    fun clearFilters() {
+        _state.update { it.copy(searchQuery = "", selectedSpecialty = null) }
+        searchQueryFlow.value = ""
+        specialtyFlow.value = null
+    }
+
+    private suspend fun filterDoctors(query: String, specialty: Specialty?) {
         _state.update { it.copy(isLoading = true) }
 
         runCatchingWithHandler(
             onError = { error ->
                 _state.update { it.copy(isLoading = false, error = error) }
             },
-            retryAction = { screenModelScope.launch { searchDoctors(query) } }
+            retryAction = {
+                screenModelScope.launch {
+                    filterDoctors(query, specialty)
+                }
+            }
         ) {
-            doctorRepository.searchDoctors(query).collect { doctors ->
+            val flow = when {
+                // Both filters active: search first, then filter by specialty
+                query.isNotEmpty() && specialty != null -> {
+                    doctorRepository.searchDoctors(query).map { doctors ->
+                        doctors.filter { it.specialty == specialty }
+                    }
+                }
+                // Only specialty filter
+                specialty != null -> {
+                    doctorRepository.getDoctorsBySpecialty(specialty)
+                }
+                // Only search query
+                query.isNotEmpty() -> {
+                    doctorRepository.searchDoctors(query)
+                }
+                // No filters
+                else -> {
+                    doctorRepository.getAllDoctors()
+                }
+            }
+
+            flow.collect { doctors ->
                 _state.update {
                     it.copy(
                         doctors = doctors,
@@ -100,11 +157,14 @@ class PatientHomeViewModel(
 
     fun onRetry() {
         _state.update { it.copy(error = null) }
-        if (_state.value.searchQuery.isEmpty()) {
+        val currentQuery = _state.value.searchQuery
+        val currentSpecialty = _state.value.selectedSpecialty
+
+        if (currentQuery.isEmpty() && currentSpecialty == null) {
             loadDoctors()
         } else {
             screenModelScope.launch {
-                searchDoctors(_state.value.searchQuery)
+                filterDoctors(currentQuery, currentSpecialty)
             }
         }
     }

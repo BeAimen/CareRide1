@@ -1,19 +1,15 @@
 package com.shjprofessionals.careride1.core.designsystem.components
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.role
@@ -63,21 +59,11 @@ fun DoctorCard(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.Top
             ) {
-                // Avatar placeholder
-                Box(
-                    modifier = Modifier
-                        .size(56.dp)
-                        .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.primaryContainer),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Person,
-                        contentDescription = null, // Card has full description
-                        modifier = Modifier.size(32.dp),
-                        tint = MaterialTheme.colorScheme.onPrimaryContainer
-                    )
-                }
+                // Doctor Avatar with initials
+                DoctorAvatar(
+                    name = doctor.name,
+                    size = AvatarSize.Large
+                )
 
                 Spacer(modifier = Modifier.width(CareRideTheme.spacing.sm))
 
@@ -135,7 +121,7 @@ fun DoctorCard(
                     // Rating
                     Icon(
                         imageVector = Icons.Default.Star,
-                        contentDescription = null, // Combined in text
+                        contentDescription = null,
                         modifier = Modifier.size(16.dp),
                         tint = CareRideLightColors.Sponsored
                     )
@@ -163,7 +149,7 @@ fun DoctorCard(
                     }
                 }
 
-                // Why am I seeing this? - Fixed touch target to 48dp
+                // Why am I seeing this?
                 IconButton(
                     onClick = onWhyThisClick,
                     modifier = Modifier
@@ -174,7 +160,7 @@ fun DoctorCard(
                 ) {
                     Icon(
                         imageVector = Icons.Default.Info,
-                        contentDescription = null, // IconButton has semantics
+                        contentDescription = null,
                         modifier = Modifier.size(18.dp),
                         tint = MaterialTheme.colorScheme.onSurfaceVariant
                     )

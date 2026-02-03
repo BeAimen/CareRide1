@@ -1,19 +1,15 @@
 package com.shjprofessionals.careride1.feature.patient.messages
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.koinScreenModel
@@ -67,20 +63,11 @@ private fun PatientChatContent(
             TopAppBar(
                 title = {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Box(
-                            modifier = Modifier
-                                .size(40.dp)
-                                .clip(CircleShape)
-                                .background(MaterialTheme.colorScheme.primaryContainer),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Person,
-                                contentDescription = null,
-                                modifier = Modifier.size(24.dp),
-                                tint = MaterialTheme.colorScheme.onPrimaryContainer
-                            )
-                        }
+                        // Doctor avatar with initials
+                        DoctorAvatar(
+                            name = doctor?.name,
+                            size = AvatarSize.Medium
+                        )
 
                         Spacer(modifier = Modifier.width(CareRideTheme.spacing.sm))
 
@@ -182,7 +169,7 @@ private fun PatientChatContent(
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.End
                             ) {
-                                InlineLoading(size = 16)
+                                InlineLoading(size = 16, contentDescription = "Sending message")
                                 Spacer(modifier = Modifier.width(CareRideTheme.spacing.xs))
                                 Text(
                                     text = "Sending...",
