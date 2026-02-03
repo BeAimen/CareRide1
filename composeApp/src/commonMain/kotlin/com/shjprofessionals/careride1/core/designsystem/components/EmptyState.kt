@@ -10,6 +10,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.shjprofessionals.careride1.core.designsystem.theme.CareRideTheme
@@ -25,13 +29,17 @@ fun EmptyState(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .padding(CareRideTheme.spacing.xl),
+            .padding(CareRideTheme.spacing.xl)
+            .semantics {
+                liveRegion = LiveRegionMode.Polite
+                contentDescription = "$title. $subtitle"
+            },
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
         Icon(
             imageVector = icon,
-            contentDescription = null,
+            contentDescription = null, // Decorative, parent has description
             modifier = Modifier.size(64.dp),
             tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
         )

@@ -14,10 +14,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.shjprofessionals.careride1.core.designsystem.accessibility.AccessibilityDefaults
 import com.shjprofessionals.careride1.core.designsystem.theme.CareRideTheme
 import com.shjprofessionals.careride1.domain.model.Doctor
 import com.shjprofessionals.careride1.core.designsystem.theme.CareRideLightColors
@@ -29,17 +32,21 @@ fun DoctorCard(
     onWhyThisClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val cardDescription = buildString {
+        append("${doctor.name}, ${doctor.specialty.displayName}")
+        if (doctor.isBoosted) append(", Featured listing")
+        append(", Rating ${doctor.rating} stars from ${doctor.reviewCount} reviews")
+        if (doctor.isAvailableToday) append(", Available today")
+        append(". Tap to view profile.")
+    }
+
     Card(
         modifier = modifier
             .fillMaxWidth()
             .clickable(onClick = onClick)
             .semantics {
-                contentDescription = buildString {
-                    append("${doctor.name}, ${doctor.specialty.displayName}")
-                    if (doctor.isBoosted) append(", Featured listing")
-                    append(", Rating ${doctor.rating} stars from ${doctor.reviewCount} reviews")
-                    if (doctor.isAvailableToday) append(", Available today")
-                }
+                role = Role.Button
+                contentDescription = cardDescription
             },
         shape = RoundedCornerShape(CareRideTheme.radii.lg),
         colors = CardDefaults.cardColors(
@@ -66,7 +73,7 @@ fun DoctorCard(
                 ) {
                     Icon(
                         imageVector = Icons.Default.Person,
-                        contentDescription = null,
+                        contentDescription = null, // Card has full description
                         modifier = Modifier.size(32.dp),
                         tint = MaterialTheme.colorScheme.onPrimaryContainer
                     )
@@ -128,7 +135,7 @@ fun DoctorCard(
                     // Rating
                     Icon(
                         imageVector = Icons.Default.Star,
-                        contentDescription = null,
+                        contentDescription = null, // Combined in text
                         modifier = Modifier.size(16.dp),
                         tint = CareRideLightColors.Sponsored
                     )
@@ -156,14 +163,18 @@ fun DoctorCard(
                     }
                 }
 
-                // Why am I seeing this?
+                // Why am I seeing this? - Fixed touch target to 48dp
                 IconButton(
                     onClick = onWhyThisClick,
-                    modifier = Modifier.size(32.dp)
+                    modifier = Modifier
+                        .size(AccessibilityDefaults.MinTouchTargetDp.dp)
+                        .semantics {
+                            contentDescription = "Why am I seeing ${doctor.name}? Tap for details about this listing."
+                        }
                 ) {
                     Icon(
                         imageVector = Icons.Default.Info,
-                        contentDescription = "Why am I seeing this doctor?",
+                        contentDescription = null, // IconButton has semantics
                         modifier = Modifier.size(18.dp),
                         tint = MaterialTheme.colorScheme.onSurfaceVariant
                     )

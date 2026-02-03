@@ -9,6 +9,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.shjprofessionals.careride1.core.designsystem.theme.CareRideTheme
 
@@ -22,12 +24,16 @@ fun InfoRow(
     valueColor: Color = MaterialTheme.colorScheme.onSurface
 ) {
     Row(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier
+            .fillMaxWidth()
+            .semantics {
+                contentDescription = "$label: $value"
+            },
         verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(
             imageVector = icon,
-            contentDescription = null,
+            contentDescription = null, // Row has full description
             modifier = Modifier.size(20.dp),
             tint = iconTint
         )

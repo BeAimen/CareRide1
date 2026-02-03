@@ -5,6 +5,7 @@ import com.shjprofessionals.careride1.core.util.toAppError
 
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
+import com.shjprofessionals.careride1.core.util.Validators
 import com.shjprofessionals.careride1.data.fakebackend.FakeBackend
 import com.shjprofessionals.careride1.domain.model.Conversation
 import com.shjprofessionals.careride1.domain.model.Doctor
@@ -100,27 +101,34 @@ class PatientChatViewModel(
     }
 
     fun sendMessage() {
-        val content = _state.value.messageInput.trim()
-        if (content.isBlank()) return
+        val content = _state.value.messageInput
         if (!_state.value.subscriptionStatus.canMessage()) return
 
-        screenModelScope.launch {
-            _state.update { it.copy(isSending = true, messageInput = "") }
+        val validation = Validators.validateMessage(content)
 
-            messageRepository.sendMessage(conversationId, content)
-                .onSuccess {
-                    _state.update { it.copy(isSending = false) }
+        validation
+            .onInvalid { reason ->
+                _state.update { it.copy(error = AppError.Validation(reason)) }
+            }
+            .onValid { sanitized ->
+                screenModelScope.launch {
+                    _state.update { it.copy(isSending = true, messageInput = "") }
+
+                    messageRepository.sendPatientMessage(conversationId, sanitized)
+                        .onSuccess {
+                            _state.update { it.copy(isSending = false) }
+                        }
+                        .onFailure { error ->
+                            _state.update {
+                                it.copy(
+                                    isSending = false,
+                                    messageInput = content,
+                                    error = error.toAppError()
+                                )
+                            }
+                        }
                 }
-                .onFailure { error ->
-                    _state.update {
-                        it.copy(
-                            isSending = false,
-                            messageInput = content, // Restore message
-                            error = error.toAppError()
-                        )
-                    }
-                }
-        }
+            }
     }
 
     fun clearError() {

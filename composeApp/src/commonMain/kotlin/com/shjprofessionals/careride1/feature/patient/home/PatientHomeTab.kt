@@ -36,7 +36,6 @@ class PatientHomeTab : Screen {
             onRetry = viewModel::onRetry
         )
 
-        // "Why am I seeing this?" bottom sheet
         state.selectedDoctorForInfo?.let { doctor ->
             WhyAmISeeingThisSheet(
                 doctor = doctor,
@@ -78,7 +77,6 @@ private fun PatientHomeContent(
                 .padding(paddingValues)
                 .padding(horizontal = CareRideTheme.spacing.md)
         ) {
-            // Search bar
             CareRideSearchBar(
                 query = state.searchQuery,
                 onQueryChange = onSearchQueryChange,
@@ -87,24 +85,18 @@ private fun PatientHomeContent(
 
             Spacer(modifier = Modifier.height(CareRideTheme.spacing.md))
 
-            // Content based on state
-            when {
-                state.isLoading -> {
+            LoadingContent(
+                isLoading = state.isLoading,
+                isEmpty = state.doctors.isEmpty(),
+                data = state.doctors,
+                error = state.error,
+                loadingContent = {
                     DoctorListSkeleton(
                         itemCount = 3,
                         modifier = Modifier.fillMaxWidth()
                     )
-                }
-
-                state.error != null -> {
-                    ErrorState(
-                        message = state.error?.userMessage ?: "Unknown error",
-                        onRetry = onRetry,
-                        modifier = Modifier.weight(1f)
-                    )
-                }
-
-                state.doctors.isEmpty() -> {
+                },
+                emptyContent = {
                     EmptyState(
                         title = "No doctors found",
                         subtitle = if (state.searchQuery.isNotEmpty()) {
@@ -122,25 +114,30 @@ private fun PatientHomeContent(
                             }
                         } else null
                     )
+                },
+                errorContent = {
+                    ErrorState(
+                        message = state.error?.userMessage ?: "Unknown error",
+                        onRetry = onRetry,
+                        modifier = Modifier.weight(1f)
+                    )
                 }
-
-                else -> {
-                    // Results count
+            ) { doctors ->
+                Column {
                     Text(
-                        text = "${state.doctors.size} doctor${if (state.doctors.size != 1) "s" else ""} found",
+                        text = "${doctors.size} doctor${if (doctors.size != 1) "s" else ""} found",
                         style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
 
                     Spacer(modifier = Modifier.height(CareRideTheme.spacing.sm))
 
-                    // Doctor list
                     LazyColumn(
                         verticalArrangement = Arrangement.spacedBy(CareRideTheme.spacing.sm),
                         contentPadding = PaddingValues(bottom = CareRideTheme.spacing.lg)
                     ) {
                         items(
-                            items = state.doctors,
+                            items = doctors,
                             key = { it.id }
                         ) { doctor ->
                             DoctorCard(

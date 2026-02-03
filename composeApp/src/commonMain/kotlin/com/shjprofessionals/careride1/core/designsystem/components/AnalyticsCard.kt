@@ -10,6 +10,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.shjprofessionals.careride1.core.designsystem.theme.CareRideTheme
@@ -23,8 +25,13 @@ fun AnalyticsCard(
     icon: ImageVector,
     modifier: Modifier = Modifier
 ) {
+    val changeDirection = if (isPositiveChange) "increased" else "decreased"
+    val fullDescription = "$title: $value, $changeDirection by $change"
+
     Card(
-        modifier = modifier,
+        modifier = modifier.semantics {
+            contentDescription = fullDescription
+        },
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceVariant
         )
@@ -39,7 +46,7 @@ fun AnalyticsCard(
             ) {
                 Icon(
                     imageVector = icon,
-                    contentDescription = null,
+                    contentDescription = null, // Decorative, card has full description
                     tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.size(24.dp)
                 )
@@ -90,7 +97,7 @@ private fun ChangeIndicator(
     ) {
         Icon(
             imageVector = icon,
-            contentDescription = null,
+            contentDescription = null, // Parent has full description
             tint = color,
             modifier = Modifier.size(16.dp)
         )

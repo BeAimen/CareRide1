@@ -24,15 +24,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
-import com.shjprofessionals.careride1.core.designsystem.components.ChatBubble
-import com.shjprofessionals.careride1.core.designsystem.components.EmergencyDisclaimer
-import com.shjprofessionals.careride1.core.designsystem.components.QuickReplyChip
+import com.shjprofessionals.careride1.core.designsystem.accessibility.AccessibilityDefaults
+import com.shjprofessionals.careride1.core.designsystem.components.*
 import com.shjprofessionals.careride1.core.designsystem.theme.CareRideTheme
 import com.shjprofessionals.careride1.domain.model.QuickReply
 import com.shjprofessionals.careride1.domain.model.QuickReplyCategory
@@ -73,7 +74,6 @@ private fun DoctorChatContent(
 ) {
     val listState = rememberLazyListState()
 
-    // Auto-scroll to bottom when new messages arrive
     LaunchedEffect(state.messages.size) {
         if (state.messages.isNotEmpty()) {
             listState.animateScrollToItem(state.messages.size - 1)
@@ -85,7 +85,6 @@ private fun DoctorChatContent(
             TopAppBar(
                 title = {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        // Patient avatar
                         Box(
                             modifier = Modifier
                                 .size(40.dp)
@@ -109,10 +108,15 @@ private fun DoctorChatContent(
                     }
                 },
                 navigationIcon = {
-                    IconButton(onClick = onBackClick) {
+                    IconButton(
+                        onClick = onBackClick,
+                        modifier = Modifier.semantics {
+                            contentDescription = "Go back to inbox"
+                        }
+                    ) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Go back"
+                            contentDescription = null
                         )
                     }
                 },
@@ -123,7 +127,6 @@ private fun DoctorChatContent(
         },
         bottomBar = {
             Column {
-                // Quick replies panel
                 AnimatedVisibility(
                     visible = state.showQuickReplies,
                     enter = slideInVertically(initialOffsetY = { it }),
@@ -136,7 +139,6 @@ private fun DoctorChatContent(
                     )
                 }
 
-                // Message input
                 DoctorMessageInput(
                     value = state.messageInput,
                     onValueChange = onMessageInputChange,
@@ -153,36 +155,33 @@ private fun DoctorChatContent(
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            // Emergency disclaimer
             EmergencyDisclaimer(
                 modifier = Modifier.padding(CareRideTheme.spacing.sm)
             )
 
-            // Messages
-            if (state.isLoading) {
-                Box(
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxWidth(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator()
+            LoadingContent(
+                isLoading = state.isLoading,
+                isEmpty = state.messages.isEmpty(),
+                data = state.messages,
+                loadingContent = {
+                    ScreenLoading(message = "Loading messages...")
+                },
+                emptyContent = {
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxWidth()
+                            .padding(CareRideTheme.spacing.lg),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "No messages yet",
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
                 }
-            } else if (state.messages.isEmpty()) {
-                Box(
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxWidth()
-                        .padding(CareRideTheme.spacing.lg),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = "No messages yet",
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-            } else {
+            ) { messages ->
                 LazyColumn(
                     state = listState,
                     modifier = Modifier
@@ -193,7 +192,7 @@ private fun DoctorChatContent(
                     contentPadding = PaddingValues(vertical = CareRideTheme.spacing.sm)
                 ) {
                     items(
-                        items = state.messages,
+                        items = messages,
                         key = { it.id }
                     ) { message ->
                         ChatBubble(message = message)
@@ -205,10 +204,7 @@ private fun DoctorChatContent(
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.End
                             ) {
-                                CircularProgressIndicator(
-                                    modifier = Modifier.size(16.dp),
-                                    strokeWidth = 2.dp
-                                )
+                                InlineLoading(size = 16, contentDescription = "Sending message")
                                 Spacer(modifier = Modifier.width(CareRideTheme.spacing.xs))
                                 Text(
                                     text = "Sending...",
@@ -243,14 +239,21 @@ private fun DoctorMessageInput(
                 .padding(CareRideTheme.spacing.sm),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Quick reply button
             IconButton(
                 onClick = onQuickReplyClick,
-                modifier = Modifier.size(48.dp)
+                modifier = Modifier
+                    .size(AccessibilityDefaults.MinTouchTargetDp.dp)
+                    .semantics {
+                        contentDescription = if (showQuickRepliesActive) {
+                            "Close quick replies"
+                        } else {
+                            "Open quick replies"
+                        }
+                    }
             ) {
                 Icon(
                     imageVector = if (showQuickRepliesActive) Icons.Default.Close else Icons.Default.Add,
-                    contentDescription = "Quick replies",
+                    contentDescription = null, // Button has semantics
                     tint = if (showQuickRepliesActive) {
                         MaterialTheme.colorScheme.primary
                     } else {
@@ -287,12 +290,26 @@ private fun DoctorMessageInput(
             FilledIconButton(
                 onClick = onSend,
                 enabled = value.isNotBlank() && !isSending,
-                modifier = Modifier.size(48.dp)
+                modifier = Modifier
+                    .size(AccessibilityDefaults.MinTouchTargetDp.dp)
+                    .semantics {
+                        contentDescription = if (isSending) {
+                            "Sending message"
+                        } else if (value.isNotBlank()) {
+                            "Send message"
+                        } else {
+                            "Send message, disabled until you type a message"
+                        }
+                    }
             ) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.Send,
-                    contentDescription = "Send message"
-                )
+                if (isSending) {
+                    InlineLoading(size = 20, contentDescription = "Sending")
+                } else {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.Send,
+                        contentDescription = null // Button has semantics
+                    )
+                }
             }
         }
     }
@@ -326,11 +343,15 @@ private fun QuickRepliesPanel(
 
                 IconButton(
                     onClick = onDismiss,
-                    modifier = Modifier.size(24.dp)
+                    modifier = Modifier
+                        .size(AccessibilityDefaults.MinTouchTargetDp.dp)
+                        .semantics {
+                            contentDescription = "Close quick replies panel"
+                        }
                 ) {
                     Icon(
                         imageVector = Icons.Default.Close,
-                        contentDescription = "Close",
+                        contentDescription = null, // Button has semantics
                         modifier = Modifier.size(16.dp)
                     )
                 }
@@ -338,7 +359,6 @@ private fun QuickRepliesPanel(
 
             Spacer(modifier = Modifier.height(CareRideTheme.spacing.xs))
 
-            // Group by category
             QuickReplyCategory.entries.forEach { category ->
                 val categoryReplies = quickReplies.filter { it.category == category }
                 if (categoryReplies.isNotEmpty()) {

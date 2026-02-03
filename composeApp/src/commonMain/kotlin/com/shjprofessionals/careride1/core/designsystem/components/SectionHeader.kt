@@ -5,6 +5,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import com.shjprofessionals.careride1.core.designsystem.theme.CareRideTheme
 
 @Composable
@@ -16,6 +18,8 @@ fun SectionHeader(
         text = title,
         style = MaterialTheme.typography.titleMedium,
         color = MaterialTheme.colorScheme.onSurface,
-        modifier = modifier.padding(vertical = CareRideTheme.spacing.sm)
+        modifier = modifier
+            .padding(vertical = CareRideTheme.spacing.sm)
+            .semantics { heading() }
     )
 }

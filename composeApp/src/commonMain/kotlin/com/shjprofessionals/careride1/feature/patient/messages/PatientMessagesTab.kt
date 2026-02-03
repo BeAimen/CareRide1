@@ -15,11 +15,9 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
-import com.shjprofessionals.careride1.core.designsystem.components.ConversationCard
-import com.shjprofessionals.careride1.core.designsystem.components.EmergencyDisclaimer
-import com.shjprofessionals.careride1.core.designsystem.components.EmptyState
-import com.shjprofessionals.careride1.core.designsystem.components.ErrorState
+import com.shjprofessionals.careride1.core.designsystem.components.*
 import com.shjprofessionals.careride1.core.designsystem.theme.CareRideTheme
+import com.shjprofessionals.careride1.domain.model.Conversation
 import com.shjprofessionals.careride1.feature.patient.subscription.PaywallScreen
 
 class PatientMessagesTab : Screen {
@@ -45,7 +43,7 @@ class PatientMessagesTab : Screen {
 @Composable
 private fun PatientMessagesContent(
     state: PatientMessagesState,
-    onConversationClick: (com.shjprofessionals.careride1.domain.model.Conversation) -> Unit,
+    onConversationClick: (Conversation) -> Unit,
     onRetry: () -> Unit,
     onSubscribe: () -> Unit
 ) {
@@ -69,7 +67,6 @@ private fun PatientMessagesContent(
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            // Emergency disclaimer
             EmergencyDisclaimer(
                 modifier = Modifier.padding(
                     horizontal = CareRideTheme.spacing.md,
@@ -77,26 +74,15 @@ private fun PatientMessagesContent(
                 )
             )
 
-            // Content
-            when {
-                state.isLoading -> {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = androidx.compose.ui.Alignment.Center
-                    ) {
-                        CircularProgressIndicator()
-                    }
-                }
-
-                state.error != null -> {
-                    ErrorState(
-                        message = state.error?.userMessage ?: "Unknown error",
-                        onRetry = onRetry,
-                        modifier = Modifier.weight(1f)
-                    )
-                }
-
-                state.conversations.isEmpty() -> {
+            LoadingContent(
+                isLoading = state.isLoading,
+                isEmpty = state.conversations.isEmpty(),
+                data = state.conversations,
+                error = state.error,
+                loadingContent = {
+                    ScreenLoading(message = "Loading conversations...")
+                },
+                emptyContent = {
                     EmptyState(
                         icon = Icons.Default.MailOutline,
                         title = "No conversations yet",
@@ -108,32 +94,37 @@ private fun PatientMessagesContent(
                         modifier = Modifier.weight(1f),
                         action = if (!state.subscriptionStatus.canMessage()) {
                             {
-                                com.shjprofessionals.careride1.core.designsystem.components.CareRidePrimaryButton(
+                                CareRidePrimaryButton(
                                     text = "Subscribe Now",
                                     onClick = onSubscribe
                                 )
                             }
                         } else null
                     )
+                },
+                errorContent = {
+                    ErrorState(
+                        message = state.error?.userMessage ?: "Unknown error",
+                        onRetry = onRetry,
+                        modifier = Modifier.weight(1f)
+                    )
                 }
-
-                else -> {
-                    LazyColumn(
-                        modifier = Modifier.fillMaxSize()
-                    ) {
-                        items(
-                            items = state.conversations,
-                            key = { it.id }
-                        ) { conversation ->
-                            ConversationCard(
-                                conversation = conversation,
-                                onClick = { onConversationClick(conversation) }
-                            )
-                            HorizontalDivider(
-                                modifier = Modifier.padding(start = 76.dp),
-                                color = MaterialTheme.colorScheme.outlineVariant
-                            )
-                        }
+            ) { conversations ->
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    items(
+                        items = conversations,
+                        key = { it.id }
+                    ) { conversation ->
+                        ConversationCard(
+                            conversation = conversation,
+                            onClick = { onConversationClick(conversation) }
+                        )
+                        HorizontalDivider(
+                            modifier = Modifier.padding(start = 76.dp),
+                            color = MaterialTheme.colorScheme.outlineVariant
+                        )
                     }
                 }
             }

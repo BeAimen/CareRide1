@@ -4,6 +4,7 @@ import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
 import com.shjprofessionals.careride1.core.util.AppError
 import com.shjprofessionals.careride1.core.util.ErrorHandler
+import com.shjprofessionals.careride1.core.util.Validators
 import com.shjprofessionals.careride1.domain.model.Doctor
 import com.shjprofessionals.careride1.domain.repository.DoctorRepository
 import kotlinx.coroutines.FlowPreview
@@ -68,8 +69,12 @@ class PatientHomeViewModel(
     }
 
     fun onSearchQueryChange(query: String) {
-        _state.update { it.copy(searchQuery = query) }
-        searchQueryFlow.value = query
+        val validation = Validators.validateSearchQuery(query)
+
+        validation.onValid { sanitized ->
+            _state.update { it.copy(searchQuery = sanitized) }
+            searchQueryFlow.value = sanitized
+        }
     }
 
     private suspend fun searchDoctors(query: String) {

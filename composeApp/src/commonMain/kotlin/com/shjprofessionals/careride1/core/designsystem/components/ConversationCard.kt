@@ -11,6 +11,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -23,10 +27,26 @@ fun ConversationCard(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val unreadInfo = if (conversation.unreadCount > 0) {
+        ", ${conversation.unreadCount} unread messages"
+    } else ""
+
+    val fullDescription = buildString {
+        append("Conversation with ${conversation.doctor.name}")
+        append(", ${conversation.doctor.specialty.displayName}")
+        append(". Last message: ${conversation.lastMessagePreview}")
+        append(unreadInfo)
+        append(". Tap to open.")
+    }
+
     Row(
         modifier = modifier
             .fillMaxWidth()
             .clickable(onClick = onClick)
+            .semantics {
+                role = Role.Button
+                contentDescription = fullDescription
+            }
             .padding(
                 horizontal = CareRideTheme.spacing.md,
                 vertical = CareRideTheme.spacing.sm
@@ -43,7 +63,7 @@ fun ConversationCard(
         ) {
             Icon(
                 imageVector = Icons.Default.Person,
-                contentDescription = null,
+                contentDescription = null, // Parent has full description
                 modifier = Modifier.size(28.dp),
                 tint = MaterialTheme.colorScheme.onPrimaryContainer
             )

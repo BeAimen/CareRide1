@@ -9,6 +9,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.shjprofessionals.careride1.core.designsystem.theme.CareRideTheme
@@ -22,13 +26,17 @@ fun ErrorState(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .padding(CareRideTheme.spacing.xl),
+            .padding(CareRideTheme.spacing.xl)
+            .semantics {
+                liveRegion = LiveRegionMode.Assertive
+                contentDescription = "Error: $message. Tap Try Again to retry."
+            },
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
         Icon(
             imageVector = Icons.Default.Warning,
-            contentDescription = null,
+            contentDescription = null, // Parent has full description
             modifier = Modifier.size(64.dp),
             tint = MaterialTheme.colorScheme.error.copy(alpha = 0.7f)
         )
@@ -55,7 +63,8 @@ fun ErrorState(
 
         CareRidePrimaryButton(
             text = "Try Again",
-            onClick = onRetry
+            onClick = onRetry,
+            accessibilityLabel = "Try again to reload content"
         )
     }
 }

@@ -12,8 +12,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
+import com.shjprofessionals.careride1.core.designsystem.accessibility.AccessibilityDefaults
 import com.shjprofessionals.careride1.core.designsystem.theme.CareRideTheme
 
 @Composable
@@ -84,11 +87,19 @@ private fun EnabledMessageInput(
         FilledIconButton(
             onClick = onSend,
             enabled = value.isNotBlank(),
-            modifier = Modifier.size(48.dp)
+            modifier = Modifier
+                .size(AccessibilityDefaults.MinTouchTargetDp.dp)
+                .semantics {
+                    contentDescription = if (value.isNotBlank()) {
+                        "Send message"
+                    } else {
+                        "Send message, disabled until you type a message"
+                    }
+                }
         ) {
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.Send,
-                contentDescription = "Send message"
+                contentDescription = null // Button has semantics
             )
         }
     }
@@ -101,13 +112,16 @@ private fun DisabledMessageInput(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(CareRideTheme.spacing.sm),
+            .padding(CareRideTheme.spacing.sm)
+            .semantics {
+                contentDescription = "Messaging is locked. Subscribe to send messages to doctors."
+            },
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Center
     ) {
         Icon(
             imageVector = Icons.Default.Lock,
-            contentDescription = null,
+            contentDescription = null, // Parent has description
             tint = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.size(20.dp)
         )
@@ -122,7 +136,12 @@ private fun DisabledMessageInput(
 
         Spacer(modifier = Modifier.width(CareRideTheme.spacing.sm))
 
-        TextButton(onClick = onSubscribeClick) {
+        TextButton(
+            onClick = onSubscribeClick,
+            modifier = Modifier.semantics {
+                contentDescription = "Subscribe to unlock messaging"
+            }
+        ) {
             Text("Subscribe")
         }
     }

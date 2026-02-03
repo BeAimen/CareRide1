@@ -22,10 +22,10 @@
             <InsightsFilterSettings>
               <option name="connection">
                 <ConnectionSetting>
-                  <option name="appId" value="PLACEHOLDER" />
-                  <option name="mobileSdkAppId" value="" />
-                  <option name="projectId" value="" />
-                  <option name="projectNumber" value="" />
+                  <option name="appId" value="com.shjprofessionals.careride1" />
+                  <option name="mobileSdkAppId" value="1:478268523364:android:6400462b4c81f5e1f97071" />
+                  <option name="projectId" value="careride1-46595" />
+                  <option name="projectNumber" value="478268523364" />
                 </ConnectionSetting>
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />

@@ -24,6 +24,8 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.shjprofessionals.careride1.core.designsystem.components.EmptyState
 import com.shjprofessionals.careride1.core.designsystem.components.ErrorState
+import com.shjprofessionals.careride1.core.designsystem.components.LoadingContent
+import com.shjprofessionals.careride1.core.designsystem.components.ScreenLoading
 import com.shjprofessionals.careride1.core.designsystem.theme.CareRideTheme
 import com.shjprofessionals.careride1.domain.model.Conversation
 
@@ -80,47 +82,40 @@ private fun DoctorInboxContent(
             )
         }
     ) { paddingValues ->
-        when {
-            state.isLoading -> {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(paddingValues),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator()
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+        ) {
+            LoadingContent(
+                isLoading = state.isLoading,
+                isEmpty = state.conversations.isEmpty(),
+                data = state.conversations,
+                error = state.error,
+                loadingContent = {
+                    ScreenLoading(message = "Loading messages...")
+                },
+                emptyContent = {
+                    EmptyState(
+                        icon = Icons.Default.MailOutline,
+                        title = "No messages yet",
+                        subtitle = "When patients message you, their conversations will appear here",
+                        modifier = Modifier.fillMaxSize()
+                    )
+                },
+                errorContent = {
+                    ErrorState(
+                        message = state.error?.userMessage ?: "Unknown error",
+                        onRetry = onRetry,
+                        modifier = Modifier.fillMaxSize()
+                    )
                 }
-            }
-
-            state.error != null -> {
-                ErrorState(
-                    message = state.error?.userMessage ?: "Unknown error",
-                    onRetry = onRetry,
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(paddingValues)
-                )
-            }
-
-            state.conversations.isEmpty() -> {
-                EmptyState(
-                    icon = Icons.Default.MailOutline,
-                    title = "No messages yet",
-                    subtitle = "When patients message you, their conversations will appear here",
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(paddingValues)
-                )
-            }
-
-            else -> {
+            ) { conversations ->
                 LazyColumn(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(paddingValues)
+                    modifier = Modifier.fillMaxSize()
                 ) {
                     items(
-                        items = state.conversations,
+                        items = conversations,
                         key = { it.id }
                     ) { conversation ->
                         DoctorConversationCard(
@@ -153,7 +148,6 @@ private fun DoctorConversationCard(
             ),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // Patient avatar
         Box(
             modifier = Modifier
                 .size(52.dp)

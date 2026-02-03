@@ -9,12 +9,15 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.shjprofessionals.careride1.core.designsystem.theme.CareRideTheme
+import com.shjprofessionals.careride1.domain.model.BillingPeriod
 import com.shjprofessionals.careride1.domain.model.SubscriptionPlan
 
 @Composable
@@ -36,11 +39,17 @@ fun PlanCard(
         MaterialTheme.colorScheme.surface
     }
 
+    val selectionState = if (isSelected) "Selected" else "Not selected"
+    val popularLabel = if (plan.isPopular) ", Best value" else ""
+    val fullDescription = "${plan.name} plan$popularLabel, ${plan.displayPrice} ${plan.billingDescription}. ${plan.description}. $selectionState. Tap to select."
+
     Card(
         modifier = modifier
             .fillMaxWidth()
             .semantics {
-                contentDescription = "${plan.name} plan, ${plan.displayPrice} ${plan.billingDescription}"
+                role = Role.RadioButton
+                selected = isSelected
+                contentDescription = fullDescription
             },
         shape = RoundedCornerShape(CareRideTheme.radii.lg),
         colors = CardDefaults.cardColors(containerColor = containerColor),
@@ -115,7 +124,7 @@ fun PlanCard(
             }
 
             // Monthly equivalent for yearly
-            if (plan.billingPeriod == com.shjprofessionals.careride1.domain.model.BillingPeriod.YEARLY) {
+            if (plan.billingPeriod == BillingPeriod.YEARLY) {
                 Text(
                     text = "Just ${plan.monthlyEquivalentDisplay}",
                     style = MaterialTheme.typography.labelMedium,
@@ -133,7 +142,7 @@ fun PlanCard(
                 ) {
                     Icon(
                         imageVector = Icons.Default.CheckCircle,
-                        contentDescription = null,
+                        contentDescription = null, // Decorative checkmark
                         modifier = Modifier.size(16.dp),
                         tint = MaterialTheme.colorScheme.primary
                     )
@@ -156,7 +165,7 @@ fun PlanCard(
                 ) {
                     Icon(
                         imageVector = Icons.Default.CheckCircle,
-                        contentDescription = null,
+                        contentDescription = null, // Announced in card semantics
                         modifier = Modifier.size(20.dp),
                         tint = MaterialTheme.colorScheme.primary
                     )

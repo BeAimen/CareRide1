@@ -9,6 +9,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.shjprofessionals.careride1.core.designsystem.theme.CareRideTheme
 import com.shjprofessionals.careride1.domain.model.Message
@@ -20,6 +22,7 @@ fun ChatBubble(
     modifier: Modifier = Modifier
 ) {
     val isPatient = message.senderType == MessageSenderType.PATIENT
+    val senderLabel = if (isPatient) "You" else "Doctor"
 
     val bubbleShape = if (isPatient) {
         RoundedCornerShape(
@@ -52,7 +55,11 @@ fun ChatBubble(
     val alignment = if (isPatient) Alignment.End else Alignment.Start
 
     Column(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier
+            .fillMaxWidth()
+            .semantics {
+                contentDescription = "$senderLabel said: ${message.content}, ${message.formattedTime}"
+            },
         horizontalAlignment = alignment
     ) {
         Box(

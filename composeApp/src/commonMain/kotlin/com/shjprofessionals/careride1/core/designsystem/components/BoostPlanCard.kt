@@ -10,6 +10,11 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.selected
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.shjprofessionals.careride1.core.designsystem.theme.CareRideLightColors
@@ -36,8 +41,19 @@ fun BoostPlanCard(
         MaterialTheme.colorScheme.surface
     }
 
+    val selectionState = if (isSelected) "Selected" else "Not selected"
+    val popularLabel = if (plan.isPopular) ", Popular choice" else ""
+    val fullDescription = "${plan.name}$popularLabel, ${plan.displayPrice} ${plan.billingDescription}. " +
+            "${plan.boostMultiplier}x visibility boost. ${plan.description}. $selectionState. Tap to select."
+
     Card(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier
+            .fillMaxWidth()
+            .semantics {
+                role = Role.RadioButton
+                selected = isSelected
+                contentDescription = fullDescription
+            },
         shape = RoundedCornerShape(CareRideTheme.radii.lg),
         colors = CardDefaults.cardColors(containerColor = containerColor),
         border = BorderStroke(
@@ -58,7 +74,7 @@ fun BoostPlanCard(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
                         imageVector = Icons.Default.Star,
-                        contentDescription = null,
+                        contentDescription = null, // Decorative
                         tint = CareRideLightColors.Sponsored,
                         modifier = Modifier.size(24.dp)
                     )
@@ -151,7 +167,7 @@ fun BoostPlanCard(
                 ) {
                     Icon(
                         imageVector = Icons.Default.CheckCircle,
-                        contentDescription = null,
+                        contentDescription = null, // Decorative
                         modifier = Modifier.size(16.dp),
                         tint = MaterialTheme.colorScheme.primary
                     )
@@ -174,7 +190,7 @@ fun BoostPlanCard(
                 ) {
                     Icon(
                         imageVector = Icons.Default.CheckCircle,
-                        contentDescription = null,
+                        contentDescription = null, // Announced in card semantics
                         modifier = Modifier.size(20.dp),
                         tint = MaterialTheme.colorScheme.primary
                     )

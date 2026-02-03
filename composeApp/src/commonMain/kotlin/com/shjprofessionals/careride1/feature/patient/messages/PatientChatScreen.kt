@@ -19,9 +19,7 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
-import com.shjprofessionals.careride1.core.designsystem.components.ChatBubble
-import com.shjprofessionals.careride1.core.designsystem.components.EmergencyDisclaimer
-import com.shjprofessionals.careride1.core.designsystem.components.MessageInput
+import com.shjprofessionals.careride1.core.designsystem.components.*
 import com.shjprofessionals.careride1.core.designsystem.theme.CareRideTheme
 import com.shjprofessionals.careride1.feature.patient.subscription.PaywallScreen
 import org.koin.core.parameter.parametersOf
@@ -58,7 +56,6 @@ private fun PatientChatContent(
     val listState = rememberLazyListState()
     val doctor = state.doctor
 
-    // Auto-scroll to bottom when new messages arrive
     LaunchedEffect(state.messages.size) {
         if (state.messages.isNotEmpty()) {
             listState.animateScrollToItem(state.messages.size - 1)
@@ -132,40 +129,37 @@ private fun PatientChatContent(
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            // Emergency disclaimer at top
             EmergencyDisclaimer(
                 modifier = Modifier.padding(CareRideTheme.spacing.sm)
             )
 
-            // Messages
-            if (state.isLoading) {
-                Box(
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxWidth(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator()
+            LoadingContent(
+                isLoading = state.isLoading,
+                isEmpty = state.messages.isEmpty(),
+                data = state.messages,
+                loadingContent = {
+                    ScreenLoading(message = "Loading messages...")
+                },
+                emptyContent = {
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxWidth()
+                            .padding(CareRideTheme.spacing.lg),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = if (state.isInputEnabled) {
+                                "Send a message to start the conversation"
+                            } else {
+                                "Subscribe to start messaging this doctor"
+                            },
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
                 }
-            } else if (state.messages.isEmpty()) {
-                Box(
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxWidth()
-                        .padding(CareRideTheme.spacing.lg),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = if (state.isInputEnabled) {
-                            "Send a message to start the conversation"
-                        } else {
-                            "Subscribe to start messaging this doctor"
-                        },
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-            } else {
+            ) { messages ->
                 LazyColumn(
                     state = listState,
                     modifier = Modifier
@@ -176,23 +170,19 @@ private fun PatientChatContent(
                     contentPadding = PaddingValues(vertical = CareRideTheme.spacing.sm)
                 ) {
                     items(
-                        items = state.messages,
+                        items = messages,
                         key = { it.id }
                     ) { message ->
                         ChatBubble(message = message)
                     }
 
-                    // Sending indicator
                     if (state.isSending) {
                         item {
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.End
                             ) {
-                                CircularProgressIndicator(
-                                    modifier = Modifier.size(16.dp),
-                                    strokeWidth = 2.dp
-                                )
+                                InlineLoading(size = 16)
                                 Spacer(modifier = Modifier.width(CareRideTheme.spacing.xs))
                                 Text(
                                     text = "Sending...",
