@@ -7,12 +7,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import cafe.adriel.voyager.navigator.Navigator
-import cafe.adriel.voyager.transitions.SlideTransition
 import com.shjprofessionals.careride1.core.designsystem.components.AppErrorSnackbarHost
 import com.shjprofessionals.careride1.core.designsystem.theme.CareRideTheme
-import com.shjprofessionals.careride1.core.navigation.CareRideTransition
-import com.shjprofessionals.careride1.feature.onboarding.SplashScreen
+import com.shjprofessionals.careride1.feature.auth.AuthNavigator
 import org.koin.compose.KoinContext
 
 @Composable
@@ -22,9 +19,7 @@ fun App() {
             val snackbarHostState = remember { SnackbarHostState() }
 
             Box(modifier = Modifier.fillMaxSize()) {
-                Navigator(SplashScreen()) { navigator ->
-                    CareRideTransition(navigator)
-                }
+                AuthNavigator()
 
                 AppErrorSnackbarHost(
                     hostState = snackbarHostState,

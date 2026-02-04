@@ -21,15 +21,20 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import com.shjprofessionals.careride1.core.designsystem.components.SectionHeader
 import com.shjprofessionals.careride1.core.designsystem.theme.CareRideTheme
 import com.shjprofessionals.careride1.data.fakebackend.FakeBackend
-import com.shjprofessionals.careride1.feature.onboarding.RoleSelectionScreen
+import com.shjprofessionals.careride1.domain.repository.AuthRepository
+import kotlinx.coroutines.launch
+import org.koin.compose.koinInject
 
 class PrivacySecurityScreen : Screen {
 
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
+        val authRepository: AuthRepository = koinInject()
         var showLogoutDialog by remember { mutableStateOf(false) }
         var showDeleteDialog by remember { mutableStateOf(false) }
+        var isLoggingOut by remember { mutableStateOf(false) }
+        val scope = rememberCoroutineScope()
 
         PrivacySecurityContent(
             onBackClick = { navigator.pop() },
@@ -39,23 +44,35 @@ class PrivacySecurityScreen : Screen {
 
         if (showLogoutDialog) {
             AlertDialog(
-                onDismissRequest = { showLogoutDialog = false },
+                onDismissRequest = { if (!isLoggingOut) showLogoutDialog = false },
                 title = { Text("Log Out?") },
                 text = { Text("Are you sure you want to log out of CareRide?") },
                 confirmButton = {
                     TextButton(
                         onClick = {
-                            showLogoutDialog = false
-                            FakeBackend.patientProfileStore.logout()
-                            // Navigate to role selection and clear back stack
-                            navigator.replaceAll(RoleSelectionScreen())
-                        }
+                            scope.launch {
+                                isLoggingOut = true
+                                authRepository.signOut()
+                                // Navigation will be handled automatically by AuthNavigator
+                            }
+                        },
+                        enabled = !isLoggingOut
                     ) {
-                        Text("Log Out")
+                        if (isLoggingOut) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(16.dp),
+                                strokeWidth = 2.dp
+                            )
+                        } else {
+                            Text("Log Out")
+                        }
                     }
                 },
                 dismissButton = {
-                    TextButton(onClick = { showLogoutDialog = false }) {
+                    TextButton(
+                        onClick = { showLogoutDialog = false },
+                        enabled = !isLoggingOut
+                    ) {
                         Text("Cancel")
                     }
                 }
@@ -75,10 +92,12 @@ class PrivacySecurityScreen : Screen {
                 confirmButton = {
                     TextButton(
                         onClick = {
-                            showDeleteDialog = false
-                            FakeBackend.patientProfileStore.deleteAccount()
-                            FakeBackend.subscriptionStore.clear()
-                            navigator.replaceAll(RoleSelectionScreen())
+                            scope.launch {
+                                showDeleteDialog = false
+                                FakeBackend.patientProfileStore.deleteAccount()
+                                FakeBackend.subscriptionStore.clear()
+                                authRepository.signOut()
+                            }
                         },
                         colors = ButtonDefaults.textButtonColors(
                             contentColor = MaterialTheme.colorScheme.error

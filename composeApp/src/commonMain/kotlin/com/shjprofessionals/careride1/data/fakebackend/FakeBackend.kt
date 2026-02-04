@@ -140,8 +140,8 @@ object FakeBackend {
     val messageStore: FakeMessageStore by lazy { FakeMessageStore() }
     val boostStore: FakeBoostStore by lazy { FakeBoostStore() }
     val doctorProfileStore: FakeDoctorProfileStore by lazy { FakeDoctorProfileStore() }
-    // Add with other lazy stores
     val patientProfileStore: FakePatientProfileStore by lazy { FakePatientProfileStore() }
+    val authStore: FakeAuthStore by lazy { FakeAuthStore() }
     // ============ Subscription Plans ============
     fun getAvailablePlans(): List<SubscriptionPlan> = SubscriptionPlans.ALL
 
