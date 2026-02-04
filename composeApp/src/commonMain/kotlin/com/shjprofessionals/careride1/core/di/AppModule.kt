@@ -17,7 +17,9 @@ import com.shjprofessionals.careride1.feature.patient.doctorprofile.DoctorProfil
 import com.shjprofessionals.careride1.feature.patient.home.PatientHomeViewModel
 import com.shjprofessionals.careride1.feature.patient.messages.PatientChatViewModel
 import com.shjprofessionals.careride1.feature.patient.messages.PatientMessagesViewModel
+import com.shjprofessionals.careride1.feature.patient.profile.NotificationSettingsViewModel
 import com.shjprofessionals.careride1.feature.patient.profile.PatientProfileViewModel
+import com.shjprofessionals.careride1.feature.patient.profile.PersonalInfoViewModel
 import com.shjprofessionals.careride1.feature.patient.subscription.ManageSubscriptionViewModel
 import com.shjprofessionals.careride1.feature.patient.subscription.MockCheckoutViewModel
 import com.shjprofessionals.careride1.feature.patient.subscription.PaywallViewModel
@@ -36,6 +38,8 @@ val appModule = module {
     factory { PaywallViewModel(get()) }
     factory { ManageSubscriptionViewModel(get()) }
     factory { PatientMessagesViewModel(get(), get()) }
+    factory { PersonalInfoViewModel() }
+    factory { NotificationSettingsViewModel() }
 
     factory { (doctorId: String) ->
         PatientDoctorProfileViewModel(

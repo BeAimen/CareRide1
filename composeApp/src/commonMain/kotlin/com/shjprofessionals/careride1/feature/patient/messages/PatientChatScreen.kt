@@ -1,5 +1,6 @@
 package com.shjprofessionals.careride1.feature.patient.messages
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -10,6 +11,8 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.koinScreenModel
@@ -17,6 +20,7 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.shjprofessionals.careride1.core.designsystem.components.*
 import com.shjprofessionals.careride1.core.designsystem.theme.CareRideTheme
+import com.shjprofessionals.careride1.feature.patient.doctorprofile.DoctorProfileScreen
 import com.shjprofessionals.careride1.feature.patient.subscription.PaywallScreen
 import org.koin.core.parameter.parametersOf
 
@@ -33,6 +37,9 @@ data class PatientChatScreen(
         PatientChatContent(
             state = state,
             onBackClick = { navigator.pop() },
+            onDoctorClick = { doctorId ->
+                navigator.push(DoctorProfileScreen(doctorId = doctorId))
+            },
             onMessageInputChange = viewModel::onMessageInputChange,
             onSend = viewModel::sendMessage,
             onSubscribeClick = { navigator.push(PaywallScreen()) }
@@ -45,6 +52,7 @@ data class PatientChatScreen(
 private fun PatientChatContent(
     state: PatientChatState,
     onBackClick: () -> Unit,
+    onDoctorClick: (String) -> Unit,
     onMessageInputChange: (String) -> Unit,
     onSend: () -> Unit,
     onSubscribeClick: () -> Unit
@@ -62,7 +70,22 @@ private fun PatientChatContent(
         topBar = {
             TopAppBar(
                 title = {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .then(
+                                if (doctor != null) {
+                                    Modifier
+                                        .clickable { onDoctorClick(doctor.id) }
+                                        .semantics {
+                                            contentDescription = "View ${doctor.name}'s profile"
+                                        }
+                                } else {
+                                    Modifier
+                                }
+                            )
+                            .padding(vertical = CareRideTheme.spacing.xs) // Increase touch target
+                    ) {
                         // Doctor avatar with initials
                         DoctorAvatar(
                             name = doctor?.name,

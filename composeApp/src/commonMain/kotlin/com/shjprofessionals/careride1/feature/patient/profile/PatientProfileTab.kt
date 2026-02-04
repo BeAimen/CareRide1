@@ -37,6 +37,18 @@ class PatientProfileTab : Screen {
                 } else {
                     navigator.push(PaywallScreen())
                 }
+            },
+            onPersonalInfoClick = {
+                navigator.push(PersonalInfoScreen())
+            },
+            onNotificationsClick = {
+                navigator.push(NotificationSettingsScreen())
+            },
+            onPrivacyClick = {
+                navigator.push(PrivacySecurityScreen())
+            },
+            onAboutClick = {
+                navigator.push(AboutScreen())
             }
         )
     }
@@ -46,7 +58,11 @@ class PatientProfileTab : Screen {
 @Composable
 private fun PatientProfileContent(
     state: PatientProfileState,
-    onSubscriptionClick: () -> Unit
+    onSubscriptionClick: () -> Unit,
+    onPersonalInfoClick: () -> Unit,
+    onNotificationsClick: () -> Unit,
+    onPrivacyClick: () -> Unit,
+    onAboutClick: () -> Unit
 ) {
     Scaffold(
         topBar = {
@@ -77,37 +93,38 @@ private fun PatientProfileContent(
 
             Spacer(modifier = Modifier.height(CareRideTheme.spacing.lg))
 
-            // Other profile options (placeholders)
+            // Profile options
             ProfileMenuItem(
                 icon = Icons.Default.Person,
                 title = "Personal Information",
                 subtitle = "Update your details",
-                onClick = { /* TODO */ }
+                onClick = onPersonalInfoClick
             )
 
             ProfileMenuItem(
                 icon = Icons.Default.Notifications,
                 title = "Notifications",
                 subtitle = "Manage notification preferences",
-                onClick = { /* TODO */ }
+                onClick = onNotificationsClick
             )
 
             ProfileMenuItem(
                 icon = Icons.Default.Lock,
                 title = "Privacy & Security",
                 subtitle = "Manage your data",
-                onClick = { /* TODO */ }
+                onClick = onPrivacyClick
             )
 
             ProfileMenuItem(
                 icon = Icons.Default.Info,
                 title = "About CareRide",
                 subtitle = "Version 1.0.0",
-                onClick = { /* TODO */ }
+                onClick = onAboutClick
             )
         }
     }
 }
+
 
 @Composable
 private fun SubscriptionStatusCard(

@@ -149,8 +149,9 @@ private class PullRefreshNestedScrollConnection(
 ) : NestedScrollConnection {
 
     override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
+        // Only respond to user drag, not fling momentum
         // When scrolling up and we have pull offset, consume the scroll to reduce offset
-        if (available.y < 0 && state.pullOffset > 0) {
+        if (source == NestedScrollSource.Drag && available.y < 0 && state.pullOffset > 0) {
             val consumed = state.onPull(available.y)
             return Offset(0f, consumed)
         }
@@ -162,8 +163,7 @@ private class PullRefreshNestedScrollConnection(
         available: Offset,
         source: NestedScrollSource
     ): Offset {
-        // When scrolling down and there's leftover scroll (list is at top), use it for pull
-        if (available.y > 0 && !state.isRefreshing) {
+        if (source == NestedScrollSource.Drag && available.y > 0 && !state.isRefreshing) {
             val consumed = state.onPull(available.y)
             return Offset(0f, consumed)
         }
@@ -171,7 +171,8 @@ private class PullRefreshNestedScrollConnection(
     }
 
     override suspend fun onPreFling(available: Velocity): Velocity {
-        // Release on fling
+        // Release on fling - this is called when user lifts finger after dragging
+        // Only release if there's accumulated pull offset from an intentional pull gesture
         if (state.pullOffset > 0) {
             state.onRelease()
         }
