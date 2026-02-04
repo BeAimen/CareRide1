@@ -11,13 +11,17 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import com.shjprofessionals.careride1.core.designsystem.components.PatientAvatar
+import com.shjprofessionals.careride1.core.designsystem.components.AvatarSize
 import com.shjprofessionals.careride1.core.designsystem.theme.CareRideTheme
 import com.shjprofessionals.careride1.domain.model.SubscriptionStatus
+import com.shjprofessionals.careride1.domain.model.User
 import com.shjprofessionals.careride1.feature.patient.subscription.ManageSubscriptionScreen
 import com.shjprofessionals.careride1.feature.patient.subscription.PaywallScreen
 
@@ -85,6 +89,16 @@ private fun PatientProfileContent(
                 .padding(paddingValues)
                 .padding(CareRideTheme.spacing.md)
         ) {
+            // User header card
+            state.user?.let { user ->
+                UserHeaderCard(
+                    user = user,
+                    onClick = onPersonalInfoClick
+                )
+
+                Spacer(modifier = Modifier.height(CareRideTheme.spacing.lg))
+            }
+
             // Subscription card
             SubscriptionStatusCard(
                 status = state.subscriptionStatus,
@@ -125,6 +139,57 @@ private fun PatientProfileContent(
     }
 }
 
+@Composable
+private fun UserHeaderCard(
+    user: User,
+    onClick: () -> Unit
+) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
+        )
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(CareRideTheme.spacing.md),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            PatientAvatar(
+                name = user.name,
+                size = AvatarSize.Large
+            )
+
+            Spacer(modifier = Modifier.width(CareRideTheme.spacing.md))
+
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = user.name,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Text(
+                    text = user.email,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                contentDescription = "Edit profile",
+                tint = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+    }
+}
 
 @Composable
 private fun SubscriptionStatusCard(
@@ -245,5 +310,4 @@ private fun ProfileMenuItem(
     }
 }
 
-// Helper class for destructuring
 private data class Tuple4<A, B, C, D>(val first: A, val second: B, val third: C, val fourth: D)

@@ -23,6 +23,7 @@ import com.shjprofessionals.careride1.feature.patient.doctorprofile.DoctorProfil
 import com.shjprofessionals.careride1.feature.patient.home.PatientHomeViewModel
 import com.shjprofessionals.careride1.feature.patient.messages.PatientChatViewModel
 import com.shjprofessionals.careride1.feature.patient.messages.PatientMessagesViewModel
+import com.shjprofessionals.careride1.feature.patient.profile.EditBasicInfoViewModel
 import com.shjprofessionals.careride1.feature.patient.profile.NotificationSettingsViewModel
 import com.shjprofessionals.careride1.feature.patient.profile.PatientProfileViewModel
 import com.shjprofessionals.careride1.feature.patient.profile.PersonalInfoViewModel
@@ -47,12 +48,18 @@ val appModule = module {
 
     // ============ Patient ViewModels ============
     factory { PatientHomeViewModel(get()) }
-    factory { PatientProfileViewModel(get()) }
+    factory { PatientProfileViewModel(get(), get()) }
     factory { PaywallViewModel(get()) }
     factory { ManageSubscriptionViewModel(get()) }
     factory { PatientMessagesViewModel(get(), get()) }
-    factory { PersonalInfoViewModel() }
+    factory { PersonalInfoViewModel(get()) }
     factory { NotificationSettingsViewModel() }
+
+    factory { EditBasicInfoViewModel(get()) }
+    factory { EditAddressViewModel() }
+    factory { EditMedicalInfoViewModel() }
+    factory { EditInsuranceViewModel() }
+    factory { EditEmergencyContactViewModel() }
 
     factory { (doctorId: String) ->
         PatientDoctorProfileViewModel(

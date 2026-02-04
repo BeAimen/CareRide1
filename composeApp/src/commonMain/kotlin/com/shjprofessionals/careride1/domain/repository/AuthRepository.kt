@@ -1,51 +1,33 @@
 package com.shjprofessionals.careride1.domain.repository
 
-import com.shjprofessionals.careride1.domain.model.AuthResult
-import com.shjprofessionals.careride1.domain.model.AuthState
-import com.shjprofessionals.careride1.domain.model.SignInCredentials
-import com.shjprofessionals.careride1.domain.model.SignUpCredentials
-import com.shjprofessionals.careride1.domain.model.UserRole
+import com.shjprofessionals.careride1.domain.model.*
 import kotlinx.coroutines.flow.Flow
 
 interface AuthRepository {
 
-    /**
-     * Observe authentication state changes
-     */
     fun observeAuthState(): Flow<AuthState>
 
-    /**
-     * Get current auth state
-     */
     fun getAuthState(): AuthState
 
-    /**
-     * Register a new user
-     */
     suspend fun register(credentials: SignUpCredentials): AuthResult
 
-    /**
-     * Sign in with credentials
-     */
     suspend fun signIn(credentials: SignInCredentials): AuthResult
 
-    /**
-     * Sign out current user
-     */
     suspend fun signOut()
 
-    /**
-     * Request password reset email
-     */
     suspend fun requestPasswordReset(email: String): Boolean
 
-    /**
-     * Set user's role
-     */
     suspend fun setRole(role: UserRole): AuthResult
 
     /**
-     * Get remembered email for "Remember me" feature
+     * Update user's basic info (name, email)
      */
+    suspend fun updateUserInfo(name: String? = null, email: String? = null): AuthResult
+
     fun getRememberedEmail(): String?
+
+    /**
+     * Get current user synchronously
+     */
+    fun getCurrentUser(): User?
 }

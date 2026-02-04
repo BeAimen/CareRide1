@@ -25,7 +25,7 @@ class FakeAuthStore {
     private fun now(): Long = Clock.System.now().toEpochMilliseconds()
 
     init {
-        // Seed with a test account for easy testing
+        // Seed with test accounts
         seedTestAccounts()
     }
 
@@ -38,7 +38,7 @@ class FakeAuthStore {
                 name = "Test Patient",
                 email = "patient@test.com",
                 role = UserRole.PATIENT,
-                createdAt = now() - 86400000 // 1 day ago
+                createdAt = now() - 86400000
             ),
             passwordHash = "password123".hashCode()
         )
@@ -56,7 +56,7 @@ class FakeAuthStore {
             passwordHash = "password123".hashCode()
         )
 
-        // Test account without role (for testing role selection)
+        // Test account without role
         val newUserId = "user_new_001"
         users["new@test.com"] = UserRecord(
             user = User(
@@ -76,18 +76,16 @@ class FakeAuthStore {
     fun register(credentials: SignUpCredentials): AuthResult {
         val email = credentials.email.lowercase().trim()
 
-        // Check if email already exists
         if (users.containsKey(email)) {
             return AuthResult.Error("An account with this email already exists")
         }
 
-        // Create new user
         val userId = "user_${now()}"
         val user = User(
             id = userId,
             name = credentials.name.trim(),
             email = email,
-            role = null, // Role will be selected after signup
+            role = null,
             createdAt = now()
         )
 
@@ -96,7 +94,6 @@ class FakeAuthStore {
             passwordHash = credentials.password.hashCode()
         )
 
-        // Auto-login after registration
         _authState.value = AuthState.SignedInNoRole(user)
 
         return AuthResult.Success(user)
@@ -115,16 +112,18 @@ class FakeAuthStore {
             return AuthResult.Error("Incorrect password")
         }
 
-        // Remember email if requested
         rememberedEmail = if (credentials.rememberMe) email else null
 
-        // Set auth state based on user's role
         val user = record.user
-        _authState.value = when (user.role) {
+        val newState = when (user.role) {
             UserRole.PATIENT -> AuthState.SignedInPatient(user)
             UserRole.DOCTOR -> AuthState.SignedInDoctor(user)
             null -> AuthState.SignedInNoRole(user)
         }
+        _authState.value = newState
+
+        // Sync profile stores
+        syncProfileStores(user)
 
         return AuthResult.Success(user)
     }
@@ -134,10 +133,12 @@ class FakeAuthStore {
      */
     fun signOut() {
         _authState.value = AuthState.SignedOut
+        // Clear profile stores
+        FakeBackend.patientProfileStore.clear()
     }
 
     /**
-     * Request password reset (mock - just validates email exists)
+     * Request password reset
      */
     fun requestPasswordReset(email: String): Boolean {
         val normalizedEmail = email.lowercase().trim()
@@ -145,61 +146,101 @@ class FakeAuthStore {
     }
 
     /**
-     * Set user's role (after signup or role change)
+     * Set user's role
      */
     fun setRole(role: UserRole): AuthResult {
         val currentState = _authState.value
         val currentUser = currentState.currentUser()
             ?: return AuthResult.Error("No user is signed in")
 
-        // Update user record
         val email = currentUser.email
         val record = users[email] ?: return AuthResult.Error("User not found")
 
         val updatedUser = currentUser.copy(role = role)
         users[email] = record.copy(user = updatedUser)
 
-        // Update auth state
-        _authState.value = when (role) {
+        val newState = when (role) {
             UserRole.PATIENT -> AuthState.SignedInPatient(updatedUser)
             UserRole.DOCTOR -> AuthState.SignedInDoctor(updatedUser)
+        }
+        _authState.value = newState
+
+        // Sync profile stores
+        syncProfileStores(updatedUser)
+
+        return AuthResult.Success(updatedUser)
+    }
+
+    /**
+     * Update user's basic info (name, email)
+     */
+    fun updateUserInfo(name: String? = null, email: String? = null): AuthResult {
+        val currentUser = _authState.value.currentUser()
+            ?: return AuthResult.Error("No user is signed in")
+
+        val currentEmail = currentUser.email
+        val record = users[currentEmail] ?: return AuthResult.Error("User not found")
+
+        val newEmail = email?.lowercase()?.trim() ?: currentEmail
+
+        // Check if new email is already taken (by another user)
+        if (newEmail != currentEmail && users.containsKey(newEmail)) {
+            return AuthResult.Error("Email is already in use")
+        }
+
+        val updatedUser = currentUser.copy(
+            name = name?.trim() ?: currentUser.name,
+            email = newEmail
+        )
+
+        // Remove old email entry if email changed
+        if (newEmail != currentEmail) {
+            users.remove(currentEmail)
+        }
+
+        users[newEmail] = record.copy(user = updatedUser)
+
+        // Update auth state
+        _authState.value = when (updatedUser.role) {
+            UserRole.PATIENT -> AuthState.SignedInPatient(updatedUser)
+            UserRole.DOCTOR -> AuthState.SignedInDoctor(updatedUser)
+            null -> AuthState.SignedInNoRole(updatedUser)
         }
 
         return AuthResult.Success(updatedUser)
     }
 
     /**
-     * Get remembered email (for "Remember me" feature)
+     * Sync profile stores with user data
      */
+    private fun syncProfileStores(user: User) {
+        when (user.role) {
+            UserRole.PATIENT -> {
+                FakeBackend.patientProfileStore.syncWithAuthUser(user)
+            }
+            UserRole.DOCTOR -> {
+                FakeBackend.doctorProfileStore.syncWithAuthUser(user)
+            }
+            null -> {
+                // No role yet, nothing to sync
+            }
+        }
+    }
+
     fun getRememberedEmail(): String? = rememberedEmail
 
-    /**
-     * Check if user is currently authenticated
-     */
     fun isAuthenticated(): Boolean = _authState.value.isAuthenticated()
 
-    /**
-     * Get current user
-     */
     fun getCurrentUser(): User? = _authState.value.currentUser()
 
-    /**
-     * Set loading state
-     */
     fun setLoading() {
         _authState.value = AuthState.Loading
     }
 
-    /**
-     * Reset to signed out (for error recovery)
-     */
     fun resetToSignedOut() {
         _authState.value = AuthState.SignedOut
     }
 
-    /**
-     * Internal user record with password hash
-     */
     private data class UserRecord(
         val user: User,
         val passwordHash: Int

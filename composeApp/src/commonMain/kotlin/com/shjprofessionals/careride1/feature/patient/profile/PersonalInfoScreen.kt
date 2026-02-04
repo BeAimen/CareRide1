@@ -1,17 +1,18 @@
 package com.shjprofessionals.careride1.feature.patient.profile
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
@@ -21,11 +22,10 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.shjprofessionals.careride1.core.designsystem.components.PatientAvatar
 import com.shjprofessionals.careride1.core.designsystem.components.AvatarSize
-import com.shjprofessionals.careride1.core.designsystem.components.SectionHeader
 import com.shjprofessionals.careride1.core.designsystem.theme.CareRideTheme
 import com.shjprofessionals.careride1.data.fakebackend.FakeBackend
-import com.shjprofessionals.careride1.domain.model.PatientProfile
-import kotlinx.coroutines.delay
+import com.shjprofessionals.careride1.domain.model.*
+import com.shjprofessionals.careride1.domain.repository.AuthRepository
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
@@ -40,43 +40,24 @@ class PersonalInfoScreen : Screen {
         PersonalInfoContent(
             state = state,
             onBackClick = { navigator.pop() },
-            onNameChange = viewModel::onNameChange,
-            onEmailChange = viewModel::onEmailChange,
-            onPhoneChange = viewModel::onPhoneChange,
-            onDateOfBirthChange = viewModel::onDateOfBirthChange,
-            onEmergencyContactChange = viewModel::onEmergencyContactChange,
-            onEmergencyPhoneChange = viewModel::onEmergencyPhoneChange,
-            onSave = viewModel::save,
-            onDismissMessage = viewModel::clearMessage
+            onBasicInfoClick = { navigator.push(EditBasicInfoScreen()) },
+            onAddressClick = { navigator.push(EditAddressScreen()) },
+            onMedicalInfoClick = { navigator.push(EditMedicalInfoScreen()) },
+            onInsuranceClick = { navigator.push(EditInsuranceScreen()) },
+            onEmergencyContactClick = { navigator.push(EditEmergencyContactScreen()) }
         )
     }
 }
 
 data class PersonalInfoState(
     val profile: PatientProfile? = null,
-    val editName: String = "",
-    val editEmail: String = "",
-    val editPhone: String = "",
-    val editDateOfBirth: String = "",
-    val editEmergencyContact: String = "",
-    val editEmergencyPhone: String = "",
-    val isLoading: Boolean = true,
-    val isSaving: Boolean = false,
-    val message: String? = null
-) {
-    val hasChanges: Boolean
-        get() = profile?.let {
-            editName != it.name ||
-                    editEmail != it.email ||
-                    editPhone != it.phone ||
-                    editDateOfBirth != it.dateOfBirth ||
-                    editEmergencyContact != it.emergencyContact ||
-                    editEmergencyPhone != it.emergencyPhone
-        } ?: false
-}
+    val isLoading: Boolean = true
+)
 
-class PersonalInfoViewModel : ScreenModel {
-    private val store = FakeBackend.patientProfileStore
+class PersonalInfoViewModel(
+    private val authRepository: AuthRepository
+) : ScreenModel {
+    private val profileStore = FakeBackend.patientProfileStore
 
     private val _state = MutableStateFlow(PersonalInfoState())
     val state: StateFlow<PersonalInfoState> = _state.asStateFlow()
@@ -87,73 +68,18 @@ class PersonalInfoViewModel : ScreenModel {
 
     private fun loadProfile() {
         screenModelScope.launch {
-            store.profile.collect { profile ->
-                _state.update {
-                    it.copy(
-                        profile = profile,
-                        editName = profile.name,
-                        editEmail = profile.email,
-                        editPhone = profile.phone,
-                        editDateOfBirth = profile.dateOfBirth,
-                        editEmergencyContact = profile.emergencyContact,
-                        editEmergencyPhone = profile.emergencyPhone,
-                        isLoading = false
-                    )
+            profileStore.profile.collect { profile ->
+                if (profile != null) {
+                    _state.update { it.copy(profile = profile, isLoading = false) }
+                } else {
+                    val user = authRepository.getCurrentUser()
+                    if (user != null) {
+                        profileStore.syncWithAuthUser(user)
+                    }
+                    _state.update { it.copy(isLoading = false) }
                 }
             }
         }
-    }
-
-    fun onNameChange(value: String) {
-        _state.update { it.copy(editName = value) }
-    }
-
-    fun onEmailChange(value: String) {
-        _state.update { it.copy(editEmail = value) }
-    }
-
-    fun onPhoneChange(value: String) {
-        _state.update { it.copy(editPhone = value) }
-    }
-
-    fun onDateOfBirthChange(value: String) {
-        _state.update { it.copy(editDateOfBirth = value) }
-    }
-
-    fun onEmergencyContactChange(value: String) {
-        _state.update { it.copy(editEmergencyContact = value) }
-    }
-
-    fun onEmergencyPhoneChange(value: String) {
-        _state.update { it.copy(editEmergencyPhone = value) }
-    }
-
-    fun save() {
-        screenModelScope.launch {
-            _state.update { it.copy(isSaving = true) }
-            delay(500) // Simulate network
-
-            val current = _state.value
-            store.updateProfile(
-                name = current.editName,
-                email = current.editEmail,
-                phone = current.editPhone,
-                dateOfBirth = current.editDateOfBirth,
-                emergencyContact = current.editEmergencyContact,
-                emergencyPhone = current.editEmergencyPhone
-            )
-
-            _state.update {
-                it.copy(
-                    isSaving = false,
-                    message = "Profile updated successfully"
-                )
-            }
-        }
-    }
-
-    fun clearMessage() {
-        _state.update { it.copy(message = null) }
     }
 }
 
@@ -162,24 +88,12 @@ class PersonalInfoViewModel : ScreenModel {
 private fun PersonalInfoContent(
     state: PersonalInfoState,
     onBackClick: () -> Unit,
-    onNameChange: (String) -> Unit,
-    onEmailChange: (String) -> Unit,
-    onPhoneChange: (String) -> Unit,
-    onDateOfBirthChange: (String) -> Unit,
-    onEmergencyContactChange: (String) -> Unit,
-    onEmergencyPhoneChange: (String) -> Unit,
-    onSave: () -> Unit,
-    onDismissMessage: () -> Unit
+    onBasicInfoClick: () -> Unit,
+    onAddressClick: () -> Unit,
+    onMedicalInfoClick: () -> Unit,
+    onInsuranceClick: () -> Unit,
+    onEmergencyContactClick: () -> Unit
 ) {
-    val snackbarHostState = remember { SnackbarHostState() }
-
-    LaunchedEffect(state.message) {
-        state.message?.let {
-            snackbarHostState.showSnackbar(it)
-            onDismissMessage()
-        }
-    }
-
     Scaffold(
         topBar = {
             TopAppBar(
@@ -193,33 +107,6 @@ private fun PersonalInfoContent(
                     containerColor = MaterialTheme.colorScheme.background
                 )
             )
-        },
-        snackbarHost = { SnackbarHost(snackbarHostState) },
-        bottomBar = {
-            if (state.hasChanges) {
-                Surface(
-                    shadowElevation = CareRideTheme.elevation.lg,
-                    color = MaterialTheme.colorScheme.surface
-                ) {
-                    Button(
-                        onClick = onSave,
-                        enabled = !state.isSaving,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(CareRideTheme.spacing.md)
-                    ) {
-                        if (state.isSaving) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.size(20.dp),
-                                strokeWidth = 2.dp,
-                                color = MaterialTheme.colorScheme.onPrimary
-                            )
-                        } else {
-                            Text("Save Changes")
-                        }
-                    }
-                }
-            }
         }
     ) { paddingValues ->
         if (state.isLoading) {
@@ -230,6 +117,8 @@ private fun PersonalInfoContent(
                 CircularProgressIndicator()
             }
         } else {
+            val profile = state.profile
+
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -237,93 +126,217 @@ private fun PersonalInfoContent(
                     .verticalScroll(rememberScrollState())
                     .padding(CareRideTheme.spacing.md)
             ) {
+                // Profile completion card
+                if (profile != null && profile.profileCompletionPercent < 100) {
+                    ProfileCompletionCard(
+                        percent = profile.profileCompletionPercent
+                    )
+                    Spacer(modifier = Modifier.height(CareRideTheme.spacing.lg))
+                }
+
                 // Avatar
                 Box(
                     modifier = Modifier.fillMaxWidth(),
                     contentAlignment = Alignment.Center
                 ) {
                     PatientAvatar(
-                        name = state.editName,
+                        name = profile?.name,
                         size = AvatarSize.XXLarge
                     )
                 }
 
                 Spacer(modifier = Modifier.height(CareRideTheme.spacing.lg))
 
-                SectionHeader(title = "Basic Information")
-
-                OutlinedTextField(
-                    value = state.editName,
-                    onValueChange = onNameChange,
-                    label = { Text("Full Name") },
-                    leadingIcon = { Icon(Icons.Default.Person, contentDescription = null) },
-                    modifier = Modifier.fillMaxWidth(),
-                    singleLine = true
+                // Basic Info Section
+                ProfileSection(
+                    icon = Icons.Default.Person,
+                    title = "Basic Information",
+                    subtitle = profile?.let {
+                        listOfNotNull(
+                            it.name.takeIf { n -> n.isNotBlank() },
+                            it.phone.takeIf { p -> p.isNotBlank() },
+                            it.gender.takeIf { g -> g != Gender.PREFER_NOT_TO_SAY }?.displayName
+                        ).joinToString(" • ").ifBlank { "Add your details" }
+                    } ?: "Add your details",
+                    isComplete = profile?.hasCompleteProfile == true,
+                    onClick = onBasicInfoClick
                 )
 
-                Spacer(modifier = Modifier.height(CareRideTheme.spacing.sm))
-
-                OutlinedTextField(
-                    value = state.editEmail,
-                    onValueChange = onEmailChange,
-                    label = { Text("Email") },
-                    leadingIcon = { Icon(Icons.Default.Email, contentDescription = null) },
-                    modifier = Modifier.fillMaxWidth(),
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
+                // Address Section
+                ProfileSection(
+                    icon = Icons.Default.Place,
+                    title = "Address",
+                    subtitle = profile?.address?.formatted?.ifBlank { "Add your address" } ?: "Add your address",
+                    isComplete = profile?.address?.isComplete == true,
+                    onClick = onAddressClick
                 )
 
-                Spacer(modifier = Modifier.height(CareRideTheme.spacing.sm))
-
-                OutlinedTextField(
-                    value = state.editPhone,
-                    onValueChange = onPhoneChange,
-                    label = { Text("Phone Number") },
-                    leadingIcon = { Icon(Icons.Default.Phone, contentDescription = null) },
-                    modifier = Modifier.fillMaxWidth(),
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone)
+                // Medical Info Section
+                ProfileSection(
+                    icon = Icons.Default.LocalHospital,
+                    title = "Medical Information",
+                    subtitle = profile?.let {
+                        buildString {
+                            if (it.bloodType != BloodType.UNKNOWN) append("Blood: ${it.bloodType.displayName}")
+                            if (it.allergies.isNotEmpty()) {
+                                if (isNotEmpty()) append(" • ")
+                                append("${it.allergies.size} allergies")
+                            }
+                            if (it.medications.isNotEmpty()) {
+                                if (isNotEmpty()) append(" • ")
+                                append("${it.medications.size} medications")
+                            }
+                        }.ifBlank { "Add medical details" }
+                    } ?: "Add medical details",
+                    isComplete = profile?.hasMedicalInfo == true,
+                    onClick = onMedicalInfoClick
                 )
 
-                Spacer(modifier = Modifier.height(CareRideTheme.spacing.sm))
-
-                OutlinedTextField(
-                    value = state.editDateOfBirth,
-                    onValueChange = onDateOfBirthChange,
-                    label = { Text("Date of Birth") },
-                    leadingIcon = { Icon(Icons.Default.DateRange, contentDescription = null) },
-                    placeholder = { Text("MM/DD/YYYY") },
-                    modifier = Modifier.fillMaxWidth(),
-                    singleLine = true
+                // Insurance Section
+                ProfileSection(
+                    icon = Icons.Default.CreditCard,
+                    title = "Insurance",
+                    subtitle = profile?.insurance?.let {
+                        if (it.provider.isNotBlank()) "${it.provider} - ${it.planName}".trim(' ', '-')
+                        else "Add insurance information"
+                    } ?: "Add insurance information",
+                    isComplete = profile?.hasInsurance == true,
+                    onClick = onInsuranceClick
                 )
 
-                Spacer(modifier = Modifier.height(CareRideTheme.spacing.lg))
-
-                SectionHeader(title = "Emergency Contact")
-
-                OutlinedTextField(
-                    value = state.editEmergencyContact,
-                    onValueChange = onEmergencyContactChange,
-                    label = { Text("Contact Name") },
-                    leadingIcon = { Icon(Icons.Default.Person, contentDescription = null) },
-                    modifier = Modifier.fillMaxWidth(),
-                    singleLine = true
-                )
-
-                Spacer(modifier = Modifier.height(CareRideTheme.spacing.sm))
-
-                OutlinedTextField(
-                    value = state.editEmergencyPhone,
-                    onValueChange = onEmergencyPhoneChange,
-                    label = { Text("Contact Phone") },
-                    leadingIcon = { Icon(Icons.Default.Phone, contentDescription = null) },
-                    modifier = Modifier.fillMaxWidth(),
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone)
+                // Emergency Contact Section
+                ProfileSection(
+                    icon = Icons.Default.Warning,
+                    title = "Emergency Contact",
+                    subtitle = profile?.emergencyContact?.let {
+                        if (it.name.isNotBlank()) "${it.name} (${it.relationship})".trim()
+                        else "Add emergency contact"
+                    } ?: "Add emergency contact",
+                    isComplete = profile?.hasEmergencyContact == true,
+                    onClick = onEmergencyContactClick
                 )
 
                 Spacer(modifier = Modifier.height(CareRideTheme.spacing.xxl))
             }
         }
+    }
+}
+
+@Composable
+private fun ProfileCompletionCard(percent: Int) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f)
+        )
+    ) {
+        Column(
+            modifier = Modifier.padding(CareRideTheme.spacing.md)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Profile Completion",
+                    style = MaterialTheme.typography.titleSmall,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Text(
+                    text = "$percent%",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
+
+            Spacer(modifier = Modifier.height(CareRideTheme.spacing.xs))
+
+            LinearProgressIndicator(
+                progress = { percent / 100f },
+                modifier = Modifier.fillMaxWidth().height(8.dp),
+                color = MaterialTheme.colorScheme.primary,
+                trackColor = MaterialTheme.colorScheme.surfaceVariant
+            )
+
+            Spacer(modifier = Modifier.height(CareRideTheme.spacing.xs))
+
+            Text(
+                text = "Complete your profile for better care",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+    }
+}
+
+@Composable
+private fun ProfileSection(
+    icon: ImageVector,
+    title: String,
+    subtitle: String,
+    isComplete: Boolean,
+    onClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick)
+            .padding(vertical = CareRideTheme.spacing.md),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Surface(
+            modifier = Modifier.size(48.dp),
+            shape = MaterialTheme.shapes.medium,
+            color = if (isComplete) {
+                MaterialTheme.colorScheme.primaryContainer
+            } else {
+                MaterialTheme.colorScheme.surfaceVariant
+            }
+        ) {
+            Box(contentAlignment = Alignment.Center) {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = null,
+                    tint = if (isComplete) {
+                        MaterialTheme.colorScheme.primary
+                    } else {
+                        MaterialTheme.colorScheme.onSurfaceVariant
+                    }
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.width(CareRideTheme.spacing.md))
+
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Text(
+                text = subtitle,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 1
+            )
+        }
+
+        if (isComplete) {
+            Icon(
+                imageVector = Icons.Default.CheckCircle,
+                contentDescription = "Complete",
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(20.dp)
+            )
+            Spacer(modifier = Modifier.width(CareRideTheme.spacing.xs))
+        }
+
+        Icon(
+            imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.onSurfaceVariant
+        )
     }
 }

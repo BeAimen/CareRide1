@@ -45,5 +45,12 @@ class AuthRepositoryImpl : AuthRepository {
         return store.setRole(role)
     }
 
+    override suspend fun updateUserInfo(name: String?, email: String?): AuthResult {
+        delay(400)
+        return store.updateUserInfo(name, email)
+    }
+
     override fun getRememberedEmail(): String? = store.getRememberedEmail()
+
+    override fun getCurrentUser(): User? = store.getCurrentUser()
 }
