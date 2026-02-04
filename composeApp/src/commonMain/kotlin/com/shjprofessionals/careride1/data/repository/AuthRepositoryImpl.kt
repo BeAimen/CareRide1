@@ -11,7 +11,7 @@ class AuthRepositoryImpl : AuthRepository {
     private val store = FakeBackend.authStore
 
     private suspend fun simulateNetworkDelay() {
-        delay(800) // Simulate network latency
+        delay(800)
     }
 
     override fun observeAuthState(): Flow<AuthState> = store.authState
@@ -41,7 +41,6 @@ class AuthRepositoryImpl : AuthRepository {
     }
 
     override suspend fun setRole(role: UserRole): AuthResult {
-        store.setLoading()
         delay(400)
         return store.setRole(role)
     }

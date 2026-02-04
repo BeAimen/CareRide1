@@ -120,7 +120,7 @@ private fun AuthRoleSelectionContent(
         Spacer(modifier = Modifier.height(CareRideTheme.spacing.sm))
 
         Text(
-            text = "How would you like to use CareRide?",
+            text = "How will you use CareRide?",
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center
@@ -168,32 +168,6 @@ private fun AuthRoleSelectionContent(
         )
 
         Spacer(modifier = Modifier.weight(1f))
-
-        // Info note
-        Surface(
-            color = MaterialTheme.colorScheme.surfaceVariant,
-            shape = MaterialTheme.shapes.medium
-        ) {
-            Row(
-                modifier = Modifier.padding(CareRideTheme.spacing.md),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Info,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.size(20.dp)
-                )
-                Spacer(modifier = Modifier.width(CareRideTheme.spacing.sm))
-                Text(
-                    text = "You can change this later in your profile settings",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-        }
-
-        Spacer(modifier = Modifier.height(CareRideTheme.spacing.lg))
 
         // Continue button
         Button(
