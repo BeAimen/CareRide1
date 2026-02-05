@@ -56,9 +56,9 @@ class DoctorProfileViewModel(
             _state.update { it.copy(isLoading = true) }
 
             try {
-                // Observe profile changes
-                profileStore.profileFlow.collect { doctor ->
+                profileStore.profileFlow.collect { profile ->
                     val analytics = boostRepository.getAnalytics()
+                    val doctor = profile?.toDoctor()
 
                     _state.update { currentState ->
                         currentState.copy(
