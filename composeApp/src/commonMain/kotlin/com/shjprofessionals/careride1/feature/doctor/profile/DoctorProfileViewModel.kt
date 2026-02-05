@@ -30,8 +30,9 @@ data class DoctorProfileState(
 ) {
     val hasUnsavedChanges: Boolean
         get() = doctor?.let {
+            val currentLocation = it.location.takeIf { loc -> loc != "Location not set" } ?: ""
             editBio != it.bio ||
-                    editLocation != it.location ||
+                    editLocation != currentLocation ||
                     editLanguages != it.languages.joinToString(", ") ||
                     editYearsExperience != it.yearsOfExperience.toString()
         } ?: false
@@ -56,19 +57,21 @@ class DoctorProfileViewModel(
             _state.update { it.copy(isLoading = true) }
 
             try {
-                profileStore.profileFlow.collect { profile ->
+                // Observe profile changes
+                profileStore.profileFlow.collect { doctorProfile ->
+                    val doctor = doctorProfile?.toDoctor()
                     val analytics = boostRepository.getAnalytics()
-                    val doctor = profile?.toDoctor()
+                    val location = doctorProfile?.practiceAddress?.formatted ?: ""
 
                     _state.update { currentState ->
                         currentState.copy(
                             doctor = doctor,
                             analytics = analytics,
                             isLoading = false,
-                            editBio = doctor?.bio ?: "",
-                            editLocation = doctor?.location ?: "",
-                            editLanguages = doctor?.languages?.joinToString(", ") ?: "",
-                            editYearsExperience = doctor?.yearsOfExperience?.toString() ?: ""
+                            editBio = doctorProfile?.bio ?: "",
+                            editLocation = location,
+                            editLanguages = doctorProfile?.languages?.joinToString(", ") ?: "",
+                            editYearsExperience = doctorProfile?.yearsOfExperience?.toString() ?: ""
                         )
                     }
                 }
@@ -97,10 +100,11 @@ class DoctorProfileViewModel(
         if (currentState.isEditMode && currentState.hasUnsavedChanges) {
             // Discard changes - reset edit fields
             _state.update { state ->
+                val currentLocation = state.doctor?.location?.takeIf { it != "Location not set" } ?: ""
                 state.copy(
                     isEditMode = false,
                     editBio = state.doctor?.bio ?: "",
-                    editLocation = state.doctor?.location ?: "",
+                    editLocation = currentLocation,
                     editLanguages = state.doctor?.languages?.joinToString(", ") ?: "",
                     editYearsExperience = state.doctor?.yearsOfExperience?.toString() ?: ""
                 )
