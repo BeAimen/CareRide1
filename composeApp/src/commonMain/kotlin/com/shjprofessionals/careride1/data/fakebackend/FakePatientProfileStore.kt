@@ -141,4 +141,9 @@ class FakePatientProfileStore {
         _profile.value = null
         _notificationSettings.value = NotificationSettings()
     }
+
+    fun deleteAccount() {
+        _profile.value = null
+        _notificationSettings.value = NotificationSettings()
+    }
 }
