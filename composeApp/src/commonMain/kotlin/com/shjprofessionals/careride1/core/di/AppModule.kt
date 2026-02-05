@@ -19,11 +19,20 @@ import com.shjprofessionals.careride1.feature.doctor.boost.DoctorBoostViewModel
 import com.shjprofessionals.careride1.feature.doctor.inbox.DoctorChatViewModel
 import com.shjprofessionals.careride1.feature.doctor.inbox.DoctorInboxViewModel
 import com.shjprofessionals.careride1.feature.doctor.profile.DoctorProfileViewModel
+import com.shjprofessionals.careride1.feature.doctor.profile.EditDoctorBasicInfoViewModel
+import com.shjprofessionals.careride1.feature.doctor.profile.EditDoctorBioViewModel
+import com.shjprofessionals.careride1.feature.doctor.profile.EditDoctorEducationViewModel
+import com.shjprofessionals.careride1.feature.doctor.profile.EditDoctorPracticeViewModel
+import com.shjprofessionals.careride1.feature.doctor.profile.EditDoctorProfessionalViewModel
 import com.shjprofessionals.careride1.feature.patient.doctorprofile.DoctorProfileViewModel as PatientDoctorProfileViewModel
 import com.shjprofessionals.careride1.feature.patient.home.PatientHomeViewModel
 import com.shjprofessionals.careride1.feature.patient.messages.PatientChatViewModel
 import com.shjprofessionals.careride1.feature.patient.messages.PatientMessagesViewModel
+import com.shjprofessionals.careride1.feature.patient.profile.EditAddressViewModel
 import com.shjprofessionals.careride1.feature.patient.profile.EditBasicInfoViewModel
+import com.shjprofessionals.careride1.feature.patient.profile.EditEmergencyContactViewModel
+import com.shjprofessionals.careride1.feature.patient.profile.EditInsuranceViewModel
+import com.shjprofessionals.careride1.feature.patient.profile.EditMedicalInfoViewModel
 import com.shjprofessionals.careride1.feature.patient.profile.NotificationSettingsViewModel
 import com.shjprofessionals.careride1.feature.patient.profile.PatientProfileViewModel
 import com.shjprofessionals.careride1.feature.patient.profile.PersonalInfoViewModel
@@ -55,11 +64,18 @@ val appModule = module {
     factory { PersonalInfoViewModel(get()) }
     factory { NotificationSettingsViewModel() }
 
-    factory { EditBasicInfoViewModel(get()) }
+// Patient Edit ViewModels
     factory { EditAddressViewModel() }
     factory { EditMedicalInfoViewModel() }
     factory { EditInsuranceViewModel() }
     factory { EditEmergencyContactViewModel() }
+
+// Doctor Edit ViewModels
+    factory { EditDoctorBasicInfoViewModel() }
+    factory { EditDoctorProfessionalViewModel() }
+    factory { EditDoctorBioViewModel() }
+    factory { EditDoctorEducationViewModel() }
+    factory { EditDoctorPracticeViewModel() }
 
     factory { (doctorId: String) ->
         PatientDoctorProfileViewModel(

@@ -268,4 +268,31 @@ class FakeDoctorProfileStore {
     fun clear() {
         _profile.value = null
     }
+
+    fun updateProfile(
+        bio: String? = null,
+        location: String? = null,
+        languages: List<String>? = null,
+        yearsOfExperience: Int? = null
+    ): DoctorProfile? {
+        val current = _profile.value ?: return null
+
+        val newAddress = if (location != null) {
+            current.practiceAddress.copy(
+                city = location.split(",").firstOrNull()?.trim() ?: location,
+                state = location.split(",").getOrNull(1)?.trim() ?: ""
+            )
+        } else {
+            current.practiceAddress
+        }
+
+        val updated = current.copy(
+            bio = bio ?: current.bio,
+            practiceAddress = newAddress,
+            languages = languages ?: current.languages,
+            yearsOfExperience = yearsOfExperience ?: current.yearsOfExperience
+        )
+        _profile.value = updated
+        return updated
+    }
 }
