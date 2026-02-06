@@ -82,40 +82,32 @@ private fun DoctorChatContent(
             TopAppBar(
                 title = {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        // Patient avatar with initials
-                        PatientAvatar(
-                            name = state.patientName,
-                            size = AvatarSize.Medium
-                        )
-
+                        PatientAvatar(name = state.patientName, size = AvatarSize.Medium)
                         Spacer(modifier = Modifier.width(CareRideTheme.spacing.sm))
-
-                        Text(
-                            text = state.patientName,
-                            style = MaterialTheme.typography.titleMedium
-                        )
+                        Text(text = state.patientName, style = MaterialTheme.typography.titleMedium)
                     }
                 },
                 navigationIcon = {
                     IconButton(
                         onClick = onBackClick,
-                        modifier = Modifier.semantics {
-                            contentDescription = "Go back to inbox"
-                        }
+                        modifier = Modifier.semantics { contentDescription = "Go back to inbox" }
                     ) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = null
-                        )
+                        Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surface
-                )
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surface)
             )
         },
         bottomBar = {
             Column {
+                if (!state.showQuickReplies && state.suggestedQuickReplies.isNotEmpty()) {
+                    SuggestedQuickRepliesRow(
+                        quickReplies = state.suggestedQuickReplies,
+                        onQuickReplyClick = onQuickReplyClick,
+                        onMoreClick = onToggleQuickReplies
+                    )
+                }
+
                 AnimatedVisibility(
                     visible = state.showQuickReplies,
                     enter = slideInVertically(initialOffsetY = { it }),
@@ -144,17 +136,13 @@ private fun DoctorChatContent(
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            EmergencyDisclaimer(
-                modifier = Modifier.padding(CareRideTheme.spacing.sm)
-            )
+            EmergencyDisclaimer(modifier = Modifier.padding(CareRideTheme.spacing.sm))
 
             LoadingContent(
                 isLoading = state.isLoading,
                 isEmpty = state.messages.isEmpty(),
                 data = state.messages,
-                loadingContent = {
-                    ScreenLoading(message = "Loading messages...")
-                },
+                loadingContent = { ScreenLoading(message = "Loading messages...") },
                 emptyContent = {
                     Box(
                         modifier = Modifier
@@ -180,19 +168,13 @@ private fun DoctorChatContent(
                     verticalArrangement = Arrangement.spacedBy(CareRideTheme.spacing.sm),
                     contentPadding = PaddingValues(vertical = CareRideTheme.spacing.sm)
                 ) {
-                    items(
-                        items = messages,
-                        key = { it.id }
-                    ) { message ->
+                    items(items = messages, key = { it.id }) { message ->
                         ChatBubble(message = message)
                     }
 
                     if (state.isSending) {
                         item {
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.End
-                            ) {
+                            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
                                 InlineLoading(size = 16, contentDescription = "Sending message")
                                 Spacer(modifier = Modifier.width(CareRideTheme.spacing.xs))
                                 Text(
@@ -210,6 +192,41 @@ private fun DoctorChatContent(
 }
 
 @Composable
+private fun SuggestedQuickRepliesRow(
+    quickReplies: List<QuickReply>,
+    onQuickReplyClick: (QuickReply) -> Unit,
+    onMoreClick: () -> Unit
+) {
+    Surface(
+        color = MaterialTheme.colorScheme.surfaceVariant,
+        shadowElevation = CareRideTheme.elevation.sm
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = CareRideTheme.spacing.sm, vertical = CareRideTheme.spacing.xs),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            LazyRow(
+                modifier = Modifier.weight(1f),
+                horizontalArrangement = Arrangement.spacedBy(CareRideTheme.spacing.xs)
+            ) {
+                items(quickReplies) { qr ->
+                    QuickReplyChip(quickReply = qr, onClick = { onQuickReplyClick(qr) })
+                }
+            }
+
+            Spacer(modifier = Modifier.width(CareRideTheme.spacing.sm))
+
+            TextButton(
+                onClick = onMoreClick,
+                modifier = Modifier.semantics { contentDescription = "Open all quick replies" }
+            ) { Text("More") }
+        }
+    }
+}
+
+@Composable
 private fun DoctorMessageInput(
     value: String,
     onValueChange: (String) -> Unit,
@@ -218,10 +235,7 @@ private fun DoctorMessageInput(
     showQuickRepliesActive: Boolean,
     isSending: Boolean
 ) {
-    Surface(
-        shadowElevation = CareRideTheme.elevation.md,
-        color = MaterialTheme.colorScheme.surface
-    ) {
+    Surface(shadowElevation = CareRideTheme.elevation.md, color = MaterialTheme.colorScheme.surface) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -233,21 +247,13 @@ private fun DoctorMessageInput(
                 modifier = Modifier
                     .size(AccessibilityDefaults.MinTouchTargetDp.dp)
                     .semantics {
-                        contentDescription = if (showQuickRepliesActive) {
-                            "Close quick replies"
-                        } else {
-                            "Open quick replies"
-                        }
+                        contentDescription = if (showQuickRepliesActive) "Close quick replies" else "Open quick replies"
                     }
             ) {
                 Icon(
                     imageVector = if (showQuickRepliesActive) Icons.Default.Close else Icons.Default.Add,
                     contentDescription = null,
-                    tint = if (showQuickRepliesActive) {
-                        MaterialTheme.colorScheme.primary
-                    } else {
-                        MaterialTheme.colorScheme.onSurfaceVariant
-                    }
+                    tint = if (showQuickRepliesActive) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
 
@@ -255,12 +261,7 @@ private fun DoctorMessageInput(
                 value = value,
                 onValueChange = onValueChange,
                 modifier = Modifier.weight(1f),
-                placeholder = {
-                    Text(
-                        text = "Type a reply...",
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                },
+                placeholder = { Text(text = "Type a reply...", style = MaterialTheme.typography.bodyMedium) },
                 shape = RoundedCornerShape(CareRideTheme.radii.xl),
                 colors = TextFieldDefaults.colors(
                     focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
@@ -282,23 +283,14 @@ private fun DoctorMessageInput(
                 modifier = Modifier
                     .size(AccessibilityDefaults.MinTouchTargetDp.dp)
                     .semantics {
-                        contentDescription = if (isSending) {
-                            "Sending message"
-                        } else if (value.isNotBlank()) {
-                            "Send message"
-                        } else {
-                            "Send message, disabled until you type a message"
-                        }
+                        contentDescription =
+                            if (isSending) "Sending message"
+                            else if (value.isNotBlank()) "Send message"
+                            else "Send message, disabled until you type a message"
                     }
             ) {
-                if (isSending) {
-                    InlineLoading(size = 20, contentDescription = "Sending")
-                } else {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.Send,
-                        contentDescription = null
-                    )
-                }
+                if (isSending) InlineLoading(size = 20, contentDescription = "Sending")
+                else Icon(imageVector = Icons.AutoMirrored.Filled.Send, contentDescription = null)
             }
         }
     }
@@ -310,10 +302,7 @@ private fun QuickRepliesPanel(
     onQuickReplyClick: (QuickReply) -> Unit,
     onDismiss: () -> Unit
 ) {
-    Surface(
-        color = MaterialTheme.colorScheme.surfaceVariant,
-        shadowElevation = CareRideTheme.elevation.sm
-    ) {
+    Surface(color = MaterialTheme.colorScheme.surfaceVariant, shadowElevation = CareRideTheme.elevation.sm) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -324,49 +313,33 @@ private fun QuickRepliesPanel(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    text = "Quick Replies",
-                    style = MaterialTheme.typography.labelLarge,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+                Text(text = "Quick Replies", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
 
                 IconButton(
                     onClick = onDismiss,
                     modifier = Modifier
                         .size(AccessibilityDefaults.MinTouchTargetDp.dp)
-                        .semantics {
-                            contentDescription = "Close quick replies panel"
-                        }
+                        .semantics { contentDescription = "Close quick replies panel" }
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.Close,
-                        contentDescription = null,
-                        modifier = Modifier.size(16.dp)
-                    )
+                    Icon(imageVector = Icons.Default.Close, contentDescription = null, modifier = Modifier.size(16.dp))
                 }
             }
 
             Spacer(modifier = Modifier.height(CareRideTheme.spacing.xs))
 
-            QuickReplyCategory.entries.forEach { category ->
+            QuickReplyCategory.values().forEach { category ->
                 val categoryReplies = quickReplies.filter { it.category == category }
                 if (categoryReplies.isNotEmpty()) {
                     Text(
-                        text = category.name.replace("_", " ").lowercase()
-                            .replaceFirstChar { it.uppercase() },
+                        text = category.name.replace("_", " ").lowercase().replaceFirstChar { it.uppercase() },
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
                         modifier = Modifier.padding(vertical = CareRideTheme.spacing.xxs)
                     )
 
-                    LazyRow(
-                        horizontalArrangement = Arrangement.spacedBy(CareRideTheme.spacing.xs)
-                    ) {
-                        items(categoryReplies) { quickReply ->
-                            QuickReplyChip(
-                                quickReply = quickReply,
-                                onClick = { onQuickReplyClick(quickReply) }
-                            )
+                    LazyRow(horizontalArrangement = Arrangement.spacedBy(CareRideTheme.spacing.xs)) {
+                        items(categoryReplies) { qr ->
+                            QuickReplyChip(quickReply = qr, onClick = { onQuickReplyClick(qr) })
                         }
                     }
 

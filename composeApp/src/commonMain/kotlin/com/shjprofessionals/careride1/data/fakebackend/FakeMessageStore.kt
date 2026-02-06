@@ -9,14 +9,12 @@ import com.shjprofessionals.careride1.domain.model.QuickReply
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlin.time.Clock
 
 class FakeMessageStore {
 
-    // Current user IDs (simulated logged-in users)
     private val currentPatientId = "patient_001"
     private val currentPatientName = "John Smith"
-    private val currentDoctorId = "doc_001" // Dr. Sarah Chen
+    private val currentDoctorId = "doc_001"
 
     private val _conversations = MutableStateFlow<Map<String, Conversation>>(emptyMap())
     val conversations: StateFlow<Map<String, Conversation>> = _conversations.asStateFlow()
@@ -24,11 +22,10 @@ class FakeMessageStore {
     private val _messages = MutableStateFlow<Map<String, List<Message>>>(emptyMap())
     val messages: StateFlow<Map<String, List<Message>>> = _messages.asStateFlow()
 
-    // Track unread counts separately for patient and doctor
     private val patientUnreadCounts = mutableMapOf<String, Int>()
     private val doctorUnreadCounts = mutableMapOf<String, Int>()
 
-    private fun now(): Long = Clock.System.now().toEpochMilliseconds()
+    private fun now(): Long = kotlin.time.Clock.System.now().toEpochMilliseconds()
 
     init {
         seedSampleData()
@@ -41,7 +38,7 @@ class FakeMessageStore {
 
         val conv1Id = "conv_001"
         val conv2Id = "conv_002"
-        val conv3Id = "conv_003" // Conversation with current doctor
+        val conv3Id = "conv_003"
 
         val messages1 = listOf(
             Message(
@@ -58,7 +55,7 @@ class FakeMessageStore {
                 conversationId = conv1Id,
                 senderId = "doc_002",
                 senderType = MessageSenderType.DOCTOR,
-                content = "Hello! I'd be happy to help. Can you tell me more about the headaches? How often do they occur and where is the pain located?",
+                content = "Hello! I'd be happy to help. Can you tell me more about the headaches?\nHow often do they occur and where is the pain located?",
                 timestamp = now() - (1 * 60 * 60 * 1000),
                 isRead = true
             ),
@@ -94,7 +91,6 @@ class FakeMessageStore {
             )
         )
 
-        // Conversation with current doctor (Dr. Sarah Chen) - visible in doctor inbox
         val messages3 = listOf(
             Message(
                 id = "msg_006",
@@ -161,27 +157,21 @@ class FakeMessageStore {
             updatedAt = now() - (45 * 60 * 1000)
         )
 
-        _conversations.value = mapOf(
-            conv1Id to conv1,
-            conv2Id to conv2,
-            conv3Id to conv3
-        )
-        _messages.value = mapOf(
-            conv1Id to messages1,
-            conv2Id to messages2,
-            conv3Id to messages3
-        )
+        _conversations.value = mapOf(conv1Id to conv1, conv2Id to conv2, conv3Id to conv3)
+        _messages.value = mapOf(conv1Id to messages1, conv2Id to messages2, conv3Id to messages3)
 
-        // Set initial unread counts
         patientUnreadCounts[conv2Id] = 1
         doctorUnreadCounts[conv3Id] = 1
     }
 
-    // ============ Patient Methods ============
+    private fun pingConversations() {
+        _conversations.value = _conversations.value.toMap()
+    }
 
     fun getConversationsForPatient(): List<Conversation> {
         return _conversations.value.values
             .filter { it.patientId == currentPatientId }
+            .map { c -> c.copy(unreadCount = patientUnreadCounts[c.id] ?: 0) }
             .sortedByDescending { it.updatedAt }
     }
 
@@ -190,6 +180,11 @@ class FakeMessageStore {
     }
 
     fun sendPatientMessage(conversationId: String, content: String): Message {
+        val conversation = _conversations.value[conversationId]
+        if (conversation != null) {
+            doctorUnreadCounts[conversationId] = (doctorUnreadCounts[conversationId] ?: 0) + 1
+        }
+
         val messageId = "msg_${now()}"
         val message = Message(
             id = messageId,
@@ -202,34 +197,30 @@ class FakeMessageStore {
         )
 
         addMessage(conversationId, message)
-
-        // Increment doctor's unread count
-        val conversation = _conversations.value[conversationId]
-        if (conversation != null) {
-            doctorUnreadCounts[conversationId] = (doctorUnreadCounts[conversationId] ?: 0) + 1
-        }
-
+        pingConversations()
         return message
     }
 
     fun markAsReadByPatient(conversationId: String) {
         patientUnreadCounts[conversationId] = 0
-        updateConversationUnreadCount(conversationId, 0)
+        pingConversations()
     }
 
-    fun getPatientUnreadCount(): Int {
-        return patientUnreadCounts.values.sum()
-    }
-
-    // ============ Doctor Methods ============
+    fun getPatientUnreadCount(): Int = patientUnreadCounts.values.sum()
 
     fun getConversationsForDoctor(): List<Conversation> {
         return _conversations.value.values
             .filter { it.doctorId == currentDoctorId }
+            .map { c -> c.copy(unreadCount = doctorUnreadCounts[c.id] ?: 0) }
             .sortedByDescending { it.updatedAt }
     }
 
     fun sendDoctorMessage(conversationId: String, content: String): Message {
+        val conversation = _conversations.value[conversationId]
+        if (conversation != null) {
+            patientUnreadCounts[conversationId] = (patientUnreadCounts[conversationId] ?: 0) + 1
+        }
+
         val messageId = "msg_${now()}"
         val message = Message(
             id = messageId,
@@ -242,18 +233,13 @@ class FakeMessageStore {
         )
 
         addMessage(conversationId, message)
-
-        // Increment patient's unread count
-        val conversation = _conversations.value[conversationId]
-        if (conversation != null) {
-            patientUnreadCounts[conversationId] = (patientUnreadCounts[conversationId] ?: 0) + 1
-        }
-
+        pingConversations()
         return message
     }
 
     fun markAsReadByDoctor(conversationId: String) {
         doctorUnreadCounts[conversationId] = 0
+        pingConversations()
     }
 
     fun getDoctorUnreadCount(): Int {
@@ -262,26 +248,13 @@ class FakeMessageStore {
             .sumOf { doctorUnreadCounts[it.id] ?: 0 }
     }
 
-    // ============ Shared Methods ============
-
     private fun addMessage(conversationId: String, message: Message) {
         val currentMessages = _messages.value[conversationId] ?: emptyList()
         _messages.value = _messages.value + (conversationId to (currentMessages + message))
 
         val conversation = _conversations.value[conversationId]
         if (conversation != null) {
-            val updated = conversation.copy(
-                lastMessage = message,
-                updatedAt = now()
-            )
-            _conversations.value = _conversations.value + (conversationId to updated)
-        }
-    }
-
-    private fun updateConversationUnreadCount(conversationId: String, count: Int) {
-        val conversation = _conversations.value[conversationId]
-        if (conversation != null) {
-            val updated = conversation.copy(unreadCount = count)
+            val updated = conversation.copy(lastMessage = message, updatedAt = now())
             _conversations.value = _conversations.value + (conversationId to updated)
         }
     }
@@ -307,7 +280,7 @@ class FakeMessageStore {
 
         _conversations.value = _conversations.value + (conversationId to conversation)
         _messages.value = _messages.value + (conversationId to emptyList())
-
+        pingConversations()
         return conversation
     }
 

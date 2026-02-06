@@ -1,17 +1,19 @@
 package com.shjprofessionals.careride1.feature.doctor.inbox
 
-import com.shjprofessionals.careride1.core.util.AppError
-import com.shjprofessionals.careride1.core.util.toAppError
-
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
+import com.shjprofessionals.careride1.core.util.AppError
 import com.shjprofessionals.careride1.core.util.Validators
+import com.shjprofessionals.careride1.core.util.toAppError
 import com.shjprofessionals.careride1.data.fakebackend.FakeBackend
 import com.shjprofessionals.careride1.domain.model.Conversation
 import com.shjprofessionals.careride1.domain.model.Message
 import com.shjprofessionals.careride1.domain.model.QuickReply
 import com.shjprofessionals.careride1.domain.repository.MessageRepository
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 data class DoctorChatState(
@@ -19,6 +21,7 @@ data class DoctorChatState(
     val messages: List<Message> = emptyList(),
     val messageInput: String = "",
     val quickReplies: List<QuickReply> = emptyList(),
+    val suggestedQuickReplies: List<QuickReply> = emptyList(),
     val showQuickReplies: Boolean = false,
     val isLoading: Boolean = true,
     val isSending: Boolean = false,
@@ -76,9 +79,22 @@ class DoctorChatViewModel(
         }
     }
 
+    private fun pickSuggested(quickReplies: List<QuickReply>): List<QuickReply> {
+        val preferred = listOf("qr_followup_1", "qr_schedule_1", "qr_general_1")
+        val byId = quickReplies.associateBy { it.id }
+        val first = preferred.mapNotNull { byId[it] }
+        val rest = quickReplies.filterNot { qr -> first.any { it.id == qr.id } }
+        return (first + rest).distinctBy { it.id }.take(3)
+    }
+
     private fun loadQuickReplies() {
         val quickReplies = messageRepository.getQuickReplies()
-        _state.update { it.copy(quickReplies = quickReplies) }
+        _state.update {
+            it.copy(
+                quickReplies = quickReplies,
+                suggestedQuickReplies = pickSuggested(quickReplies)
+            )
+        }
     }
 
     private fun markAsRead() {
@@ -110,7 +126,6 @@ class DoctorChatViewModel(
 
     fun sendMessage() {
         val content = _state.value.messageInput
-
         val validation = Validators.validateMessage(content)
 
         validation
@@ -142,4 +157,3 @@ class DoctorChatViewModel(
         _state.update { it.copy(error = null) }
     }
 }
-
