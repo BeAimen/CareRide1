@@ -4,15 +4,7 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="39a4430f-20b1-4349-aa18-f71096c645d3" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/com/shjprofessionals/careride1/data/fakebackend/FakeBackend.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/com/shjprofessionals/careride1/data/fakebackend/FakeBackend.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/com/shjprofessionals/careride1/data/fakebackend/FakeDoctorProfileStore.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/com/shjprofessionals/careride1/data/fakebackend/FakeDoctorProfileStore.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/com/shjprofessionals/careride1/domain/model/Doctor.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/com/shjprofessionals/careride1/domain/model/Doctor.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/com/shjprofessionals/careride1/domain/model/DoctorProfile.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/com/shjprofessionals/careride1/domain/model/DoctorProfile.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/com/shjprofessionals/careride1/feature/doctor/profile/DoctorProfileTab.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/com/shjprofessionals/careride1/feature/doctor/profile/DoctorProfileTab.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/com/shjprofessionals/careride1/feature/doctor/profile/DoctorProfileViewModel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/com/shjprofessionals/careride1/feature/doctor/profile/DoctorProfileViewModel.kt" afterDir="false" />
-    </list>
+    <list default="true" id="39a4430f-20b1-4349-aa18-f71096c645d3" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
