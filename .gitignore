@@ -63,3 +63,4 @@ captures/
 *.bin
 *.xml
 *.xml
+.idea/workspace.xml
