@@ -23,6 +23,7 @@ data class DoctorChatState(
     val quickReplies: List<QuickReply> = emptyList(),
     val suggestedQuickReplies: List<QuickReply> = emptyList(),
     val showQuickReplies: Boolean = false,
+    val instantQuickReplySend: Boolean = false,
     val isLoading: Boolean = true,
     val isSending: Boolean = false,
     val error: AppError? = null
@@ -115,13 +116,52 @@ class DoctorChatViewModel(
         _state.update { it.copy(showQuickReplies = false) }
     }
 
-    fun useQuickReply(quickReply: QuickReply) {
+    fun toggleInstantQuickReplySend() {
+        _state.update { it.copy(instantQuickReplySend = !it.instantQuickReplySend) }
+    }
+
+    fun onQuickReplySelected(quickReply: QuickReply) {
+        if (_state.value.instantQuickReplySend) {
+            sendQuickReplyNow(quickReply)
+        } else {
+            insertQuickReply(quickReply)
+        }
+    }
+
+    private fun insertQuickReply(quickReply: QuickReply) {
         _state.update {
             it.copy(
                 messageInput = quickReply.message,
                 showQuickReplies = false
             )
         }
+    }
+
+    private fun sendQuickReplyNow(quickReply: QuickReply) {
+        val validation = Validators.validateMessage(quickReply.message)
+
+        validation
+            .onInvalid { reason ->
+                _state.update { it.copy(error = AppError.Validation(reason)) }
+            }
+            .onValid { sanitized ->
+                screenModelScope.launch {
+                    _state.update { it.copy(isSending = true, showQuickReplies = false) }
+
+                    messageRepository.sendDoctorMessage(conversationId, sanitized)
+                        .onSuccess {
+                            _state.update { it.copy(isSending = false) }
+                        }
+                        .onFailure { error ->
+                            _state.update {
+                                it.copy(
+                                    isSending = false,
+                                    error = error.toAppError()
+                                )
+                            }
+                        }
+                }
+            }
     }
 
     fun sendMessage() {

@@ -15,7 +15,8 @@ import kotlinx.coroutines.launch
 
 enum class DoctorInboxFilter {
     ALL,
-    NEEDS_REPLY
+    NEEDS_REPLY,
+    URGENT
 }
 
 data class DoctorInboxState(
@@ -25,6 +26,7 @@ data class DoctorInboxState(
     val error: AppError? = null,
     val unreadCount: Int = 0,
     val needsReplyCount: Int = 0,
+    val urgentCount: Int = 0,
     val filter: DoctorInboxFilter = DoctorInboxFilter.ALL,
     val archivedIds: Set<String> = emptySet()
 )
@@ -42,6 +44,26 @@ class DoctorInboxViewModel(
         loadConversations()
     }
 
+    private fun isUrgent(conversation: Conversation): Boolean {
+        if (!conversation.isLastMessageFromPatient) return false
+        val text = conversation.lastMessagePreview.lowercase()
+
+        val keywords = listOf(
+            "chest pain",
+            "shortness of breath",
+            "difficulty breathing",
+            "bleeding",
+            "faint",
+            "passed out",
+            "severe",
+            "emergency",
+            "fever",
+            "urgent"
+        )
+
+        return keywords.any { text.contains(it) }
+    }
+
     private fun applyStateDerivedValues(
         all: List<Conversation>,
         filter: DoctorInboxFilter,
@@ -49,16 +71,19 @@ class DoctorInboxViewModel(
     ): DoctorInboxState {
         val visible = all.filterNot { archivedIds.contains(it.id) }
 
-        val needsReply = visible.count { it.isLastMessageFromPatient }
-        val unread = visible.sumOf { it.unreadCount }
+        val needsReplyCount = visible.count { it.isLastMessageFromPatient }
+        val urgentCount = visible.count { isUrgent(it) }
+        val unreadCount = visible.sumOf { it.unreadCount }
 
         val filtered = when (filter) {
             DoctorInboxFilter.ALL -> visible
             DoctorInboxFilter.NEEDS_REPLY -> visible.filter { it.isLastMessageFromPatient }
+            DoctorInboxFilter.URGENT -> visible.filter { isUrgent(it) }
         }
 
         val sorted = filtered.sortedWith(
-            compareByDescending<Conversation> { it.isLastMessageFromPatient }
+            compareByDescending<Conversation> { isUrgent(it) }
+                .thenByDescending { it.isLastMessageFromPatient }
                 .thenByDescending { it.updatedAt }
         )
 
@@ -66,8 +91,9 @@ class DoctorInboxViewModel(
         return current.copy(
             allConversations = all,
             conversations = sorted,
-            unreadCount = unread,
-            needsReplyCount = needsReply,
+            unreadCount = unreadCount,
+            needsReplyCount = needsReplyCount,
+            urgentCount = urgentCount,
             filter = filter,
             archivedIds = archivedIds
         )

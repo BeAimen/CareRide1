@@ -91,6 +91,7 @@ private fun DoctorInboxContent(
             InboxFilters(
                 selected = state.filter,
                 needsReplyCount = state.needsReplyCount,
+                urgentCount = state.urgentCount,
                 onChange = onFilterChange
             )
 
@@ -104,15 +105,15 @@ private fun DoctorInboxContent(
                     emptyContent = {
                         EmptyState(
                             icon = Icons.Default.MailOutline,
-                            title = if (state.filter == DoctorInboxFilter.NEEDS_REPLY) {
-                                "No conversations need a reply"
-                            } else {
-                                "No messages yet"
+                            title = when (state.filter) {
+                                DoctorInboxFilter.NEEDS_REPLY -> "No conversations need a reply"
+                                DoctorInboxFilter.URGENT -> "No urgent conversations"
+                                else -> "No messages yet"
                             },
-                            subtitle = if (state.filter == DoctorInboxFilter.NEEDS_REPLY) {
-                                "You're all caught up"
-                            } else {
-                                "When patients message you, their conversations will appear here"
+                            subtitle = when (state.filter) {
+                                DoctorInboxFilter.NEEDS_REPLY -> "You're all caught up"
+                                DoctorInboxFilter.URGENT -> "Nothing flagged as urgent"
+                                else -> "When patients message you, their conversations will appear here"
                             },
                             modifier = Modifier.fillMaxSize()
                         )
@@ -155,6 +156,7 @@ private fun DoctorInboxContent(
 private fun InboxFilters(
     selected: DoctorInboxFilter,
     needsReplyCount: Int,
+    urgentCount: Int,
     onChange: (DoctorInboxFilter) -> Unit
 ) {
     Row(
@@ -183,6 +185,21 @@ private fun InboxFilters(
                 }
             }
         )
+
+        FilterChip(
+            selected = selected == DoctorInboxFilter.URGENT,
+            onClick = { onChange(DoctorInboxFilter.URGENT) },
+            label = {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text("Urgent")
+                    Spacer(modifier = Modifier.width(8.dp))
+                    AssistChip(
+                        onClick = { onChange(DoctorInboxFilter.URGENT) },
+                        label = { Text(urgentCount.toString()) }
+                    )
+                }
+            }
+        )
     }
 }
 
@@ -195,11 +212,27 @@ private fun ConversationRow(
 ) {
     val needsReply = conversation.isLastMessageFromPatient
     val isUnread = conversation.unreadCount > 0
+    val urgent = needsReply && run {
+        val t = conversation.lastMessagePreview.lowercase()
+        listOf(
+            "chest pain",
+            "shortness of breath",
+            "difficulty breathing",
+            "bleeding",
+            "faint",
+            "passed out",
+            "severe",
+            "emergency",
+            "fever",
+            "urgent"
+        ).any { t.contains(it) }
+    }
 
     val desc = buildString {
         append("Conversation with ${conversation.patientName}. ")
         append("Last message: ${conversation.lastMessagePreview}. ")
         if (isUnread) append("Unread messages. ")
+        if (urgent) append("Urgent. ")
         if (needsReply) append("Needs reply. ")
         append("Tap to open.")
     }
@@ -227,7 +260,7 @@ private fun ConversationRow(
                 Text(
                     text = conversation.patientName,
                     style = MaterialTheme.typography.titleMedium,
-                    fontWeight = if (needsReply) FontWeight.Bold else FontWeight.Normal,
+                    fontWeight = if (urgent || needsReply) FontWeight.Bold else FontWeight.Normal,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.weight(1f)
@@ -244,31 +277,60 @@ private fun ConversationRow(
 
             Spacer(modifier = Modifier.height(CareRideTheme.spacing.xxs))
 
-            val prefix = if (!conversation.isLastMessageFromPatient) "You: " else ""
-            Text(
-                text = prefix + conversation.lastMessagePreview,
-                style = MaterialTheme.typography.bodyMedium,
-                fontWeight = if (needsReply) FontWeight.Medium else FontWeight.Normal,
-                color = if (needsReply) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                if (urgent) {
+                    Surface(
+                        color = MaterialTheme.colorScheme.errorContainer,
+                        shape = MaterialTheme.shapes.small
+                    ) {
+                        Text(
+                            text = "Urgent",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onErrorContainer,
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(8.dp))
+                }
+
+                if (needsReply && !urgent) {
+                    Surface(
+                        color = MaterialTheme.colorScheme.tertiaryContainer,
+                        shape = MaterialTheme.shapes.small
+                    ) {
+                        Text(
+                            text = "Needs reply",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onTertiaryContainer,
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(8.dp))
+                }
+
+                val prefix = if (!conversation.isLastMessageFromPatient) "You: " else ""
+                Text(
+                    text = prefix + conversation.lastMessagePreview,
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = if (urgent || needsReply) FontWeight.Medium else FontWeight.Normal,
+                    color = if (urgent || needsReply) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f)
+                )
+            }
         }
 
         Spacer(modifier = Modifier.width(CareRideTheme.spacing.sm))
 
         Row(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalAlignment = Alignment.CenterVertically) {
             if (isUnread) {
-                FilledTonalIconButton(
-                    onClick = onMarkRead
-                ) {
+                FilledTonalIconButton(onClick = onMarkRead) {
                     Icon(imageVector = Icons.Default.Done, contentDescription = "Mark as read")
                 }
             }
 
-            FilledTonalIconButton(
-                onClick = onArchive
-            ) {
+            FilledTonalIconButton(onClick = onArchive) {
                 Icon(imageVector = Icons.Default.Archive, contentDescription = "Archive conversation")
             }
         }

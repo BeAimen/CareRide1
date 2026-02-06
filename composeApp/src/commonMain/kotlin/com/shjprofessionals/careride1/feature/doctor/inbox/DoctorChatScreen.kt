@@ -52,8 +52,9 @@ data class DoctorChatScreen(
             onMessageInputChange = viewModel::onMessageInputChange,
             onSend = viewModel::sendMessage,
             onToggleQuickReplies = viewModel::toggleQuickReplies,
-            onQuickReplyClick = viewModel::useQuickReply,
-            onDismissQuickReplies = viewModel::hideQuickReplies
+            onQuickReplyClick = viewModel::onQuickReplySelected,
+            onDismissQuickReplies = viewModel::hideQuickReplies,
+            onToggleInstantSend = viewModel::toggleInstantQuickReplySend
         )
     }
 }
@@ -67,7 +68,8 @@ private fun DoctorChatContent(
     onSend: () -> Unit,
     onToggleQuickReplies: () -> Unit,
     onQuickReplyClick: (QuickReply) -> Unit,
-    onDismissQuickReplies: () -> Unit
+    onDismissQuickReplies: () -> Unit,
+    onToggleInstantSend: () -> Unit
 ) {
     val listState = rememberLazyListState()
 
@@ -103,6 +105,7 @@ private fun DoctorChatContent(
                 if (!state.showQuickReplies && state.suggestedQuickReplies.isNotEmpty()) {
                     SuggestedQuickRepliesRow(
                         quickReplies = state.suggestedQuickReplies,
+                        instantSendEnabled = state.instantQuickReplySend,
                         onQuickReplyClick = onQuickReplyClick,
                         onMoreClick = onToggleQuickReplies
                     )
@@ -115,6 +118,8 @@ private fun DoctorChatContent(
                 ) {
                     QuickRepliesPanel(
                         quickReplies = state.quickReplies,
+                        instantSendEnabled = state.instantQuickReplySend,
+                        onToggleInstantSend = onToggleInstantSend,
                         onQuickReplyClick = onQuickReplyClick,
                         onDismiss = onDismissQuickReplies
                     )
@@ -194,6 +199,7 @@ private fun DoctorChatContent(
 @Composable
 private fun SuggestedQuickRepliesRow(
     quickReplies: List<QuickReply>,
+    instantSendEnabled: Boolean,
     onQuickReplyClick: (QuickReply) -> Unit,
     onMoreClick: () -> Unit
 ) {
@@ -221,7 +227,9 @@ private fun SuggestedQuickRepliesRow(
             TextButton(
                 onClick = onMoreClick,
                 modifier = Modifier.semantics { contentDescription = "Open all quick replies" }
-            ) { Text("More") }
+            ) {
+                Text(if (instantSendEnabled) "More" else "More")
+            }
         }
     }
 }
@@ -299,6 +307,8 @@ private fun DoctorMessageInput(
 @Composable
 private fun QuickRepliesPanel(
     quickReplies: List<QuickReply>,
+    instantSendEnabled: Boolean,
+    onToggleInstantSend: () -> Unit,
     onQuickReplyClick: (QuickReply) -> Unit,
     onDismiss: () -> Unit
 ) {
@@ -313,21 +323,46 @@ private fun QuickRepliesPanel(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(text = "Quick Replies", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Column {
+                    Text(
+                        text = "Quick Replies",
+                        style = MaterialTheme.typography.labelLarge,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = if (instantSendEnabled) {
+                            "Tap sends instantly"
+                        } else {
+                            "Tap inserts into the message box"
+                        },
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
 
-                IconButton(
-                    onClick = onDismiss,
-                    modifier = Modifier
-                        .size(AccessibilityDefaults.MinTouchTargetDp.dp)
-                        .semantics { contentDescription = "Close quick replies panel" }
-                ) {
-                    Icon(imageVector = Icons.Default.Close, contentDescription = null, modifier = Modifier.size(16.dp))
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Switch(
+                        checked = instantSendEnabled,
+                        onCheckedChange = { onToggleInstantSend() }
+                    )
+
+                    Spacer(modifier = Modifier.width(8.dp))
+
+                    IconButton(
+                        onClick = onDismiss,
+                        modifier = Modifier
+                            .size(AccessibilityDefaults.MinTouchTargetDp.dp)
+                            .semantics { contentDescription = "Close quick replies panel" }
+                    ) {
+                        Icon(imageVector = Icons.Default.Close, contentDescription = null, modifier = Modifier.size(16.dp))
+                    }
                 }
             }
 
             Spacer(modifier = Modifier.height(CareRideTheme.spacing.xs))
 
-            QuickReplyCategory.values().forEach { category ->
+            enumValues<QuickReplyCategory>().forEach { category ->
                 val categoryReplies = quickReplies.filter { it.category == category }
                 if (categoryReplies.isNotEmpty()) {
                     Text(
