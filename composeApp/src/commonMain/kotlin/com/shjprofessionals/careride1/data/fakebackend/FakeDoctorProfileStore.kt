@@ -6,29 +6,22 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
-/**
- * In-memory store for the current doctor's editable profile.
- */
 class FakeDoctorProfileStore {
 
     private val _profile = MutableStateFlow<DoctorProfile?>(null)
     val profileFlow: StateFlow<DoctorProfile?> = _profile.asStateFlow()
 
-    /**
-     * Initialize or update profile from authenticated user
-     */
     fun syncWithAuthUser(user: User) {
         val currentProfile = _profile.value
 
         if (currentProfile == null) {
-            // Create new doctor profile with smart defaults
             val defaultSpecialty = Specialty.GENERAL_PRACTICE
             val newProfile = DoctorProfile(
                 id = user.id,
                 name = user.name,
                 email = user.email,
                 specialty = defaultSpecialty,
-                bio = "", // Will prompt to generate
+                bio = "",
                 areasOfExpertise = BioGenerator.suggestExpertise(defaultSpecialty).take(5),
                 conditionsTreated = BioGenerator.suggestConditions(defaultSpecialty).take(5)
             )
@@ -47,8 +40,6 @@ class FakeDoctorProfileStore {
     fun getCurrentDoctor(): Doctor? = _profile.value?.toDoctor()
 
     fun getCurrentDoctorId(): String? = _profile.value?.id
-
-    // ============ Basic Info ============
 
     fun updateBasicInfo(
         name: String? = null,
@@ -71,8 +62,6 @@ class FakeDoctorProfileStore {
         return updated
     }
 
-    // ============ Professional Info ============
-
     fun updateProfessionalInfo(
         specialty: Specialty? = null,
         subSpecialties: List<String>? = null,
@@ -93,8 +82,6 @@ class FakeDoctorProfileStore {
         _profile.value = updated
         return updated
     }
-
-    // ============ Education & Credentials ============
 
     fun updateEducation(education: List<Education>): DoctorProfile? {
         val current = _profile.value ?: return null
@@ -133,8 +120,6 @@ class FakeDoctorProfileStore {
         return updated
     }
 
-    // ============ Practice Info ============
-
     fun updatePracticeInfo(
         practiceName: String? = null,
         practiceAddress: Address? = null,
@@ -158,27 +143,6 @@ class FakeDoctorProfileStore {
         return updated
     }
 
-    // ============ Availability ============
-
-    fun updateAvailability(
-        isAvailableToday: Boolean? = null,
-        acceptingNewPatients: Boolean? = null,
-        averageWaitTimeDays: Int? = null,
-        offersTelehealth: Boolean? = null,
-        offersInPerson: Boolean? = null
-    ): DoctorProfile? {
-        val current = _profile.value ?: return null
-        val updated = current.copy(
-            isAvailableToday = isAvailableToday ?: current.isAvailableToday,
-            acceptingNewPatients = acceptingNewPatients ?: current.acceptingNewPatients,
-            averageWaitTimeDays = averageWaitTimeDays ?: current.averageWaitTimeDays,
-            offersTelehealth = offersTelehealth ?: current.offersTelehealth,
-            offersInPerson = offersInPerson ?: current.offersInPerson
-        )
-        _profile.value = updated
-        return updated
-    }
-
     fun toggleAvailability(): DoctorProfile? {
         val current = _profile.value ?: return null
         val updated = current.copy(isAvailableToday = !current.isAvailableToday)
@@ -192,17 +156,6 @@ class FakeDoctorProfileStore {
         _profile.value = updated
         return updated
     }
-
-    // ============ Languages ============
-
-    fun updateLanguages(languages: List<String>): DoctorProfile? {
-        val current = _profile.value ?: return null
-        val updated = current.copy(languages = languages)
-        _profile.value = updated
-        return updated
-    }
-
-    // ============ Bio & Expertise ============
 
     fun updateBio(bio: String): DoctorProfile? {
         val current = _profile.value ?: return null
@@ -233,33 +186,21 @@ class FakeDoctorProfileStore {
         return updated
     }
 
-    /**
-     * Generate a default bio based on current profile
-     */
-    fun generateDefaultBio(): String {
+    fun generateBio(): String {
         val current = _profile.value ?: return ""
         return BioGenerator.generateBio(current)
     }
 
-    /**
-     * Generate treatment philosophy based on specialty
-     */
-    fun generateDefaultPhilosophy(): String {
+    fun generatePhilosophy(): String {
         val current = _profile.value ?: return ""
         return BioGenerator.generatePhilosophy(current.specialty)
     }
 
-    /**
-     * Get suggested expertise for current specialty
-     */
     fun getSuggestedExpertise(): List<String> {
         val current = _profile.value ?: return emptyList()
         return BioGenerator.suggestExpertise(current.specialty)
     }
 
-    /**
-     * Get suggested conditions for current specialty
-     */
     fun getSuggestedConditions(): List<String> {
         val current = _profile.value ?: return emptyList()
         return BioGenerator.suggestConditions(current.specialty)
@@ -272,7 +213,6 @@ class FakeDoctorProfileStore {
     fun updateProfile(
         bio: String? = null,
         location: String? = null,
-        languages: List<String>? = null,
         yearsOfExperience: Int? = null
     ): DoctorProfile? {
         val current = _profile.value ?: return null
@@ -289,7 +229,6 @@ class FakeDoctorProfileStore {
         val updated = current.copy(
             bio = bio ?: current.bio,
             practiceAddress = newAddress,
-            languages = languages ?: current.languages,
             yearsOfExperience = yearsOfExperience ?: current.yearsOfExperience
         )
         _profile.value = updated

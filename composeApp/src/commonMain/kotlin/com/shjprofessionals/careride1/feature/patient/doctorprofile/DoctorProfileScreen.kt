@@ -194,14 +194,6 @@ private fun DoctorProfileBody(doctor: Doctor) {
         Spacer(modifier = Modifier.height(CareRideTheme.spacing.sm))
 
         InfoRow(
-            icon = Icons.Default.DateRange,
-            label = "Languages",
-            value = doctor.languages.joinToString(", ")
-        )
-
-        Spacer(modifier = Modifier.height(CareRideTheme.spacing.sm))
-
-        InfoRow(
             icon = Icons.Default.Person,
             label = "New patients",
             value = if (doctor.acceptingNewPatients) "Accepting" else "Not accepting",

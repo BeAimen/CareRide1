@@ -9,7 +9,11 @@ import com.shjprofessionals.careride1.domain.model.Doctor
 import com.shjprofessionals.careride1.domain.model.DoctorBoostStatus
 import com.shjprofessionals.careride1.domain.repository.BoostRepository
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 data class DoctorProfileState(
@@ -21,18 +25,14 @@ data class DoctorProfileState(
     val isEditMode: Boolean = false,
     val error: AppError? = null,
     val message: String? = null,
-
-    // Edit fields
     val editBio: String = "",
     val editLocation: String = "",
-    val editLanguages: String = "",
     val editYearsExperience: String = ""
 ) {
     val hasUnsavedChanges: Boolean
         get() = doctor?.let {
             editBio != it.bio ||
                     editLocation != it.location ||
-                    editLanguages != it.languages.joinToString(", ") ||
                     editYearsExperience != it.yearsOfExperience.toString()
         } ?: false
 }
@@ -56,21 +56,17 @@ class DoctorProfileViewModel(
             _state.update { it.copy(isLoading = true) }
 
             try {
-                // Observe profile changes
                 profileStore.profileFlow.collect { profile ->
                     val analytics = boostRepository.getAnalytics()
-                    // Fix: Convert DoctorProfile to Doctor using .toDoctor()
                     val doctor = profile?.toDoctor()
 
-                    _state.update { currentState ->
-                        currentState.copy(
-                            doctor = doctor, // Now passing the correct type (Doctor?)
+                    _state.update { current ->
+                        current.copy(
+                            doctor = doctor,
                             analytics = analytics,
                             isLoading = false,
                             editBio = profile?.bio ?: "",
-                            // Fix: Access location from the converted Doctor object
                             editLocation = doctor?.location ?: "",
-                            editLanguages = profile?.languages?.joinToString(", ") ?: "",
                             editYearsExperience = profile?.yearsOfExperience?.toString() ?: ""
                         )
                     }
@@ -95,16 +91,14 @@ class DoctorProfileViewModel(
     }
 
     fun toggleEditMode() {
-        val currentState = _state.value
+        val current = _state.value
 
-        if (currentState.isEditMode && currentState.hasUnsavedChanges) {
-            // Discard changes - reset edit fields
+        if (current.isEditMode && current.hasUnsavedChanges) {
             _state.update { state ->
                 state.copy(
                     isEditMode = false,
                     editBio = state.doctor?.bio ?: "",
                     editLocation = state.doctor?.location ?: "",
-                    editLanguages = state.doctor?.languages?.joinToString(", ") ?: "",
                     editYearsExperience = state.doctor?.yearsOfExperience?.toString() ?: ""
                 )
             }
@@ -121,12 +115,7 @@ class DoctorProfileViewModel(
         _state.update { it.copy(editLocation = value) }
     }
 
-    fun onLanguagesChange(value: String) {
-        _state.update { it.copy(editLanguages = value) }
-    }
-
     fun onYearsExperienceChange(value: String) {
-        // Only allow numeric input
         if (value.isEmpty() || value.all { it.isDigit() }) {
             _state.update { it.copy(editYearsExperience = value) }
         }
@@ -135,18 +124,14 @@ class DoctorProfileViewModel(
     fun toggleAvailability() {
         screenModelScope.launch {
             profileStore.toggleAvailability()
-            _state.update {
-                it.copy(message = "Availability updated")
-            }
+            _state.update { it.copy(message = "Availability updated") }
         }
     }
 
     fun toggleAcceptingNewPatients() {
         screenModelScope.launch {
             profileStore.toggleAcceptingNewPatients()
-            _state.update {
-                it.copy(message = "Patient acceptance status updated")
-            }
+            _state.update { it.copy(message = "Patient acceptance status updated") }
         }
     }
 
@@ -154,21 +139,14 @@ class DoctorProfileViewModel(
         screenModelScope.launch {
             _state.update { it.copy(isSaving = true) }
 
-            // Simulate network delay
             delay(500)
 
-            val currentState = _state.value
-            val languages = currentState.editLanguages
-                .split(",")
-                .map { it.trim() }
-                .filter { it.isNotEmpty() }
-
-            val years = currentState.editYearsExperience.toIntOrNull() ?: 0
+            val current = _state.value
+            val years = current.editYearsExperience.toIntOrNull() ?: 0
 
             profileStore.updateProfile(
-                bio = currentState.editBio,
-                location = currentState.editLocation,
-                languages = languages,
+                bio = current.editBio,
+                location = current.editLocation,
                 yearsOfExperience = years
             )
 

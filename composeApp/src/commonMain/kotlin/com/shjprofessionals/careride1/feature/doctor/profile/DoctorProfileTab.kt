@@ -31,7 +31,6 @@ class DoctorProfileTab : Screen {
             onToggleEditMode = viewModel::toggleEditMode,
             onBioChange = viewModel::onBioChange,
             onLocationChange = viewModel::onLocationChange,
-            onLanguagesChange = viewModel::onLanguagesChange,
             onYearsExperienceChange = viewModel::onYearsExperienceChange,
             onToggleAvailability = viewModel::toggleAvailability,
             onToggleAcceptingNew = viewModel::toggleAcceptingNewPatients,
@@ -49,7 +48,6 @@ private fun DoctorProfileContent(
     onToggleEditMode: () -> Unit,
     onBioChange: (String) -> Unit,
     onLocationChange: (String) -> Unit,
-    onLanguagesChange: (String) -> Unit,
     onYearsExperienceChange: (String) -> Unit,
     onToggleAvailability: () -> Unit,
     onToggleAcceptingNew: () -> Unit,
@@ -189,11 +187,9 @@ private fun DoctorProfileContent(
                         EditProfileSection(
                             bio = state.editBio,
                             location = state.editLocation,
-                            languages = state.editLanguages,
                             yearsExperience = state.editYearsExperience,
                             onBioChange = onBioChange,
                             onLocationChange = onLocationChange,
-                            onLanguagesChange = onLanguagesChange,
                             onYearsExperienceChange = onYearsExperienceChange
                         )
                     } else {
@@ -420,14 +416,6 @@ private fun ViewProfileSection(
             label = "Experience",
             value = "${doctor.yearsOfExperience} years"
         )
-
-        Spacer(modifier = Modifier.height(CareRideTheme.spacing.sm))
-
-        InfoRow(
-            icon = Icons.Default.Person,
-            label = "Languages",
-            value = doctor.languages.joinToString(", ")
-        )
     }
 }
 
@@ -435,11 +423,9 @@ private fun ViewProfileSection(
 private fun EditProfileSection(
     bio: String,
     location: String,
-    languages: String,
     yearsExperience: String,
     onBioChange: (String) -> Unit,
     onLocationChange: (String) -> Unit,
-    onLanguagesChange: (String) -> Unit,
     onYearsExperienceChange: (String) -> Unit
 ) {
     Column {
@@ -466,17 +452,6 @@ private fun EditProfileSection(
             leadingIcon = {
                 Icon(Icons.Default.Place, contentDescription = null)
             }
-        )
-
-        Spacer(modifier = Modifier.height(CareRideTheme.spacing.md))
-
-        OutlinedTextField(
-            value = languages,
-            onValueChange = onLanguagesChange,
-            label = { Text("Languages") },
-            modifier = Modifier.fillMaxWidth(),
-            singleLine = true,
-            supportingText = { Text("Separate with commas (e.g., English, Spanish)") }
         )
 
         Spacer(modifier = Modifier.height(CareRideTheme.spacing.md))
