@@ -58,3 +58,4 @@ GoogleService-Info.plist
 captures/
 .externalNativeBuild/
 .cxx/
+/.gradle
