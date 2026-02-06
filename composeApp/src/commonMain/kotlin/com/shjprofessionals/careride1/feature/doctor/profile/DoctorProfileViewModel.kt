@@ -57,18 +57,21 @@ class DoctorProfileViewModel(
 
             try {
                 // Observe profile changes
-                profileStore.profileFlow.collect { doctor ->
+                profileStore.profileFlow.collect { profile ->
                     val analytics = boostRepository.getAnalytics()
+                    // Fix: Convert DoctorProfile to Doctor using .toDoctor()
+                    val doctor = profile?.toDoctor()
 
                     _state.update { currentState ->
                         currentState.copy(
-                            doctor = doctor,
+                            doctor = doctor, // Now passing the correct type (Doctor?)
                             analytics = analytics,
                             isLoading = false,
-                            editBio = doctor?.bio ?: "",
+                            editBio = profile?.bio ?: "",
+                            // Fix: Access location from the converted Doctor object
                             editLocation = doctor?.location ?: "",
-                            editLanguages = doctor?.languages?.joinToString(", ") ?: "",
-                            editYearsExperience = doctor?.yearsOfExperience?.toString() ?: ""
+                            editLanguages = profile?.languages?.joinToString(", ") ?: "",
+                            editYearsExperience = profile?.yearsOfExperience?.toString() ?: ""
                         )
                     }
                 }

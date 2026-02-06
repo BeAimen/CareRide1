@@ -1,14 +1,47 @@
 package com.shjprofessionals.careride1.feature.doctor.profile
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Phone
+import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
@@ -21,12 +54,19 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.shjprofessionals.careride1.core.designsystem.theme.CareRideTheme
 import com.shjprofessionals.careride1.data.fakebackend.FakeBackend
-import com.shjprofessionals.careride1.domain.model.*
+import com.shjprofessionals.careride1.domain.model.DoctorTitle
+import com.shjprofessionals.careride1.domain.model.Gender
+import com.shjprofessionals.careride1.feature.onboarding.DoctorMainScreen
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class EditDoctorBasicInfoScreen : Screen {
+data class EditDoctorBasicInfoScreen(
+    val isOnboarding: Boolean = false
+) : Screen {
 
     @Composable
     override fun Content() {
@@ -36,13 +76,19 @@ class EditDoctorBasicInfoScreen : Screen {
 
         LaunchedEffect(state.saveSuccess) {
             if (state.saveSuccess) {
-                navigator.pop()
+                if (isOnboarding) {
+                    navigator.replaceAll(DoctorMainScreen())
+                } else {
+                    navigator.pop()
+                }
             }
         }
 
         EditDoctorBasicInfoContent(
             state = state,
+            isOnboarding = isOnboarding,
             onBackClick = { navigator.pop() },
+            onSkip = { navigator.replaceAll(DoctorMainScreen()) },
             onTitleChange = viewModel::onTitleChange,
             onNameChange = viewModel::onNameChange,
             onEmailChange = viewModel::onEmailChange,
@@ -155,7 +201,9 @@ class EditDoctorBasicInfoViewModel : ScreenModel {
 @Composable
 private fun EditDoctorBasicInfoContent(
     state: EditDoctorBasicInfoState,
+    isOnboarding: Boolean,
     onBackClick: () -> Unit,
+    onSkip: () -> Unit,
     onTitleChange: (DoctorTitle) -> Unit,
     onNameChange: (String) -> Unit,
     onEmailChange: (String) -> Unit,
@@ -175,10 +223,19 @@ private fun EditDoctorBasicInfoContent(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Basic Information") },
+                title = { Text(if (isOnboarding) "Setup Profile" else "Basic Information") },
                 navigationIcon = {
-                    IconButton(onClick = onBackClick) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Go back")
+                    if (!isOnboarding) {
+                        IconButton(onClick = onBackClick) {
+                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Go back")
+                        }
+                    }
+                },
+                actions = {
+                    if (isOnboarding) {
+                        TextButton(onClick = onSkip) {
+                            Text("Skip")
+                        }
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -206,7 +263,7 @@ private fun EditDoctorBasicInfoContent(
                             color = MaterialTheme.colorScheme.onPrimary
                         )
                     } else {
-                        Text("Save")
+                        Text(if (isOnboarding) "Complete Setup" else "Save")
                     }
                 }
             }
@@ -227,7 +284,6 @@ private fun EditDoctorBasicInfoContent(
                     .verticalScroll(rememberScrollState())
                     .padding(CareRideTheme.spacing.md)
             ) {
-                // Title dropdown
                 ExposedDropdownMenuBox(
                     expanded = titleExpanded,
                     onExpandedChange = { titleExpanded = it }

@@ -2,11 +2,32 @@ package com.shjprofessionals.careride1.feature.auth
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.LocalHospital
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -28,7 +49,12 @@ import com.shjprofessionals.careride1.domain.model.AuthResult
 import com.shjprofessionals.careride1.domain.model.User
 import com.shjprofessionals.careride1.domain.model.UserRole
 import com.shjprofessionals.careride1.domain.repository.AuthRepository
-import kotlinx.coroutines.flow.*
+import com.shjprofessionals.careride1.feature.doctor.profile.EditDoctorBasicInfoScreen
+import com.shjprofessionals.careride1.feature.patient.profile.EditBasicInfoScreen
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class AuthRoleSelectionScreen : Screen {
@@ -38,6 +64,16 @@ class AuthRoleSelectionScreen : Screen {
         val navigator = LocalNavigator.currentOrThrow
         val viewModel = koinScreenModel<AuthRoleSelectionViewModel>()
         val state by viewModel.state.collectAsState()
+
+        LaunchedEffect(state.roleSelectionSuccess) {
+            if (state.roleSelectionSuccess) {
+                when (state.selectedRole) {
+                    UserRole.PATIENT -> navigator.push(EditBasicInfoScreen(isOnboarding = true))
+                    UserRole.DOCTOR -> navigator.push(EditDoctorBasicInfoScreen(isOnboarding = true))
+                    else -> { /* Handle other roles if necessary */ }
+                }
+            }
+        }
 
         AuthRoleSelectionContent(
             state = state,
@@ -51,7 +87,8 @@ data class AuthRoleSelectionState(
     val user: User? = null,
     val selectedRole: UserRole? = null,
     val isLoading: Boolean = false,
-    val error: String? = null
+    val error: String? = null,
+    val roleSelectionSuccess: Boolean = false
 )
 
 class AuthRoleSelectionViewModel(
@@ -85,8 +122,7 @@ class AuthRoleSelectionViewModel(
 
             when (val result = authRepository.setRole(selectedRole)) {
                 is AuthResult.Success -> {
-                    _state.update { it.copy(isLoading = false) }
-                    // Navigation will be handled by AuthNavigator
+                    _state.update { it.copy(isLoading = false, roleSelectionSuccess = true) }
                 }
                 is AuthResult.Error -> {
                     _state.update { it.copy(isLoading = false, error = result.message) }
@@ -110,7 +146,6 @@ private fun AuthRoleSelectionContent(
     ) {
         Spacer(modifier = Modifier.height(CareRideTheme.spacing.xxl))
 
-        // Greeting
         Text(
             text = "Welcome, ${state.user?.firstName ?: "there"}!",
             style = MaterialTheme.typography.headlineMedium,
@@ -128,7 +163,6 @@ private fun AuthRoleSelectionContent(
 
         Spacer(modifier = Modifier.height(CareRideTheme.spacing.xl))
 
-        // Error message
         if (state.error != null) {
             Surface(
                 color = MaterialTheme.colorScheme.errorContainer,
@@ -146,7 +180,6 @@ private fun AuthRoleSelectionContent(
             Spacer(modifier = Modifier.height(CareRideTheme.spacing.md))
         }
 
-        // Role options
         RoleOptionCard(
             icon = Icons.Default.Person,
             title = "I'm a Patient",
@@ -169,7 +202,6 @@ private fun AuthRoleSelectionContent(
 
         Spacer(modifier = Modifier.weight(1f))
 
-        // Continue button
         Button(
             onClick = onContinueClick,
             modifier = Modifier

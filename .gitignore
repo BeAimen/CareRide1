@@ -58,3 +58,7 @@ GoogleService-Info.plist
 captures/
 .externalNativeBuild/
 .cxx/
+*.lock
+*.bin
+*.bin
+*.xml

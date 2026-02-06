@@ -65,6 +65,8 @@ val appModule = module {
     factory { NotificationSettingsViewModel() }
 
 // Patient Edit ViewModels
+    // FIX: Added EditBasicInfoViewModel definition here
+    factory { EditBasicInfoViewModel(get()) }
     factory { EditAddressViewModel() }
     factory { EditMedicalInfoViewModel() }
     factory { EditInsuranceViewModel() }
