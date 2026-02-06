@@ -38,9 +38,7 @@ class EditDoctorPracticeScreen : Screen {
         val state by viewModel.state.collectAsState()
 
         LaunchedEffect(state.saveSuccess) {
-            if (state.saveSuccess) {
-                navigator.pop()
-            }
+            if (state.saveSuccess) navigator.pop()
         }
 
         EditDoctorPracticeContent(
@@ -50,7 +48,6 @@ class EditDoctorPracticeScreen : Screen {
             onStreetChange = viewModel::onStreetChange,
             onCityChange = viewModel::onCityChange,
             onStateChange = viewModel::onStateChange,
-            onZipCodeChange = viewModel::onZipCodeChange,
             onOfficePhoneChange = viewModel::onOfficePhoneChange,
             onFeeMinChange = viewModel::onFeeMinChange,
             onFeeMaxChange = viewModel::onFeeMaxChange,
@@ -68,7 +65,6 @@ data class EditDoctorPracticeState(
     val street: String = "",
     val city: String = "",
     val state: String = "",
-    val zipCode: String = "",
     val officePhone: String = "",
     val feeMin: String = "",
     val feeMax: String = "",
@@ -100,7 +96,6 @@ class EditDoctorPracticeViewModel : ScreenModel {
                     street = profile.practiceAddress.street,
                     city = profile.practiceAddress.city,
                     state = profile.practiceAddress.state,
-                    zipCode = profile.practiceAddress.zipCode,
                     officePhone = profile.officePhone,
                     feeMin = if (profile.consultationFeeMin > 0) (profile.consultationFeeMin / 100).toString() else "",
                     feeMax = if (profile.consultationFeeMax > 0) (profile.consultationFeeMax / 100).toString() else "",
@@ -119,27 +114,28 @@ class EditDoctorPracticeViewModel : ScreenModel {
     fun onStreetChange(value: String) = _state.update { it.copy(street = value) }
     fun onCityChange(value: String) = _state.update { it.copy(city = value) }
     fun onStateChange(value: String) = _state.update { it.copy(state = value) }
-    fun onZipCodeChange(value: String) {
-        if (value.length <= 5 && value.all { it.isDigit() }) {
-            _state.update { it.copy(zipCode = value) }
-        }
-    }
     fun onOfficePhoneChange(value: String) = _state.update { it.copy(officePhone = value) }
+
     fun onFeeMinChange(value: String) {
-        if (value.isEmpty() || value.all { it.isDigit() }) {
-            _state.update { it.copy(feeMin = value) }
-        }
+        if (value.isEmpty() || value.all { it.isDigit() }) _state.update { it.copy(feeMin = value) }
     }
+
     fun onFeeMaxChange(value: String) {
-        if (value.isEmpty() || value.all { it.isDigit() }) {
-            _state.update { it.copy(feeMax = value) }
-        }
+        if (value.isEmpty() || value.all { it.isDigit() }) _state.update { it.copy(feeMax = value) }
     }
+
     fun onInsuranceChange(value: String) = _state.update { it.copy(acceptedInsurance = value) }
 
     fun addInsurance(insurance: String) {
-        val current = _state.value.acceptedInsurance
-        val newValue = if (current.isBlank()) insurance else "$current\n$insurance"
+        val currentText = _state.value.acceptedInsurance
+        val existing = currentText.lines()
+            .map { it.trim().lowercase() }
+            .filter { it.isNotEmpty() }
+            .toSet()
+
+        if (insurance.trim().lowercase() in existing) return
+
+        val newValue = if (currentText.isBlank()) insurance else "$currentText\n$insurance"
         _state.update { it.copy(acceptedInsurance = newValue) }
     }
 
@@ -157,7 +153,7 @@ class EditDoctorPracticeViewModel : ScreenModel {
                 street = current.street.trim(),
                 city = current.city.trim(),
                 state = current.state.trim(),
-                zipCode = current.zipCode.trim()
+                zipCode = "" // ZIP removed
             )
 
             profileStore.updatePracticeInfo(
@@ -188,7 +184,6 @@ private fun EditDoctorPracticeContent(
     onStreetChange: (String) -> Unit,
     onCityChange: (String) -> Unit,
     onStateChange: (String) -> Unit,
-    onZipCodeChange: (String) -> Unit,
     onOfficePhoneChange: (String) -> Unit,
     onFeeMinChange: (String) -> Unit,
     onFeeMaxChange: (String) -> Unit,
@@ -203,6 +198,19 @@ private fun EditDoctorPracticeContent(
 
     LaunchedEffect(state.error) {
         state.error?.let { snackbarHostState.showSnackbar(it) }
+    }
+
+    val existingInsurance = remember(state.acceptedInsurance) {
+        state.acceptedInsurance.lines()
+            .map { it.trim().lowercase() }
+            .filter { it.isNotEmpty() }
+            .toSet()
+    }
+
+    val filteredInsuranceSuggestions = remember(existingInsurance) {
+        BioGenerator.commonInsuranceProviders
+            .filter { it.trim().lowercase() !in existingInsurance }
+            .take(6)
     }
 
     Scaffold(
@@ -319,7 +327,7 @@ private fun EditDoctorPracticeContent(
                     ExposedDropdownMenuBox(
                         expanded = stateExpanded,
                         onExpandedChange = { stateExpanded = it },
-                        modifier = Modifier.weight(0.6f)
+                        modifier = Modifier.weight(1f)
                     ) {
                         OutlinedTextField(
                             value = state.state,
@@ -346,15 +354,6 @@ private fun EditDoctorPracticeContent(
                             }
                         }
                     }
-
-                    OutlinedTextField(
-                        value = state.zipCode,
-                        onValueChange = onZipCodeChange,
-                        label = { Text("ZIP") },
-                        modifier = Modifier.weight(0.6f),
-                        singleLine = true,
-                        enabled = !state.isSaving
-                    )
                 }
 
                 Spacer(modifier = Modifier.height(CareRideTheme.spacing.lg))
@@ -369,7 +368,6 @@ private fun EditDoctorPracticeContent(
                         value = state.feeMin,
                         onValueChange = onFeeMinChange,
                         label = { Text("Min ($)") },
-                        placeholder = { Text("100") },
                         modifier = Modifier.weight(1f),
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -380,7 +378,6 @@ private fun EditDoctorPracticeContent(
                         value = state.feeMax,
                         onValueChange = onFeeMaxChange,
                         label = { Text("Max ($)") },
-                        placeholder = { Text("300") },
                         modifier = Modifier.weight(1f),
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -397,19 +394,18 @@ private fun EditDoctorPracticeContent(
                     horizontalArrangement = Arrangement.spacedBy(CareRideTheme.spacing.md)
                 ) {
                     FilterChip(
-                        selected = state.offersInPerson,
-                        onClick = onToggleInPerson,
-                        label = { Text("In-Person") },
-                        leadingIcon = if (state.offersInPerson) {
-                            { Icon(Icons.Default.Check, contentDescription = null, Modifier.size(18.dp)) }
-                        } else null
-                    )
-
-                    FilterChip(
                         selected = state.offersTelehealth,
                         onClick = onToggleTelehealth,
                         label = { Text("Telehealth") },
                         leadingIcon = if (state.offersTelehealth) {
+                            { Icon(Icons.Default.Check, contentDescription = null, Modifier.size(18.dp)) }
+                        } else null
+                    )
+                    FilterChip(
+                        selected = state.offersInPerson,
+                        onClick = onToggleInPerson,
+                        label = { Text("In Person") },
+                        leadingIcon = if (state.offersInPerson) {
                             { Icon(Icons.Default.Check, contentDescription = null, Modifier.size(18.dp)) }
                         } else null
                     )
@@ -419,31 +415,32 @@ private fun EditDoctorPracticeContent(
 
                 SectionHeader(title = "Accepted Insurance")
 
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .horizontalScroll(rememberScrollState()),
-                    horizontalArrangement = Arrangement.spacedBy(CareRideTheme.spacing.xs)
-                ) {
-                    BioGenerator.commonInsuranceProviders.take(6).forEach { insurance ->
-                        SuggestionChip(
-                            onClick = { onAddInsurance(insurance) },
-                            label = { Text(insurance, style = MaterialTheme.typography.labelSmall) }
-                        )
+                if (filteredInsuranceSuggestions.isNotEmpty()) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .horizontalScroll(rememberScrollState()),
+                        horizontalArrangement = Arrangement.spacedBy(CareRideTheme.spacing.xs)
+                    ) {
+                        filteredInsuranceSuggestions.forEach { insurance ->
+                            SuggestionChip(
+                                onClick = { onAddInsurance(insurance) },
+                                label = { Text(insurance, style = MaterialTheme.typography.labelSmall) }
+                            )
+                        }
                     }
-                }
 
-                Spacer(modifier = Modifier.height(CareRideTheme.spacing.sm))
+                    Spacer(modifier = Modifier.height(CareRideTheme.spacing.sm))
+                }
 
                 OutlinedTextField(
                     value = state.acceptedInsurance,
                     onValueChange = onInsuranceChange,
                     label = { Text("Insurance Providers") },
                     placeholder = { Text("Blue Cross Blue Shield\nAetna\nMedicare") },
-                    supportingText = { Text("One per line") },
+                    supportingText = { Text("One per line. Suggestions disappear once added.") },
                     modifier = Modifier.fillMaxWidth(),
                     minLines = 4,
-                    maxLines = 8,
                     enabled = !state.isSaving
                 )
 

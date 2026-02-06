@@ -21,7 +21,8 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.shjprofessionals.careride1.core.designsystem.theme.CareRideTheme
 import com.shjprofessionals.careride1.data.fakebackend.FakeBackend
-import com.shjprofessionals.careride1.domain.model.*
+import com.shjprofessionals.careride1.domain.model.DoctorTitle
+import com.shjprofessionals.careride1.domain.model.Gender
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -35,9 +36,7 @@ class EditDoctorBasicInfoScreen : Screen {
         val state by viewModel.state.collectAsState()
 
         LaunchedEffect(state.saveSuccess) {
-            if (state.saveSuccess) {
-                navigator.pop()
-            }
+            if (state.saveSuccess) navigator.pop()
         }
 
         EditDoctorBasicInfoContent(
@@ -60,7 +59,7 @@ data class EditDoctorBasicInfoState(
     val email: String = "",
     val phone: String = "",
     val dateOfBirth: String = "",
-    val gender: Gender = Gender.PREFER_NOT_TO_SAY,
+    val gender: Gender? = null, // Only Male/Female allowed here; null means not set
     val isLoading: Boolean = true,
     val isSaving: Boolean = false,
     val error: String? = null,
@@ -87,7 +86,7 @@ class EditDoctorBasicInfoViewModel : ScreenModel {
                     email = profile.email,
                     phone = profile.phone,
                     dateOfBirth = profile.dateOfBirth,
-                    gender = profile.gender,
+                    gender = profile.gender.takeIf { g -> g == Gender.MALE || g == Gender.FEMALE },
                     isLoading = false
                 )
             }
@@ -96,59 +95,98 @@ class EditDoctorBasicInfoViewModel : ScreenModel {
         }
     }
 
-    fun onTitleChange(value: DoctorTitle) {
-        _state.update { it.copy(title = value) }
-    }
-
-    fun onNameChange(value: String) {
-        _state.update { it.copy(name = value, error = null) }
-    }
-
-    fun onEmailChange(value: String) {
-        _state.update { it.copy(email = value, error = null) }
-    }
-
-    fun onPhoneChange(value: String) {
-        _state.update { it.copy(phone = value) }
-    }
+    fun onTitleChange(value: DoctorTitle) = _state.update { it.copy(title = value) }
+    fun onNameChange(value: String) = _state.update { it.copy(name = value, error = null) }
+    fun onEmailChange(value: String) = _state.update { it.copy(email = value, error = null) }
+    fun onPhoneChange(value: String) = _state.update { it.copy(phone = value) }
 
     fun onDateOfBirthChange(value: String) {
-        _state.update { it.copy(dateOfBirth = value) }
+        // Allow only digits and '/' and max length 10 (MM/DD/YYYY)
+        val filtered = value.filter { it.isDigit() || it == '/' }
+        if (filtered.length <= 10) {
+            _state.update { it.copy(dateOfBirth = filtered, error = null) }
+        }
     }
 
-    fun onGenderChange(value: Gender) {
-        _state.update { it.copy(gender = value) }
-    }
+    fun onGenderChange(value: Gender?) = _state.update { it.copy(gender = value) }
 
     fun save() {
         val current = _state.value
 
-        if (current.name.isBlank()) {
-            _state.update { it.copy(error = "Name is required") }
-            return
-        }
+        val dobRaw = current.dateOfBirth.trim()
+        val dobNormalized = if (dobRaw.isBlank()) null else normalizeDobOrNull(dobRaw)
 
-        if (current.email.isBlank()) {
-            _state.update { it.copy(error = "Email is required") }
+        if (dobRaw.isNotBlank() && dobNormalized == null) {
+            _state.update { it.copy(error = "Invalid date of birth. Use MM/DD/YYYY (e.g., 01/25/1999).") }
             return
         }
 
         screenModelScope.launch {
             _state.update { it.copy(isSaving = true, error = null) }
-            delay(300)
+            delay(250)
 
             profileStore.updateBasicInfo(
-                name = current.name.trim(),
-                email = current.email.trim(),
-                phone = current.phone.trim(),
-                dateOfBirth = current.dateOfBirth.trim(),
-                gender = current.gender,
+                name = current.name.trim().takeIf { it.isNotBlank() },
+                email = current.email.trim().takeIf { it.isNotBlank() },
+                phone = current.phone.trim().takeIf { it.isNotBlank() },
+                dateOfBirth = dobNormalized,
+                gender = current.gender, // only Male/Female or null
                 title = current.title
             )
 
             _state.update { it.copy(isSaving = false, saveSuccess = true) }
         }
     }
+
+    private fun normalizeDobOrNull(input: String): String? {
+        val s = input.trim()
+
+        // MM/DD/YYYY
+        val mmdd = Regex("""^(\d{1,2})/(\d{1,2})/(\d{4})$""").matchEntire(s)
+        if (mmdd != null) {
+            val m = mmdd.groupValues[1].toIntOrNull() ?: return null
+            val d = mmdd.groupValues[2].toIntOrNull() ?: return null
+            val y = mmdd.groupValues[3].toIntOrNull() ?: return null
+            if (!isValidDate(y, m, d)) return null
+            return formatDob(m, d, y)
+        }
+
+        // YYYY-MM-DD (optional acceptance)
+        val ymd = Regex("""^(\d{4})-(\d{1,2})-(\d{1,2})$""").matchEntire(s)
+        if (ymd != null) {
+            val y = ymd.groupValues[1].toIntOrNull() ?: return null
+            val m = ymd.groupValues[2].toIntOrNull() ?: return null
+            val d = ymd.groupValues[3].toIntOrNull() ?: return null
+            if (!isValidDate(y, m, d)) return null
+            return formatDob(m, d, y)
+        }
+
+        return null
+    }
+
+    private fun formatDob(month: Int, day: Int, year: Int): String {
+        val mm = month.toString().padStart(2, '0')
+        val dd = day.toString().padStart(2, '0')
+        val yyyy = year.toString().padStart(4, '0')
+        return "$mm/$dd/$yyyy"
+    }
+
+    private fun isValidDate(year: Int, month: Int, day: Int): Boolean {
+        if (year !in 1900..2100) return false
+        if (month !in 1..12) return false
+        val maxDay = daysInMonth(year, month)
+        return day in 1..maxDay
+    }
+
+    private fun daysInMonth(year: Int, month: Int): Int = when (month) {
+        1, 3, 5, 7, 8, 10, 12 -> 31
+        4, 6, 9, 11 -> 30
+        2 -> if (isLeapYear(year)) 29 else 28
+        else -> 0
+    }
+
+    private fun isLeapYear(year: Int): Boolean =
+        (year % 4 == 0 && year % 100 != 0) || (year % 400 == 0)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -161,7 +199,7 @@ private fun EditDoctorBasicInfoContent(
     onEmailChange: (String) -> Unit,
     onPhoneChange: (String) -> Unit,
     onDateOfBirthChange: (String) -> Unit,
-    onGenderChange: (Gender) -> Unit,
+    onGenderChange: (Gender?) -> Unit,
     onSave: () -> Unit
 ) {
     var titleExpanded by remember { mutableStateOf(false) }
@@ -171,6 +209,9 @@ private fun EditDoctorBasicInfoContent(
     LaunchedEffect(state.error) {
         state.error?.let { snackbarHostState.showSnackbar(it) }
     }
+
+    val allowedGenders = remember { listOf(Gender.MALE, Gender.FEMALE) }
+    val genderDisplay = state.gender?.displayName ?: "Select"
 
     Scaffold(
         topBar = {
@@ -214,7 +255,9 @@ private fun EditDoctorBasicInfoContent(
     ) { paddingValues ->
         if (state.isLoading) {
             Box(
-                modifier = Modifier.fillMaxSize().padding(paddingValues),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues),
                 contentAlignment = Alignment.Center
             ) {
                 CircularProgressIndicator()
@@ -265,7 +308,7 @@ private fun EditDoctorBasicInfoContent(
                 OutlinedTextField(
                     value = state.name,
                     onValueChange = onNameChange,
-                    label = { Text("Full Name *") },
+                    label = { Text("Full Name") },
                     leadingIcon = { Icon(Icons.Default.Person, contentDescription = null) },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
@@ -277,7 +320,7 @@ private fun EditDoctorBasicInfoContent(
                 OutlinedTextField(
                     value = state.email,
                     onValueChange = onEmailChange,
-                    label = { Text("Email *") },
+                    label = { Text("Email") },
                     leadingIcon = { Icon(Icons.Default.Email, contentDescription = null) },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
@@ -307,6 +350,7 @@ private fun EditDoctorBasicInfoContent(
                     label = { Text("Date of Birth") },
                     leadingIcon = { Icon(Icons.Default.DateRange, contentDescription = null) },
                     placeholder = { Text("MM/DD/YYYY") },
+                    supportingText = { Text("Optional. If filled, must be a valid date.") },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
                     enabled = !state.isSaving
@@ -319,7 +363,7 @@ private fun EditDoctorBasicInfoContent(
                     onExpandedChange = { genderExpanded = it }
                 ) {
                     OutlinedTextField(
-                        value = state.gender.displayName,
+                        value = genderDisplay,
                         onValueChange = {},
                         readOnly = true,
                         label = { Text("Gender") },
@@ -334,7 +378,7 @@ private fun EditDoctorBasicInfoContent(
                         expanded = genderExpanded,
                         onDismissRequest = { genderExpanded = false }
                     ) {
-                        Gender.entries.forEach { gender ->
+                        allowedGenders.forEach { gender ->
                             DropdownMenuItem(
                                 text = { Text(gender.displayName) },
                                 onClick = {
@@ -343,6 +387,13 @@ private fun EditDoctorBasicInfoContent(
                                 }
                             )
                         }
+                        DropdownMenuItem(
+                            text = { Text("Clear") },
+                            onClick = {
+                                onGenderChange(null)
+                                genderExpanded = false
+                            }
+                        )
                     }
                 }
 

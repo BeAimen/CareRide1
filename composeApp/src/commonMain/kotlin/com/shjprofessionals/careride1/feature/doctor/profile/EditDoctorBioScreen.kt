@@ -34,9 +34,7 @@ class EditDoctorBioScreen : Screen {
         val state by viewModel.state.collectAsState()
 
         LaunchedEffect(state.saveSuccess) {
-            if (state.saveSuccess) {
-                navigator.pop()
-            }
+            if (state.saveSuccess) navigator.pop()
         }
 
         EditDoctorBioContent(
@@ -75,26 +73,41 @@ class EditDoctorBioViewModel : ScreenModel {
     private val _state = MutableStateFlow(EditDoctorBioState())
     val state: StateFlow<EditDoctorBioState> = _state.asStateFlow()
 
+    private var allSuggestedExpertise: List<String> = emptyList()
+    private var allSuggestedConditions: List<String> = emptyList()
+
     init {
         loadProfile()
     }
 
     private fun loadProfile() {
         val profile = profileStore.getProfile()
+        allSuggestedExpertise = profileStore.getSuggestedExpertise()
+        allSuggestedConditions = profileStore.getSuggestedConditions()
+
         if (profile != null) {
+            val expertiseText = profile.areasOfExpertise.joinToString("\n")
+            val conditionsText = profile.conditionsTreated.joinToString("\n")
+
             _state.update {
                 it.copy(
                     bio = profile.bio,
                     philosophy = profile.treatmentPhilosophy,
-                    expertise = profile.areasOfExpertise.joinToString("\n"),
-                    conditions = profile.conditionsTreated.joinToString("\n"),
-                    suggestedExpertise = profileStore.getSuggestedExpertise(),
-                    suggestedConditions = profileStore.getSuggestedConditions(),
+                    expertise = expertiseText,
+                    conditions = conditionsText,
+                    suggestedExpertise = filterSuggestions(allSuggestedExpertise, expertiseText),
+                    suggestedConditions = filterSuggestions(allSuggestedConditions, conditionsText),
                     isLoading = false
                 )
             }
         } else {
-            _state.update { it.copy(isLoading = false) }
+            _state.update {
+                it.copy(
+                    suggestedExpertise = filterSuggestions(allSuggestedExpertise, ""),
+                    suggestedConditions = filterSuggestions(allSuggestedConditions, ""),
+                    isLoading = false
+                )
+            }
         }
     }
 
@@ -125,23 +138,49 @@ class EditDoctorBioViewModel : ScreenModel {
     }
 
     fun onExpertiseChange(value: String) {
-        _state.update { it.copy(expertise = value) }
+        _state.update {
+            it.copy(
+                expertise = value,
+                suggestedExpertise = filterSuggestions(allSuggestedExpertise, value)
+            )
+        }
     }
 
     fun onConditionsChange(value: String) {
-        _state.update { it.copy(conditions = value) }
+        _state.update {
+            it.copy(
+                conditions = value,
+                suggestedConditions = filterSuggestions(allSuggestedConditions, value)
+            )
+        }
     }
 
     fun addSuggestedExpertise(item: String) {
         val current = _state.value.expertise
+        val existing = normalizedLineSet(current)
+        if (normalizeKey(item) in existing) return
+
         val newValue = if (current.isBlank()) item else "$current\n$item"
-        _state.update { it.copy(expertise = newValue) }
+        _state.update {
+            it.copy(
+                expertise = newValue,
+                suggestedExpertise = filterSuggestions(allSuggestedExpertise, newValue)
+            )
+        }
     }
 
     fun addSuggestedCondition(item: String) {
         val current = _state.value.conditions
+        val existing = normalizedLineSet(current)
+        if (normalizeKey(item) in existing) return
+
         val newValue = if (current.isBlank()) item else "$current\n$item"
-        _state.update { it.copy(conditions = newValue) }
+        _state.update {
+            it.copy(
+                conditions = newValue,
+                suggestedConditions = filterSuggestions(allSuggestedConditions, newValue)
+            )
+        }
     }
 
     fun save() {
@@ -161,6 +200,22 @@ class EditDoctorBioViewModel : ScreenModel {
             _state.update { it.copy(isSaving = false, saveSuccess = true) }
         }
     }
+
+    private fun filterSuggestions(all: List<String>, text: String): List<String> {
+        val existing = normalizedLineSet(text)
+        return all.filter { normalizeKey(it) !in existing }
+    }
+
+    private fun normalizedLineSet(text: String): Set<String> =
+        text.lines()
+            .map { normalizeKey(it) }
+            .filter { it.isNotEmpty() }
+            .toSet()
+
+    private fun normalizeKey(value: String): String =
+        value.trim()
+            .lowercase()
+            .replace(Regex("""\s+"""), " ")
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -239,86 +294,69 @@ private fun EditDoctorBioContent(
                     .verticalScroll(rememberScrollState())
                     .padding(CareRideTheme.spacing.md)
             ) {
-                // Bio section with AI generator
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    SectionHeader(title = "Professional Bio")
-                    TextButton(
-                        onClick = onGenerateBio,
-                        enabled = !state.isGenerating
-                    ) {
-                        if (state.isGenerating) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.size(16.dp),
-                                strokeWidth = 2.dp
-                            )
-                        } else {
-                            Icon(
-                                imageVector = Icons.Default.AutoAwesome,
-                                contentDescription = null,
-                                modifier = Modifier.size(16.dp)
-                            )
-                        }
-                        Spacer(modifier = Modifier.width(CareRideTheme.spacing.xxs))
-                        Text("Generate")
-                    }
-                }
+                // Bio section with generator
+                SectionHeader(title = "Bio")
 
                 OutlinedTextField(
                     value = state.bio,
                     onValueChange = onBioChange,
-                    label = { Text("About You") },
-                    placeholder = { Text("Tell patients about your background, approach, and what makes your practice unique...") },
+                    label = { Text("Bio") },
+                    placeholder = { Text("Tell patients about your background and approach...") },
                     modifier = Modifier.fillMaxWidth(),
-                    minLines = 6,
-                    maxLines = 12,
-                    supportingText = { Text("${state.bio.length}/1500 characters") },
+                    minLines = 4,
                     enabled = !state.isSaving && !state.isGenerating
                 )
 
-                Spacer(modifier = Modifier.height(CareRideTheme.spacing.lg))
+                Spacer(modifier = Modifier.height(CareRideTheme.spacing.sm))
 
-                // Treatment Philosophy
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
+                    horizontalArrangement = Arrangement.End
                 ) {
-                    SectionHeader(title = "Treatment Philosophy")
-                    TextButton(
-                        onClick = onGeneratePhilosophy,
-                        enabled = !state.isGenerating
+                    OutlinedButton(
+                        onClick = onGenerateBio,
+                        enabled = !state.isSaving && !state.isGenerating
                     ) {
-                        Icon(
-                            imageVector = Icons.Default.AutoAwesome,
-                            contentDescription = null,
-                            modifier = Modifier.size(16.dp)
-                        )
-                        Spacer(modifier = Modifier.width(CareRideTheme.spacing.xxs))
+                        Icon(Icons.Default.AutoAwesome, contentDescription = null, modifier = Modifier.size(18.dp))
+                        Spacer(modifier = Modifier.width(8.dp))
                         Text("Generate")
                     }
                 }
 
+                Spacer(modifier = Modifier.height(CareRideTheme.spacing.lg))
+
+                SectionHeader(title = "Treatment Philosophy")
+
                 OutlinedTextField(
                     value = state.philosophy,
                     onValueChange = onPhilosophyChange,
-                    label = { Text("Your Approach to Care") },
-                    placeholder = { Text("Describe your philosophy on patient care...") },
+                    label = { Text("Philosophy") },
+                    placeholder = { Text("Your care philosophy...") },
                     modifier = Modifier.fillMaxWidth(),
                     minLines = 3,
-                    maxLines = 6,
                     enabled = !state.isSaving && !state.isGenerating
                 )
 
+                Spacer(modifier = Modifier.height(CareRideTheme.spacing.sm))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    OutlinedButton(
+                        onClick = onGeneratePhilosophy,
+                        enabled = !state.isSaving && !state.isGenerating
+                    ) {
+                        Icon(Icons.Default.AutoAwesome, contentDescription = null, modifier = Modifier.size(18.dp))
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text("Suggest")
+                    }
+                }
+
                 Spacer(modifier = Modifier.height(CareRideTheme.spacing.lg))
 
-                // Areas of Expertise
-                SectionHeader(title = "Areas of Expertise")
+                SectionHeader(title = "Expertise")
 
-                // Suggested expertise chips
                 if (state.suggestedExpertise.isNotEmpty()) {
                     Row(
                         modifier = Modifier
@@ -326,10 +364,10 @@ private fun EditDoctorBioContent(
                             .horizontalScroll(rememberScrollState()),
                         horizontalArrangement = Arrangement.spacedBy(CareRideTheme.spacing.xs)
                     ) {
-                        state.suggestedExpertise.take(8).forEach { suggestion ->
+                        state.suggestedExpertise.take(10).forEach { item ->
                             SuggestionChip(
-                                onClick = { onAddSuggestedExpertise(suggestion) },
-                                label = { Text(suggestion, style = MaterialTheme.typography.labelSmall) }
+                                onClick = { onAddSuggestedExpertise(item) },
+                                label = { Text(item, style = MaterialTheme.typography.labelSmall) }
                             )
                         }
                     }
@@ -339,18 +377,16 @@ private fun EditDoctorBioContent(
                 OutlinedTextField(
                     value = state.expertise,
                     onValueChange = onExpertiseChange,
-                    label = { Text("Expertise") },
-                    placeholder = { Text("Heart Disease Prevention\nArrhythmia Management") },
-                    supportingText = { Text("One per line") },
+                    label = { Text("Areas of Expertise") },
+                    placeholder = { Text("One per line") },
+                    supportingText = { Text("Suggestions disappear once added.") },
                     modifier = Modifier.fillMaxWidth(),
                     minLines = 4,
-                    maxLines = 8,
-                    enabled = !state.isSaving
+                    enabled = !state.isSaving && !state.isGenerating
                 )
 
                 Spacer(modifier = Modifier.height(CareRideTheme.spacing.lg))
 
-                // Conditions Treated
                 SectionHeader(title = "Conditions Treated")
 
                 if (state.suggestedConditions.isNotEmpty()) {
@@ -360,10 +396,10 @@ private fun EditDoctorBioContent(
                             .horizontalScroll(rememberScrollState()),
                         horizontalArrangement = Arrangement.spacedBy(CareRideTheme.spacing.xs)
                     ) {
-                        state.suggestedConditions.take(8).forEach { suggestion ->
+                        state.suggestedConditions.take(10).forEach { item ->
                             SuggestionChip(
-                                onClick = { onAddSuggestedCondition(suggestion) },
-                                label = { Text(suggestion, style = MaterialTheme.typography.labelSmall) }
+                                onClick = { onAddSuggestedCondition(item) },
+                                label = { Text(item, style = MaterialTheme.typography.labelSmall) }
                             )
                         }
                     }
@@ -374,12 +410,11 @@ private fun EditDoctorBioContent(
                     value = state.conditions,
                     onValueChange = onConditionsChange,
                     label = { Text("Conditions") },
-                    placeholder = { Text("Hypertension\nHeart Failure\nAtrial Fibrillation") },
-                    supportingText = { Text("One per line") },
+                    placeholder = { Text("One per line") },
+                    supportingText = { Text("Suggestions disappear once added.") },
                     modifier = Modifier.fillMaxWidth(),
                     minLines = 4,
-                    maxLines = 8,
-                    enabled = !state.isSaving
+                    enabled = !state.isSaving && !state.isGenerating
                 )
 
                 Spacer(modifier = Modifier.height(CareRideTheme.spacing.xxl))

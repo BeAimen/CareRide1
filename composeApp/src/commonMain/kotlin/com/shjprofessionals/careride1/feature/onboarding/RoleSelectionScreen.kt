@@ -12,7 +12,6 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import com.shjprofessionals.careride1.core.designsystem.components.CareRidePrimaryButton
 import com.shjprofessionals.careride1.core.designsystem.components.CareRideSecondaryButton
 import com.shjprofessionals.careride1.core.designsystem.theme.CareRideTheme
-import com.shjprofessionals.careride1.domain.model.UserRole
 
 class RoleSelectionScreen : Screen {
 
@@ -41,7 +40,7 @@ class RoleSelectionScreen : Screen {
                 Spacer(modifier = Modifier.height(CareRideTheme.spacing.sm))
 
                 Text(
-                    text = "Connect with healthcare professionals\nor reach more patients",
+                    text = "Set up your profile\nand start using the app anytime",
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     textAlign = TextAlign.Center
@@ -51,18 +50,18 @@ class RoleSelectionScreen : Screen {
 
                 CareRidePrimaryButton(
                     text = "I'm a Patient",
-                    onClick = { navigator.replace(PatientMainScreen()) },
+                    onClick = { navigator.replace(PatientProfileSetupScreen()) },
                     modifier = Modifier.fillMaxWidth(),
-                    accessibilityLabel = "Continue as a patient to browse and contact doctors"
+                    accessibilityLabel = "Continue as a patient"
                 )
 
                 Spacer(modifier = Modifier.height(CareRideTheme.spacing.md))
 
                 CareRideSecondaryButton(
                     text = "I'm a Doctor",
-                    onClick = { navigator.replace(DoctorMainScreen()) },
+                    onClick = { navigator.replace(DoctorProfileSetupScreen()) },
                     modifier = Modifier.fillMaxWidth(),
-                    accessibilityLabel = "Continue as a doctor to manage your profile and connect with patients"
+                    accessibilityLabel = "Continue as a doctor"
                 )
             }
         }
