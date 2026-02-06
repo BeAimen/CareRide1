@@ -16,9 +16,9 @@ import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.shjprofessionals.careride1.core.designsystem.components.CareRidePrimaryButton
+import com.shjprofessionals.careride1.core.designsystem.components.CareRideSecondaryButton
 import com.shjprofessionals.careride1.core.designsystem.components.PlanCard
 import com.shjprofessionals.careride1.core.designsystem.theme.CareRideTheme
-import com.shjprofessionals.careride1.domain.model.SubscriptionStatus
 
 class PaywallScreen : Screen {
 
@@ -28,7 +28,6 @@ class PaywallScreen : Screen {
         val viewModel = koinScreenModel<PaywallViewModel>()
         val state by viewModel.state.collectAsState()
 
-        // Navigate away if already subscribed
         LaunchedEffect(state.subscriptionStatus) {
             if (state.subscriptionStatus.canMessage()) {
                 navigator.pop()
@@ -62,7 +61,6 @@ private fun PaywallContent(
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
 
-    // Show restore message
     LaunchedEffect(state.restoreMessage) {
         state.restoreMessage?.let { message ->
             snackbarHostState.showSnackbar(message)
@@ -110,7 +108,6 @@ private fun PaywallContent(
                         .verticalScroll(rememberScrollState())
                         .padding(CareRideTheme.spacing.md)
                 ) {
-                    // Header
                     Text(
                         text = "Unlock Direct Doctor Access",
                         style = MaterialTheme.typography.headlineSmall,
@@ -122,7 +119,7 @@ private fun PaywallContent(
                     Spacer(modifier = Modifier.height(CareRideTheme.spacing.xs))
 
                     Text(
-                        text = "Message any doctor, get responses within 24 hours",
+                        text = "Subscribe to message doctors and get timely responses.",
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         textAlign = TextAlign.Center,
@@ -131,7 +128,10 @@ private fun PaywallContent(
 
                     Spacer(modifier = Modifier.height(CareRideTheme.spacing.lg))
 
-                    // Plan cards
+                    BenefitsCard()
+
+                    Spacer(modifier = Modifier.height(CareRideTheme.spacing.lg))
+
                     state.plans.forEach { plan ->
                         PlanCard(
                             plan = plan,
@@ -143,7 +143,6 @@ private fun PaywallContent(
 
                     Spacer(modifier = Modifier.height(CareRideTheme.spacing.md))
 
-                    // Restore purchases
                     TextButton(
                         onClick = onRestorePurchases,
                         enabled = !state.isRestoring,
@@ -161,7 +160,6 @@ private fun PaywallContent(
 
                     Spacer(modifier = Modifier.height(CareRideTheme.spacing.md))
 
-                    // Terms
                     Text(
                         text = "By subscribing, you agree to our Terms of Service and Privacy Policy. " +
                                 "Subscriptions auto-renew unless cancelled at least 24 hours before the renewal date. " +
@@ -173,7 +171,6 @@ private fun PaywallContent(
                     )
                 }
 
-                // Bottom CTA
                 Surface(
                     shadowElevation = CareRideTheme.elevation.lg,
                     color = MaterialTheme.colorScheme.surface
@@ -201,9 +198,62 @@ private fun PaywallContent(
                             enabled = state.selectedPlan != null,
                             modifier = Modifier.fillMaxWidth()
                         )
+
+                        Spacer(modifier = Modifier.height(CareRideTheme.spacing.sm))
+
+                        CareRideSecondaryButton(
+                            text = "Not now",
+                            onClick = onBackClick,
+                            modifier = Modifier.fillMaxWidth()
+                        )
                     }
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun BenefitsCard() {
+    Surface(
+        color = MaterialTheme.colorScheme.surfaceVariant,
+        shape = MaterialTheme.shapes.medium,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Column(
+            modifier = Modifier.padding(CareRideTheme.spacing.md)
+        ) {
+            Text(
+                text = "Included with your subscription",
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+
+            Spacer(modifier = Modifier.height(CareRideTheme.spacing.sm))
+
+            BenefitRow("Unlimited doctor messaging")
+            BenefitRow("Responses within 24 hours")
+            BenefitRow("Cancel anytime")
+        }
+    }
+}
+
+@Composable
+private fun BenefitRow(text: String) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.padding(vertical = CareRideTheme.spacing.xxs)
+    ) {
+        Text(
+            text = "✓",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.primary
+        )
+        Spacer(modifier = Modifier.width(CareRideTheme.spacing.sm))
+        Text(
+            text = text,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
     }
 }

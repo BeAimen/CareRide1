@@ -99,7 +99,7 @@ private fun EnabledMessageInput(
         ) {
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.Send,
-                contentDescription = null // Button has semantics
+                contentDescription = null
             )
         }
     }
@@ -114,14 +114,14 @@ private fun DisabledMessageInput(
             .fillMaxWidth()
             .padding(CareRideTheme.spacing.sm)
             .semantics {
-                contentDescription = "Messaging is locked. Subscribe to send messages to doctors."
+                contentDescription = "Messaging is locked. View plans to unlock messaging."
             },
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Center
     ) {
         Icon(
             imageVector = Icons.Default.Lock,
-            contentDescription = null, // Parent has description
+            contentDescription = null,
             tint = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.size(20.dp)
         )
@@ -129,7 +129,7 @@ private fun DisabledMessageInput(
         Spacer(modifier = Modifier.width(CareRideTheme.spacing.sm))
 
         Text(
-            text = "Subscribe to send messages",
+            text = "Messaging locked",
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
@@ -139,10 +139,10 @@ private fun DisabledMessageInput(
         TextButton(
             onClick = onSubscribeClick,
             modifier = Modifier.semantics {
-                contentDescription = "Subscribe to unlock messaging"
+                contentDescription = "View plans to unlock messaging"
             }
         ) {
-            Text("Subscribe")
+            Text("View plans")
         }
     }
 }

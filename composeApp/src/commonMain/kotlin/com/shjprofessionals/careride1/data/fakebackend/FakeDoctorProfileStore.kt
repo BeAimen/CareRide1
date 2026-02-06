@@ -1,7 +1,15 @@
 package com.shjprofessionals.careride1.data.fakebackend
 
 import com.shjprofessionals.careride1.core.util.BioGenerator
-import com.shjprofessionals.careride1.domain.model.*
+import com.shjprofessionals.careride1.domain.model.Address
+import com.shjprofessionals.careride1.domain.model.Doctor
+import com.shjprofessionals.careride1.domain.model.DoctorProfile
+import com.shjprofessionals.careride1.domain.model.DoctorTitle
+import com.shjprofessionals.careride1.domain.model.Education
+import com.shjprofessionals.careride1.domain.model.Gender
+import com.shjprofessionals.careride1.domain.model.OfficeHours
+import com.shjprofessionals.careride1.domain.model.Specialty
+import com.shjprofessionals.careride1.domain.model.User
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -12,25 +20,25 @@ class FakeDoctorProfileStore {
     val profileFlow: StateFlow<DoctorProfile?> = _profile.asStateFlow()
 
     fun syncWithAuthUser(user: User) {
-        val currentProfile = _profile.value
-
-        if (currentProfile == null) {
+        val current = _profile.value
+        if (current == null) {
             val defaultSpecialty = Specialty.GENERAL_PRACTICE
-            val newProfile = DoctorProfile(
+            _profile.value = DoctorProfile(
                 id = user.id,
                 name = user.name,
                 email = user.email,
                 specialty = defaultSpecialty,
+                languages = listOf("English"),
                 bio = "",
                 areasOfExpertise = BioGenerator.suggestExpertise(defaultSpecialty).take(5),
                 conditionsTreated = BioGenerator.suggestConditions(defaultSpecialty).take(5)
             )
-            _profile.value = newProfile
         } else {
-            _profile.value = currentProfile.copy(
+            _profile.value = current.copy(
                 id = user.id,
                 name = user.name,
-                email = user.email
+                email = user.email,
+                languages = listOf("English")
             )
         }
     }
@@ -56,7 +64,8 @@ class FakeDoctorProfileStore {
             phone = phone ?: current.phone,
             dateOfBirth = dateOfBirth ?: current.dateOfBirth,
             gender = gender ?: current.gender,
-            title = title ?: current.title
+            title = title ?: current.title,
+            languages = listOf("English")
         )
         _profile.value = updated
         return updated
@@ -77,7 +86,8 @@ class FakeDoctorProfileStore {
             licenseNumber = licenseNumber ?: current.licenseNumber,
             licenseState = licenseState ?: current.licenseState,
             npiNumber = npiNumber ?: current.npiNumber,
-            yearsOfExperience = yearsOfExperience ?: current.yearsOfExperience
+            yearsOfExperience = yearsOfExperience ?: current.yearsOfExperience,
+            languages = listOf("English")
         )
         _profile.value = updated
         return updated
@@ -85,14 +95,14 @@ class FakeDoctorProfileStore {
 
     fun updateEducation(education: List<Education>): DoctorProfile? {
         val current = _profile.value ?: return null
-        val updated = current.copy(education = education)
+        val updated = current.copy(education = education, languages = listOf("English"))
         _profile.value = updated
         return updated
     }
 
     fun addEducation(education: Education): DoctorProfile? {
         val current = _profile.value ?: return null
-        val updated = current.copy(education = current.education + education)
+        val updated = current.copy(education = current.education + education, languages = listOf("English"))
         _profile.value = updated
         return updated
     }
@@ -100,7 +110,10 @@ class FakeDoctorProfileStore {
     fun removeEducation(index: Int): DoctorProfile? {
         val current = _profile.value ?: return null
         if (index < 0 || index >= current.education.size) return null
-        val updated = current.copy(education = current.education.filterIndexed { i, _ -> i != index })
+        val updated = current.copy(
+            education = current.education.filterIndexed { i, _ -> i != index },
+            languages = listOf("English")
+        )
         _profile.value = updated
         return updated
     }
@@ -114,7 +127,8 @@ class FakeDoctorProfileStore {
         val updated = current.copy(
             boardCertifications = boardCertifications ?: current.boardCertifications,
             hospitalAffiliations = hospitalAffiliations ?: current.hospitalAffiliations,
-            awards = awards ?: current.awards
+            awards = awards ?: current.awards,
+            languages = listOf("English")
         )
         _profile.value = updated
         return updated
@@ -137,7 +151,28 @@ class FakeDoctorProfileStore {
             officeHours = officeHours ?: current.officeHours,
             consultationFeeMin = consultationFeeMin ?: current.consultationFeeMin,
             consultationFeeMax = consultationFeeMax ?: current.consultationFeeMax,
-            acceptedInsurance = acceptedInsurance ?: current.acceptedInsurance
+            acceptedInsurance = acceptedInsurance ?: current.acceptedInsurance,
+            languages = listOf("English")
+        )
+        _profile.value = updated
+        return updated
+    }
+
+    fun updateAvailability(
+        isAvailableToday: Boolean? = null,
+        acceptingNewPatients: Boolean? = null,
+        averageWaitTimeDays: Int? = null,
+        offersTelehealth: Boolean? = null,
+        offersInPerson: Boolean? = null
+    ): DoctorProfile? {
+        val current = _profile.value ?: return null
+        val updated = current.copy(
+            isAvailableToday = isAvailableToday ?: current.isAvailableToday,
+            acceptingNewPatients = acceptingNewPatients ?: current.acceptingNewPatients,
+            averageWaitTimeDays = averageWaitTimeDays ?: current.averageWaitTimeDays,
+            offersTelehealth = offersTelehealth ?: current.offersTelehealth,
+            offersInPerson = offersInPerson ?: current.offersInPerson,
+            languages = listOf("English")
         )
         _profile.value = updated
         return updated
@@ -145,28 +180,35 @@ class FakeDoctorProfileStore {
 
     fun toggleAvailability(): DoctorProfile? {
         val current = _profile.value ?: return null
-        val updated = current.copy(isAvailableToday = !current.isAvailableToday)
+        val updated = current.copy(isAvailableToday = !current.isAvailableToday, languages = listOf("English"))
         _profile.value = updated
         return updated
     }
 
     fun toggleAcceptingNewPatients(): DoctorProfile? {
         val current = _profile.value ?: return null
-        val updated = current.copy(acceptingNewPatients = !current.acceptingNewPatients)
+        val updated = current.copy(acceptingNewPatients = !current.acceptingNewPatients, languages = listOf("English"))
+        _profile.value = updated
+        return updated
+    }
+
+    fun updateLanguages(languages: List<String>): DoctorProfile? {
+        val current = _profile.value ?: return null
+        val updated = current.copy(languages = listOf("English"))
         _profile.value = updated
         return updated
     }
 
     fun updateBio(bio: String): DoctorProfile? {
         val current = _profile.value ?: return null
-        val updated = current.copy(bio = bio)
+        val updated = current.copy(bio = bio, languages = listOf("English"))
         _profile.value = updated
         return updated
     }
 
     fun updateTreatmentPhilosophy(philosophy: String): DoctorProfile? {
         val current = _profile.value ?: return null
-        val updated = current.copy(treatmentPhilosophy = philosophy)
+        val updated = current.copy(treatmentPhilosophy = philosophy, languages = listOf("English"))
         _profile.value = updated
         return updated
     }
@@ -180,18 +222,19 @@ class FakeDoctorProfileStore {
         val updated = current.copy(
             areasOfExpertise = areasOfExpertise ?: current.areasOfExpertise,
             proceduresOffered = proceduresOffered ?: current.proceduresOffered,
-            conditionsTreated = conditionsTreated ?: current.conditionsTreated
+            conditionsTreated = conditionsTreated ?: current.conditionsTreated,
+            languages = listOf("English")
         )
         _profile.value = updated
         return updated
     }
 
-    fun generateBio(): String {
+    fun generateDefaultBio(): String {
         val current = _profile.value ?: return ""
         return BioGenerator.generateBio(current)
     }
 
-    fun generatePhilosophy(): String {
+    fun generateDefaultPhilosophy(): String {
         val current = _profile.value ?: return ""
         return BioGenerator.generatePhilosophy(current.specialty)
     }
@@ -213,6 +256,7 @@ class FakeDoctorProfileStore {
     fun updateProfile(
         bio: String? = null,
         location: String? = null,
+        languages: List<String>? = null,
         yearsOfExperience: Int? = null
     ): DoctorProfile? {
         val current = _profile.value ?: return null
@@ -229,6 +273,7 @@ class FakeDoctorProfileStore {
         val updated = current.copy(
             bio = bio ?: current.bio,
             practiceAddress = newAddress,
+            languages = listOf("English"),
             yearsOfExperience = yearsOfExperience ?: current.yearsOfExperience
         )
         _profile.value = updated

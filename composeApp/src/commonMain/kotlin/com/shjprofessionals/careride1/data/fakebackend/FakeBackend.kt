@@ -12,6 +12,7 @@ object FakeBackend {
             id = "doc_001",
             name = "Dr. Sarah Chen",
             specialty = Specialty.CARDIOLOGY,
+            imageUrl = null,
             location = "San Francisco, CA",
             rating = 4.9f,
             reviewCount = 127,
@@ -19,12 +20,14 @@ object FakeBackend {
             isBoosted = true,
             bio = "Board-certified cardiologist with 15 years of experience in preventive cardiology and heart disease management.",
             yearsOfExperience = 15,
+            languages = listOf("English"),
             acceptingNewPatients = true
         ),
         Doctor(
             id = "doc_002",
             name = "Dr. Michael Roberts",
             specialty = Specialty.GENERAL_PRACTICE,
+            imageUrl = null,
             location = "San Francisco, CA",
             rating = 4.7f,
             reviewCount = 89,
@@ -32,12 +35,14 @@ object FakeBackend {
             isBoosted = false,
             bio = "Family medicine physician focused on whole-person health and preventive care.",
             yearsOfExperience = 10,
+            languages = listOf("English"),
             acceptingNewPatients = true
         ),
         Doctor(
             id = "doc_003",
             name = "Dr. Emily Watson",
             specialty = Specialty.DERMATOLOGY,
+            imageUrl = null,
             location = "Oakland, CA",
             rating = 4.8f,
             reviewCount = 203,
@@ -45,47 +50,120 @@ object FakeBackend {
             isBoosted = true,
             bio = "Dermatologist specializing in medical and cosmetic dermatology, including skin cancer screening.",
             yearsOfExperience = 12,
+            languages = listOf("English"),
             acceptingNewPatients = true
         ),
         Doctor(
             id = "doc_004",
             name = "Dr. James Park",
             specialty = Specialty.PEDIATRICS,
+            imageUrl = null,
             location = "San Jose, CA",
             rating = 4.6f,
             reviewCount = 156,
             isAvailableToday = true,
             isBoosted = false,
-            bio = "Pediatrician passionate about child wellness, vaccinations, and family-centered care.",
+            bio = "Pediatrician dedicated to providing compassionate care for children from birth through adolescence.",
             yearsOfExperience = 8,
+            languages = listOf("English"),
             acceptingNewPatients = true
         ),
         Doctor(
             id = "doc_005",
-            name = "Dr. Priya Sharma",
-            specialty = Specialty.NEUROLOGY,
-            location = "Palo Alto, CA",
+            name = "Dr. Lisa Thompson",
+            specialty = Specialty.PSYCHIATRY,
+            imageUrl = null,
+            location = "San Francisco, CA",
             rating = 4.9f,
-            reviewCount = 98,
+            reviewCount = 78,
+            isAvailableToday = true,
+            isBoosted = false,
+            bio = "Psychiatrist specializing in anxiety, depression, and ADHD treatment for adults.",
+            yearsOfExperience = 14,
+            languages = listOf("English"),
+            acceptingNewPatients = false
+        ),
+        Doctor(
+            id = "doc_006",
+            name = "Dr. Robert Kim",
+            specialty = Specialty.ORTHOPEDICS,
+            imageUrl = null,
+            location = "Palo Alto, CA",
+            rating = 4.5f,
+            reviewCount = 92,
             isAvailableToday = false,
             isBoosted = false,
-            bio = "Neurologist with expertise in migraines, epilepsy, and neurodegenerative disorders.",
-            yearsOfExperience = 14,
-            acceptingNewPatients = false
+            bio = "Orthopedic surgeon with expertise in sports medicine and joint replacement.",
+            yearsOfExperience = 18,
+            languages = listOf("English"),
+            acceptingNewPatients = true
+        ),
+        Doctor(
+            id = "doc_007",
+            name = "Dr. Maria Garcia",
+            specialty = Specialty.GYNECOLOGY,
+            imageUrl = null,
+            location = "San Francisco, CA",
+            rating = 4.8f,
+            reviewCount = 167,
+            isAvailableToday = true,
+            isBoosted = false,
+            bio = "OB-GYN providing comprehensive women's health care with a focus on patient education.",
+            yearsOfExperience = 11,
+            languages = listOf("English"),
+            acceptingNewPatients = true
+        ),
+        Doctor(
+            id = "doc_008",
+            name = "Dr. David Lee",
+            specialty = Specialty.NEUROLOGY,
+            imageUrl = null,
+            location = "Berkeley, CA",
+            rating = 4.7f,
+            reviewCount = 64,
+            isAvailableToday = false,
+            isBoosted = true,
+            bio = "Neurologist specializing in headache disorders, epilepsy, and movement disorders.",
+            yearsOfExperience = 16,
+            languages = listOf("English"),
+            acceptingNewPatients = true
         )
     )
 
-    val authStore = FakeAuthStore()
+    val subscriptionStore: FakeSubscriptionStore by lazy { FakeSubscriptionStore() }
+    val messageStore: FakeMessageStore by lazy { FakeMessageStore() }
+    val boostStore: FakeBoostStore by lazy { FakeBoostStore() }
+    val doctorProfileStore: FakeDoctorProfileStore by lazy { FakeDoctorProfileStore() }
+    val patientProfileStore: FakePatientProfileStore by lazy { FakePatientProfileStore() }
+    val authStore: FakeAuthStore by lazy { FakeAuthStore() }
 
-    val patientProfileStore = FakePatientProfileStore()
+    fun getAvailablePlans(): List<SubscriptionPlan> = SubscriptionPlans.ALL
 
-    val doctorProfileStore = FakeDoctorProfileStore()
+    fun searchDoctors(query: String): List<Doctor> {
+        if (query.isBlank()) return sortByBoosted(doctors)
 
-    val subscriptionStore = FakeSubscriptionStore()
+        val q = query.lowercase().trim()
+        val filtered = doctors.filter { d ->
+            d.name.lowercase().contains(q) ||
+                    d.specialty.displayName.lowercase().contains(q) ||
+                    d.specialty.name.lowercase().replace("_", " ").contains(q) ||
+                    d.location.lowercase().contains(q)
+        }
+        return sortByBoosted(filtered)
+    }
 
-    val messageStore = FakeMessageStore()
+    fun getDoctorById(id: String): Doctor? {
+        if (id == doctorProfileStore.getCurrentDoctorId()) {
+            return doctorProfileStore.getCurrentDoctor()
+        }
+        return doctors.find { it.id == id }
+    }
 
-    val boostStore = FakeBoostStore()
+    fun getDoctorsBySpecialty(specialty: Specialty): List<Doctor> {
+        return sortByBoosted(doctors.filter { it.specialty == specialty })
+    }
 
-    val subscriptionPlans: List<SubscriptionPlan> = SubscriptionPlans.all
+    private fun sortByBoosted(list: List<Doctor>): List<Doctor> {
+        return list.sortedByDescending { it.isBoosted }
+    }
 }

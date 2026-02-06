@@ -2,13 +2,11 @@ package com.shjprofessionals.careride1.domain.model
 
 data class DoctorProfile(
     val id: String,
-
     val name: String,
     val email: String,
     val phone: String = "",
     val dateOfBirth: String = "",
     val gender: Gender = Gender.PREFER_NOT_TO_SAY,
-
     val title: DoctorTitle = DoctorTitle.MD,
     val specialty: Specialty = Specialty.GENERAL_PRACTICE,
     val subSpecialties: List<String> = emptyList(),
@@ -16,12 +14,10 @@ data class DoctorProfile(
     val licenseState: String = "",
     val npiNumber: String = "",
     val yearsOfExperience: Int = 0,
-
     val education: List<Education> = emptyList(),
     val boardCertifications: List<String> = emptyList(),
     val hospitalAffiliations: List<String> = emptyList(),
     val awards: List<String> = emptyList(),
-
     val practiceName: String = "",
     val practiceAddress: Address = Address(),
     val officePhone: String = "",
@@ -29,19 +25,17 @@ data class DoctorProfile(
     val consultationFeeMin: Int = 0,
     val consultationFeeMax: Int = 0,
     val acceptedInsurance: List<String> = emptyList(),
-
     val isAvailableToday: Boolean = true,
     val acceptingNewPatients: Boolean = true,
     val averageWaitTimeDays: Int = 3,
     val offersTelehealth: Boolean = true,
     val offersInPerson: Boolean = true,
-
+    val languages: List<String> = listOf("English"),
     val bio: String = "",
     val treatmentPhilosophy: String = "",
     val areasOfExpertise: List<String> = emptyList(),
     val proceduresOffered: List<String> = emptyList(),
     val conditionsTreated: List<String> = emptyList(),
-
     val rating: Float = 0f,
     val reviewCount: Int = 0,
     val isBoosted: Boolean = false,
@@ -99,6 +93,7 @@ data class DoctorProfile(
         id = id,
         name = displayName,
         specialty = specialty,
+        imageUrl = null,
         location = practiceAddress.formatted.ifBlank { "Location not set" },
         rating = rating,
         reviewCount = reviewCount,
@@ -106,6 +101,7 @@ data class DoctorProfile(
         isBoosted = isBoosted,
         bio = bio,
         yearsOfExperience = yearsOfExperience,
+        languages = languages,
         acceptingNewPatients = acceptingNewPatients
     )
 }

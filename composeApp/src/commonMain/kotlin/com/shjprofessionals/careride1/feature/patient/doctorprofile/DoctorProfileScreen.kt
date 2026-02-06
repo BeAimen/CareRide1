@@ -40,7 +40,6 @@ data class DoctorProfileScreen(
         val viewModel = koinScreenModel<DoctorProfileViewModel> { parametersOf(doctorId) }
         val state by viewModel.state.collectAsState()
 
-        // Handle navigation to chat
         LaunchedEffect(state.navigateToChat) {
             state.navigateToChat?.let { conversation ->
                 viewModel.onNavigatedToChat()
@@ -48,7 +47,6 @@ data class DoctorProfileScreen(
             }
         }
 
-        // Capture doctor for smart cast
         val doctor = state.doctor
 
         DoctorProfileContent(
@@ -58,7 +56,6 @@ data class DoctorProfileScreen(
             onRetry = viewModel::onRetry
         )
 
-        // Gating sheet
         if (state.showGatingSheet && doctor != null) {
             MessageGatingSheet(
                 doctorName = doctor.name,
@@ -116,6 +113,17 @@ private fun DoctorProfileContent(
                             modifier = Modifier.fillMaxWidth(),
                             accessibilityLabel = "Send a message to ${doctor.name}"
                         )
+
+                        if (!state.subscriptionStatus.canMessage()) {
+                            Spacer(modifier = Modifier.height(CareRideTheme.spacing.sm))
+                            Text(
+                                text = "Messaging is available with a subscription",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                        }
                     }
                 }
             }
@@ -127,21 +135,13 @@ private fun DoctorProfileContent(
                 .padding(paddingValues)
         ) {
             when {
-                state.isLoading -> {
-                    DoctorProfileSkeleton()
-                }
-
-                state.error != null -> {
-                    ErrorState(
-                        message = state.error?.userMessage ?: "Unknown error",
-                        onRetry = onRetry,
-                        modifier = Modifier.fillMaxSize()
-                    )
-                }
-
-                doctor != null -> {
-                    DoctorProfileBody(doctor = doctor)
-                }
+                state.isLoading -> DoctorProfileSkeleton()
+                state.error != null -> ErrorState(
+                    message = state.error?.userMessage ?: "Unknown error",
+                    onRetry = onRetry,
+                    modifier = Modifier.fillMaxSize()
+                )
+                doctor != null -> DoctorProfileBody(doctor = doctor)
             }
         }
     }
@@ -175,126 +175,174 @@ private fun DoctorProfileBody(doctor: Doctor) {
 
         SectionHeader(title = "Details")
 
-        Spacer(modifier = Modifier.height(CareRideTheme.spacing.sm))
+        InfoRow(icon = Icons.Default.MedicalServices, label = "Specialty", value = doctor.specialty.displayName)
+        InfoRow(icon = Icons.Default.LocationOn, label = "Location", value = doctor.location)
+        InfoRow(icon = Icons.Default.Star, label = "Rating", value = "${doctor.rating} (${doctor.reviewCount} reviews)")
+        InfoRow(icon = Icons.Default.Work, label = "Experience", value = "${doctor.yearsOfExperience} years")
 
-        InfoRow(
-            icon = Icons.Default.Star,
-            label = "Experience",
-            value = "${doctor.yearsOfExperience} years"
-        )
+        Spacer(modifier = Modifier.height(CareRideTheme.spacing.lg))
 
-        Spacer(modifier = Modifier.height(CareRideTheme.spacing.sm))
+        SectionHeader(title = "Availability")
 
-        InfoRow(
-            icon = Icons.Default.Place,
-            label = "Location",
-            value = doctor.location
-        )
+        AvailabilityCard(doctor = doctor)
 
-        Spacer(modifier = Modifier.height(CareRideTheme.spacing.sm))
-
-        InfoRow(
-            icon = Icons.Default.Person,
-            label = "New patients",
-            value = if (doctor.acceptingNewPatients) "Accepting" else "Not accepting",
-            valueColor = if (doctor.acceptingNewPatients) {
-                MaterialTheme.colorScheme.secondary
-            } else {
-                MaterialTheme.colorScheme.error
-            }
-        )
-
-        Spacer(modifier = Modifier.height(CareRideTheme.spacing.sm))
-
-        InfoRow(
-            icon = Icons.Default.CheckCircle,
-            label = "Availability",
-            value = if (doctor.isAvailableToday) "Available today" else "Next available soon",
-            valueColor = if (doctor.isAvailableToday) {
-                MaterialTheme.colorScheme.secondary
-            } else {
-                MaterialTheme.colorScheme.onSurfaceVariant
-            }
-        )
-
-        Spacer(modifier = Modifier.height(CareRideTheme.spacing.xxl))
+        Spacer(modifier = Modifier.height(CareRideTheme.spacing.xl))
     }
 }
 
 @Composable
 private fun DoctorProfileHeader(doctor: Doctor) {
-    Column(
+    Row(
         modifier = Modifier.fillMaxWidth(),
-        horizontalAlignment = Alignment.CenterHorizontally
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        // Doctor avatar with initials - XXLarge size
-        DoctorAvatar(
-            name = doctor.name,
-            size = AvatarSize.XXLarge
-        )
-
-        Spacer(modifier = Modifier.height(CareRideTheme.spacing.md))
-
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center
+        Surface(
+            shape = CircleShape,
+            color = MaterialTheme.colorScheme.primaryContainer,
+            modifier = Modifier.size(72.dp)
         ) {
-            Text(
-                text = doctor.name,
-                style = MaterialTheme.typography.headlineSmall,
-                color = MaterialTheme.colorScheme.onSurface,
-                textAlign = TextAlign.Center
-            )
-
-            if (doctor.isBoosted) {
-                Spacer(modifier = Modifier.width(CareRideTheme.spacing.sm))
-                SponsoredBadge()
+            Box(contentAlignment = Alignment.Center) {
+                Text(
+                    text = doctor.name.split(" ")
+                        .mapNotNull { it.firstOrNull()?.uppercase() }
+                        .take(2)
+                        .joinToString(""),
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                )
             }
         }
 
-        Spacer(modifier = Modifier.height(CareRideTheme.spacing.xxs))
+        Spacer(modifier = Modifier.width(CareRideTheme.spacing.md))
 
-        Text(
-            text = doctor.specialty.displayName,
-            style = MaterialTheme.typography.titleMedium,
-            color = MaterialTheme.colorScheme.primary,
-            textAlign = TextAlign.Center
-        )
-
-        Spacer(modifier = Modifier.height(CareRideTheme.spacing.md))
-
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center
-        ) {
+        Column(modifier = Modifier.weight(1f)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                repeat(5) { index ->
-                    val filled = index < doctor.rating.toInt()
-                    Icon(
-                        imageVector = Icons.Default.Star,
-                        contentDescription = null,
-                        modifier = Modifier.size(20.dp),
-                        tint = if (filled) {
-                            CareRideLightColors.Sponsored
-                        } else {
-                            MaterialTheme.colorScheme.outlineVariant
-                        }
-                    )
+                Text(
+                    text = doctor.name,
+                    style = MaterialTheme.typography.headlineSmall,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.weight(1f)
+                )
+
+                if (doctor.isBoosted) {
+                    Surface(
+                        color = CareRideLightColors.SponsoredContainer,
+                        shape = MaterialTheme.shapes.small
+                    ) {
+                        Text(
+                            text = "Sponsored",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = CareRideLightColors.Sponsored,
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                        )
+                    }
                 }
             }
 
-            Spacer(modifier = Modifier.width(CareRideTheme.spacing.sm))
+            Spacer(modifier = Modifier.height(CareRideTheme.spacing.xs))
 
             Text(
-                text = "${doctor.rating}",
+                text = doctor.specialty.displayName,
                 style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onSurface
+                color = MaterialTheme.colorScheme.primary
             )
 
+            Spacer(modifier = Modifier.height(CareRideTheme.spacing.xs))
+
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    imageVector = Icons.Default.LocationOn,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(16.dp)
+                )
+                Spacer(modifier = Modifier.width(4.dp))
+                Text(
+                    text = doctor.location,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun AvailabilityCard(doctor: Doctor) {
+    Surface(
+        color = MaterialTheme.colorScheme.surfaceVariant,
+        shape = MaterialTheme.shapes.medium,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Column(modifier = Modifier.padding(CareRideTheme.spacing.md)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    imageVector = if (doctor.isAvailableToday) Icons.Default.CheckCircle else Icons.Default.Schedule,
+                    contentDescription = null,
+                    tint = if (doctor.isAvailableToday) CareRideLightColors.Secondary else MaterialTheme.colorScheme.onSurfaceVariant
+                )
+
+                Spacer(modifier = Modifier.width(CareRideTheme.spacing.sm))
+
+                Text(
+                    text = if (doctor.isAvailableToday) "Available today" else "Next available soon",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+            }
+
+            Spacer(modifier = Modifier.height(CareRideTheme.spacing.sm))
+
             Text(
-                text = " (${doctor.reviewCount} reviews)",
+                text = if (doctor.acceptingNewPatients) "Accepting new patients" else "Not accepting new patients",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+    }
+}
+
+@Composable
+private fun SectionHeader(title: String) {
+    Text(
+        text = title,
+        style = MaterialTheme.typography.titleLarge,
+        color = MaterialTheme.colorScheme.onSurface
+    )
+    Spacer(modifier = Modifier.height(CareRideTheme.spacing.sm))
+}
+
+@Composable
+private fun InfoRow(
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    label: String,
+    value: String
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = CareRideTheme.spacing.xs),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.size(18.dp)
+        )
+
+        Spacer(modifier = Modifier.width(CareRideTheme.spacing.sm))
+
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = label,
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Text(
+                text = value,
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurface
             )
         }
     }
@@ -305,13 +353,46 @@ private fun DoctorProfileSkeleton() {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(CareRideTheme.spacing.md),
-        horizontalAlignment = Alignment.CenterHorizontally
+            .padding(CareRideTheme.spacing.md)
     ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Spacer(
+                modifier = Modifier
+                    .size(72.dp)
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.surfaceVariant)
+            )
+
+            Spacer(modifier = Modifier.width(CareRideTheme.spacing.md))
+
+            Column(modifier = Modifier.weight(1f)) {
+                Spacer(
+                    modifier = Modifier
+                        .height(28.dp)
+                        .fillMaxWidth(0.7f)
+                        .clip(MaterialTheme.shapes.small)
+                        .background(MaterialTheme.colorScheme.surfaceVariant)
+                )
+
+                Spacer(modifier = Modifier.height(CareRideTheme.spacing.sm))
+
+                Spacer(
+                    modifier = Modifier
+                        .height(20.dp)
+                        .fillMaxWidth(0.4f)
+                        .clip(MaterialTheme.shapes.small)
+                        .background(MaterialTheme.colorScheme.surfaceVariant)
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(CareRideTheme.spacing.lg))
+
         Spacer(
             modifier = Modifier
-                .size(100.dp)
-                .clip(CircleShape)
+                .height(20.dp)
+                .width(180.dp)
+                .clip(MaterialTheme.shapes.small)
                 .background(MaterialTheme.colorScheme.surfaceVariant)
         )
 
@@ -319,19 +400,9 @@ private fun DoctorProfileSkeleton() {
 
         Spacer(
             modifier = Modifier
-                .height(28.dp)
-                .width(180.dp)
-                .clip(MaterialTheme.shapes.small)
-                .background(MaterialTheme.colorScheme.surfaceVariant)
-        )
-
-        Spacer(modifier = Modifier.height(CareRideTheme.spacing.sm))
-
-        Spacer(
-            modifier = Modifier
-                .height(20.dp)
-                .width(120.dp)
-                .clip(MaterialTheme.shapes.small)
+                .height(120.dp)
+                .fillMaxWidth()
+                .clip(MaterialTheme.shapes.medium)
                 .background(MaterialTheme.colorScheme.surfaceVariant)
         )
     }

@@ -4,6 +4,7 @@ data class Doctor(
     val id: String,
     val name: String,
     val specialty: Specialty,
+    val imageUrl: String?,
     val location: String,
     val rating: Float,
     val reviewCount: Int,
@@ -11,6 +12,7 @@ data class Doctor(
     val isBoosted: Boolean,
     val bio: String,
     val yearsOfExperience: Int,
+    val languages: List<String> = listOf("English"),
     val acceptingNewPatients: Boolean = true
 ) {
     fun getRankingReason(searchQuery: String): RankingReason {

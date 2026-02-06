@@ -21,6 +21,7 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import com.shjprofessionals.careride1.core.designsystem.components.*
 import com.shjprofessionals.careride1.core.designsystem.theme.CareRideTheme
 import com.shjprofessionals.careride1.feature.patient.doctorprofile.DoctorProfileScreen
+import com.shjprofessionals.careride1.feature.patient.doctorprofile.MessageGatingSheet
 import com.shjprofessionals.careride1.feature.patient.subscription.PaywallScreen
 import org.koin.core.parameter.parametersOf
 
@@ -34,16 +35,28 @@ data class PatientChatScreen(
         val viewModel = koinScreenModel<PatientChatViewModel> { parametersOf(conversationId) }
         val state by viewModel.state.collectAsState()
 
+        var showGatingSheet by remember { mutableStateOf(false) }
+
         PatientChatContent(
             state = state,
             onBackClick = { navigator.pop() },
-            onDoctorClick = { doctorId ->
-                navigator.push(DoctorProfileScreen(doctorId = doctorId))
-            },
+            onDoctorClick = { doctorId -> navigator.push(DoctorProfileScreen(doctorId = doctorId)) },
             onMessageInputChange = viewModel::onMessageInputChange,
             onSend = viewModel::sendMessage,
-            onSubscribeClick = { navigator.push(PaywallScreen()) }
+            onSubscribeClick = { showGatingSheet = true }
         )
+
+        val doctor = state.doctor
+        if (showGatingSheet && doctor != null) {
+            MessageGatingSheet(
+                doctorName = doctor.name,
+                onDismiss = { showGatingSheet = false },
+                onViewPlans = {
+                    showGatingSheet = false
+                    navigator.push(PaywallScreen())
+                }
+            )
+        }
     }
 }
 
@@ -77,16 +90,13 @@ private fun PatientChatContent(
                                 if (doctor != null) {
                                     Modifier
                                         .clickable { onDoctorClick(doctor.id) }
-                                        .semantics {
-                                            contentDescription = "View ${doctor.name}'s profile"
-                                        }
+                                        .semantics { contentDescription = "View ${doctor.name}'s profile" }
                                 } else {
                                     Modifier
                                 }
                             )
-                            .padding(vertical = CareRideTheme.spacing.xs) // Increase touch target
+                            .padding(vertical = CareRideTheme.spacing.xs)
                     ) {
-                        // Doctor avatar with initials
                         DoctorAvatar(
                             name = doctor?.name,
                             size = AvatarSize.Medium
@@ -123,15 +133,13 @@ private fun PatientChatContent(
             )
         },
         bottomBar = {
-            Column {
-                MessageInput(
-                    value = state.messageInput,
-                    onValueChange = onMessageInputChange,
-                    onSend = onSend,
-                    enabled = state.isInputEnabled,
-                    onSubscribeClick = onSubscribeClick
-                )
-            }
+            MessageInput(
+                value = state.messageInput,
+                onValueChange = onMessageInputChange,
+                onSend = onSend,
+                enabled = state.isInputEnabled,
+                onSubscribeClick = onSubscribeClick
+            )
         }
     ) { paddingValues ->
         Column(
